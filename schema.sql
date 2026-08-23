@@ -1,40 +1,62 @@
-# EMIRATES PARQUE FLAMBOYANT — Controle de Ponto e Produção
+PRAGMA foreign_keys = ON;
 
-Sistema inicial compartilhado da obra EMIRATES PARQUE FLAMBOYANT, com interface Terral + Cloudflare Worker + banco D1.
+CREATE TABLE IF NOT EXISTS employees (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  name TEXT NOT NULL,
+  role TEXT NOT NULL DEFAULT '',
+  registration TEXT NOT NULL DEFAULT '',
+  team TEXT NOT NULL DEFAULT '',
+  company TEXT NOT NULL DEFAULT 'TERRAL INCORPORADORA',
+  status TEXT NOT NULL DEFAULT 'ATIVO',
+  created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
 
-## Estrutura
+CREATE TABLE IF NOT EXISTS tasks (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  description TEXT NOT NULL,
+  unit TEXT NOT NULL,
+  unit_value REAL NOT NULL DEFAULT 0,
+  active INTEGER NOT NULL DEFAULT 1,
+  created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
 
-- `public/index.html` — site
-- `public/terral_logo.png` — logo
-- `src/index.js` — API do Worker
-- `schema.sql` — tabelas do banco
-- `wrangler.jsonc` — configuração Cloudflare
-- `package.json` — comandos de implantação
+CREATE TABLE IF NOT EXISTS time_entries (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  employee_id INTEGER NOT NULL,
+  work_date TEXT NOT NULL,
+  entry_time TEXT NOT NULL DEFAULT '',
+  break_start TEXT NOT NULL DEFAULT '',
+  break_end TEXT NOT NULL DEFAULT '',
+  exit_time TEXT NOT NULL DEFAULT '',
+  normal_hours REAL NOT NULL DEFAULT 0,
+  overtime_hours REAL NOT NULL DEFAULT 0,
+  occurrence TEXT NOT NULL DEFAULT '',
+  notes TEXT NOT NULL DEFAULT '',
+  launched_by TEXT NOT NULL DEFAULT '',
+  created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (employee_id) REFERENCES employees(id)
+);
 
-## IMPORTANTE
+CREATE TABLE IF NOT EXISTS production_entries (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  employee_id INTEGER NOT NULL,
+  task_id INTEGER NOT NULL,
+  work_date TEXT NOT NULL,
+  tower TEXT NOT NULL DEFAULT '',
+  floor TEXT NOT NULL DEFAULT '',
+  location TEXT NOT NULL DEFAULT '',
+  details TEXT NOT NULL DEFAULT '',
+  quantity REAL NOT NULL DEFAULT 0,
+  unit_value REAL NOT NULL DEFAULT 0,
+  total_value REAL NOT NULL DEFAULT 0,
+  launched_by TEXT NOT NULL DEFAULT '',
+  created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (employee_id) REFERENCES employees(id),
+  FOREIGN KEY (task_id) REFERENCES tasks(id)
+);
 
-O banco D1 já foi criado e configurado:
+CREATE INDEX IF NOT EXISTS idx_time_employee_date
+  ON time_entries(employee_id, work_date);
 
-- Nome: `emirates-ponto-db`
-- Database ID: `497a3cae-8439-4495-a1f4-89af2f1e2d9e`
-
-As tabelas principais também já foram criadas no D1.
-
-## Dados compartilhados
-
-Esta versão salva no D1:
-- Funcionários
-- Tarefas e valores
-- Ponto
-- Produção
-- Nome de quem fez cada lançamento
-
-## Próxima etapa
-
-Depois de confirmar que o banco está funcionando para todos:
-- Login e níveis de acesso
-- Editar/excluir lançamentos com histórico
-- Fechamento por período
-- Filtros
-- Exportação para Excel/PDF
-- Dashboards por funcionário/equipe/local
+CREATE INDEX IF NOT EXISTS idx_prod_employee_date
+  ON production_entries(employee_id, work_date);
