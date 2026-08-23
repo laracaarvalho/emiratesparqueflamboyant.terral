@@ -54,9 +54,3 @@ CREATE TABLE IF NOT EXISTS production_entries (
   FOREIGN KEY (employee_id) REFERENCES employees(id),
   FOREIGN KEY (task_id) REFERENCES tasks(id)
 );
-
-CREATE INDEX IF NOT EXISTS idx_time_employee_date
-  ON time_entries(employee_id, work_date);
-
-CREATE INDEX IF NOT EXISTS idx_prod_employee_date
-  ON production_entries(employee_id, work_date);
