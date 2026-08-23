@@ -28,13 +28,13 @@ function getCookie(request,name){
 async function getAuth(request,env){
   const token=getCookie(request,"terral_session"); if(!token)return null;
   const tokenHash=await sha256Hex(token);
-  const row=await env.DB.prepare(`SELECT u.id,u.username,u.role,u.employee_id,s.expires_at FROM sessions s JOIN users u ON u.id=s.user_id WHERE s.token_hash=? AND u.active=1 AND s.expires_at > datetime('now')`).bind(tokenHash).first();
+  const row=await env.DB.prepare(`SELECT u.id,u.username,u.role,u.employee_id,s.expires_at FROM sessions s JOIN users u ON u.id=s.user_id WHERE s.token_hash=? AND u.active=1 AND datetime(s.expires_at) > datetime('now')`).bind(tokenHash).first();
   if(!row)return null;
   return {id:row.id,username:row.username,role:row.role,employee_id:row.employee_id};
 }
 function loginPage(message=""){
-return `<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>TERRAL | LOGIN</title><style>
-:root{--wine:#690020;--wine2:#8a1237;--bg:#f3f4f6;--text:#202631;--muted:#6d7480}*{box-sizing:border-box}body{margin:0;min-height:100vh;font-family:Arial,Helvetica,sans-serif;background:linear-gradient(135deg,#f6f6f7,#eceef1);display:grid;place-items:center;color:var(--text);padding:22px}.card{width:min(430px,100%);background:#fff;border-radius:18px;box-shadow:0 18px 50px #0f172a1c;overflow:hidden}.head{background:linear-gradient(100deg,#570019,var(--wine2));color:#fff;padding:27px 30px}.brand{font-size:26px;font-weight:800}.project{font-size:13px;opacity:.9;margin-top:6px}.body{padding:30px}.body h1{font-size:23px;margin:0 0 7px}.body p{color:var(--muted);font-size:14px;margin:0 0 22px}label{display:block;font-size:12px;font-weight:800;margin:14px 0 6px}input{width:100%;padding:12px 13px;border:1px solid #ccd2d9;border-radius:9px;font-size:15px;text-transform:none}button{width:100%;border:0;background:linear-gradient(100deg,#590019,var(--wine2));color:#fff;border-radius:9px;padding:13px;margin-top:20px;font-weight:800;font-size:15px;cursor:pointer}.error{display:none;background:#fff0f1;color:#a61b32;border:1px solid #f3c7cf;border-radius:8px;padding:10px;margin-top:14px;font-size:13px}.foot{text-align:center;color:#858b94;font-size:11px;margin-top:18px}</style></head><body><div class="card"><div class="head"><div class="brand">Terral Incorporadora</div><div class="project">EMIRATES PARQUE FLAMBOYANT</div></div><div class="body"><h1>Sistema de Ponto</h1><p>Entre com seu usuário e senha para acessar o sistema.</p><form id="login"><label>Usuário</label><input id="username" autocomplete="username" required placeholder="NOME.SOBRENOME"><label>Senha</label><input id="password" type="password" autocomplete="current-password" required><button>Entrar</button><div id="err" class="error"></div></form><div class="foot">Acesso restrito • Terral Incorporadora</div></div></div><script>login.onsubmit=async(e)=>{e.preventDefault();err.style.display='none';const r=await fetch('/api/login',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({username:username.value,password:password.value})});const d=await r.json().catch(()=>({}));if(r.ok){location.href='/';return;}err.textContent=d.error||('Não foi possível entrar. Código '+r.status);err.style.display='block';};</script></body></html>`;
+return `<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>TERRAL | LOGIN</title><link rel="icon" type="image/png" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAIAAAACACAYAAADDPmHLAAACc0lEQVR4nO3cPU7DYBAGYYOoQEpJyw24Freg4IgcgzIStFCgSEYkIXbifRfPPBfA3+5g50fK1dPw8DkI6zp9AcoyADgDgDMAOAOAMwA4A4AzADgDgDMAOAOAMwA4A4AzADgDgDMAOAOAMwA4A4AzADgDgDMAOAOAu0lfwCH3t5v0JVzc28c2fQm/tApgjUsfG5+vSwwtAlj74vfZnTkdQvw1AHH5Y+nzRwNIH76L5BxiAbj8n1LziATg8vdLzKU8AJd/XPV8SgNw+aepnFNZAC5/mqp5xd8GKqskAP/756mYW4tPAo95eX9NX8LZnu8e05dwUOtHwBqWPwy9z7F4AHNvY52HNsfc8yz9GGh9B9DyDADOAOAMAM4A4AwAzgDgDADOAODaBtD58/M5up6nbQDD0HdoU3U+R/tvAy8xvHO+V+i8vEtofQfQ8gwAzgDgDADOAOAMAM4A4AwAzgDgDADOAOAMAM4A4AwAzgDgDADOAOAMAM4A4AwAzgDgDADOAOAMAM4A4AwAzgDgDADOAOAMAM4A4AwAzgDgDADOAOAMAM4A4AwAzgDgDABu8QDePrZL/4k/zf2xxw4/Ern0/DB3gKnL7LD8Cu1/KvaSKEudouQO0OEx8B9VzA3zCNB+ZQF4F5imal6ldwAjOE3lnMofAUZwXPV8Iq8BjGC/xFxiLwKN4KfUPKLvAozgW3IO8beB9AjS52/xSeBuCPe3m/CV1EkvfqdFADvjoawxhi5LH2sVwFjHYa1R/DWAsgwAzgDgDADOAOAMAM4A4AwAzgDgDADOAOAMAM4A4AwAzgDgDADOAOAMAM4A4AwAzgDgDADuC1o5ZrPxplRWAAAAAElFTkSuQmCC"><style>
+:root{--wine:#690020;--wine2:#8a1237;--bg:#f3f4f6;--text:#202631;--muted:#6d7480}*{box-sizing:border-box}body{margin:0;min-height:100vh;font-family:Arial,Helvetica,sans-serif;background:linear-gradient(135deg,#f6f6f7,#eceef1);display:grid;place-items:center;color:var(--text);padding:22px}.card{width:min(430px,100%);background:#fff;border-radius:18px;box-shadow:0 18px 50px #0f172a1c;overflow:hidden}.head{background:linear-gradient(100deg,#570019,var(--wine2));color:#fff;padding:27px 30px}.brand{font-size:26px;font-weight:800}.project{font-size:13px;opacity:.9;margin-top:6px}.body{padding:30px}.body h1{font-size:23px;margin:0 0 7px}.body p{color:var(--muted);font-size:14px;margin:0 0 22px}label{display:block;font-size:12px;font-weight:800;margin:14px 0 6px}input{width:100%;padding:12px 13px;border:1px solid #ccd2d9;border-radius:9px;font-size:15px;text-transform:none}button{width:100%;border:0;background:linear-gradient(100deg,#590019,var(--wine2));color:#fff;border-radius:9px;padding:13px;margin-top:20px;font-weight:800;font-size:15px;cursor:pointer}.error{display:none;background:#fff0f1;color:#a61b32;border:1px solid #f3c7cf;border-radius:8px;padding:10px;margin-top:14px;font-size:13px}.foot{text-align:center;color:#858b94;font-size:11px;margin-top:18px}</style></head><body><div class="card"><div class="head"><div class="brand">Terral Incorporadora</div><div class="project">EMIRATES PARQUE FLAMBOYANT</div></div><div class="body"><h1>Sistema de Ponto</h1><p>Entre com seu usuário e senha para acessar o sistema.</p><form id="login"><label>Usuário</label><input id="username" autocomplete="username" required placeholder="NOME.SOBRENOME"><label>Senha</label><input id="password" type="password" autocomplete="current-password" required><button>Entrar</button><div id="err" class="error"></div></form><div class="foot">Acesso restrito • Terral Incorporadora</div></div></div><script>login.onsubmit=async(e)=>{e.preventDefault();err.style.display='none';const r=await fetch('/api/login',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({username:username.value,password:password.value})});const d=await r.json().catch(()=>({}));if(r.ok){location.href='/';return;}err.textContent=d.error||'Não foi possível entrar.';err.style.display='block';};</script></body></html>`;
 }
 
 export default {
@@ -49,39 +49,64 @@ export default {
     }
 
     if(path==="/api/login" && request.method==="POST"){
+      let etapa="início";
       try{
         const b=await request.json().catch(()=>({}));
         const username=String(b.username||"").trim().toUpperCase();
         const password=String(b.password||"");
         if(!username||!password)return json({error:"Informe usuário e senha."},400);
 
-        const user=await env.DB.prepare("SELECT id,username,password_hash,salt,role,employee_id,active FROM users WHERE UPPER(username)=?").bind(username).first();
-        if(!user||Number(user.active)!==1)return json({error:"Usuário ou senha inválidos."},401);
+        etapa="localizar usuário";
+        const user=await env.DB.prepare(
+          "SELECT id,username,password_hash,salt,role,employee_id,active FROM users WHERE UPPER(username)=?"
+        ).bind(username).first();
 
+        if(!user||Number(user.active)!==1){
+          return json({error:"Usuário ou senha inválidos."},401);
+        }
+
+        etapa="validar senha";
         const calculated=await passwordHash(password,String(user.salt||""));
-        if(!secureEqual(calculated,String(user.password_hash||"")))return json({error:"Usuário ou senha inválidos."},401);
+        if(!secureEqual(calculated,String(user.password_hash||""))){
+          return json({error:"Usuário ou senha inválidos."},401);
+        }
 
-        const token=bytesToHex(crypto.getRandomValues(new Uint8Array(32)));
+        etapa="gerar token";
+        const token=crypto.randomUUID().replaceAll("-","") + crypto.randomUUID().replaceAll("-","");
         const tokenHash=await sha256Hex(token);
-        const expires=new Date(Date.now()+SESSION_HOURS*60*60*1000);
-        const expiresAt=expires.toISOString().slice(0,19).replace("T"," ");
 
-        // Limpa somente sessões antigas deste usuário. O vencimento é calculado no JS
-        // para evitar incompatibilidade do D1 com parâmetros dentro de datetime().
-        await env.DB.prepare("DELETE FROM sessions WHERE user_id=?").bind(user.id).run();
-        await env.DB.prepare("INSERT INTO sessions (user_id,token_hash,expires_at) VALUES (?, ?, ?)").bind(user.id,tokenHash,expiresAt).run();
+        etapa="limpar sessão anterior";
+        await env.DB.prepare(
+          "DELETE FROM sessions WHERE user_id=?"
+        ).bind(Number(user.id)).run();
 
-        return new Response(JSON.stringify({ok:true,username:user.username,role:user.role}),{
+        etapa="gravar nova sessão";
+        const sessionResult=await env.DB.prepare(
+          "INSERT INTO sessions (user_id,token_hash,expires_at) VALUES (?, ?, datetime('now', '+12 hours'))"
+        ).bind(Number(user.id),tokenHash).run();
+
+        if(sessionResult && sessionResult.success===false){
+          throw new Error(sessionResult.error || "O D1 não confirmou a gravação da sessão.");
+        }
+
+        return new Response(JSON.stringify({
+          ok:true,
+          username:user.username,
+          role:user.role
+        }),{
           status:200,
           headers:{
             "content-type":"application/json; charset=UTF-8",
-            "cache-control":"no-store",
-            "Set-Cookie":`terral_session=${token}; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=${SESSION_HOURS*3600}`
+            "cache-control":"no-store, no-cache, must-revalidate",
+            "Set-Cookie":`terral_session=${encodeURIComponent(token)}; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=${SESSION_HOURS*3600}`
           }
         });
       }catch(e){
-        console.error("LOGIN_ERROR",e);
-        return json({error:"Erro interno ao criar a sessão de acesso."},500);
+        console.error("LOGIN_ERROR",etapa,e);
+        const detalhe=(e && e.message) ? e.message : String(e||"erro desconhecido");
+        return json({
+          error:`Erro no login (${etapa}): ${detalhe}`
+        },500);
       }
     }
 
