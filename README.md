@@ -1,17 +1,18 @@
-# TERRAL | SISTEMA DE PONTO — Visual V2
+# EMIRATES — V5 Login e Controle de Acesso
 
-Pacote pronto para upload no GitHub.
+## Antes do GitHub
+Execute **uma única vez** o arquivo `MIGRACAO_LOGIN_V5.sql` no Console do D1 `emirates-ponto-db`.
 
-Mudanças desta versão:
-- Barra superior mais fina e refinada.
-- Logo do Emirates removida do cabeçalho.
-- Ícones 100% brancos e minimalistas.
-- Produção com ícone no mesmo padrão dos demais.
-- Título da aba: `TERRAL | SISTEMA DE PONTO`.
-- Favicon inspirado no T da Terral.
-- API e binding D1 preservados.
+## O que esta versão faz
+- Tela de login real.
+- Senhas armazenadas como PBKDF2-SHA256 com salt individual (não ficam em texto puro no banco).
+- Sessão em cookie `HttpOnly`, `Secure` e `SameSite=Lax`, com duração de 12 horas.
+- Único Administrador: `LARA.RODRIGUES`.
+- Os demais usuários cadastrados têm acesso comum.
+- A API de funcionários aplica a regra ADM/comum no servidor: usuários comuns não conseguem solicitar funcionários `admin_only`, mesmo alterando a URL ou JavaScript.
+- Cadastro de funcionário pela API fica restrito ao Administrador.
+- Rotas do sistema e APIs ficam protegidas por sessão.
+- Botão Sair incluído na página inicial.
 
-Banco:
-- Binding: DB
-- Nome: emirates-ponto-db
-- Database ID: 497a3cae-8439-4495-a1f4-89af2f1e2d9e
+## Depois da migração
+Suba todos os arquivos desta pasta no GitHub, substituindo os existentes. O Cloudflare fará novo deploy automaticamente.
