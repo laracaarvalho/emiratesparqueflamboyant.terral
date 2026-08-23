@@ -16,3 +16,9 @@ Execute **uma única vez** o arquivo `MIGRACAO_LOGIN_V5.sql` no Console do D1 `e
 
 ## Depois da migração
 Suba todos os arquivos desta pasta no GitHub, substituindo os existentes. O Cloudflare fará novo deploy automaticamente.
+
+## V5.1 - Correção de login
+- Corrigida a criação da sessão no D1.
+- Expiração calculada no Worker em vez de parâmetro dentro de datetime().
+- Tratamento de erro no login para evitar resposta genérica.
+- Não requer nova alteração no banco.
