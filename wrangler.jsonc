@@ -9,7 +9,6 @@
       "database_id": "497a3cae-8439-4495-a1f4-89af2f1e2d9e"
     }
   ],
-  "assets": {
-    "directory": "./public"
-  }
+"assets": {
+  "directory": "."
 }
