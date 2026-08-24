@@ -1,0 +1,17 @@
+V8.5 - Correção baseada no erro real do Console
+
+CORRIGIDO:
+- SyntaxError: Invalid regular expression flags.
+- As barras invertidas das regex agora são preservadas no HTML que o navegador recebe.
+- O PDF.js não aponta mais para /pdf.min.js inexistente.
+- PDF.js e worker usam a mesma versão 3.11.174 via CDN.
+- Favicon da tela Cartão de Ponto embutido para evitar favicon.ico 404.
+- Cursor pointer reforçado nos elementos interativos.
+
+VALIDAÇÕES FEITAS ANTES DE gerar o ZIP:
+1. worker.js passou no node --check.
+2. A função pointPage foi executada e o HTML FINAL foi gerado.
+3. As regex foram conferidas no HTML final.
+4. O JavaScript entregue ao navegador passou no node --check.
+
+Não execute nada no D1.
