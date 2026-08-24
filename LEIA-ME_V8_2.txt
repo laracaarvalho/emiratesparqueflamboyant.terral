@@ -1,0 +1,10 @@
+V8.2 - Correções do upload e cursor
+
+- A caixa inteira de upload agora usa o seletor nativo do navegador.
+- Clicar em qualquer ponto da caixa abre a janela para escolher o PDF.
+- Arrastar e soltar PDF foi reforçado com eventos dedicados.
+- O navegador não tenta abrir o PDF fora do sistema ao soltar na página.
+- Cursor de mão aplicado em cards, botões, links, menus, selects e áreas clicáveis.
+- Cards principais recebem efeito visual ao passar o mouse.
+
+Não é necessário executar nada no D1.
