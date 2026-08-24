@@ -13,7 +13,7 @@ function bytesToHex(bytes){return [...new Uint8Array(bytes)].map(b=>b.toString(1
 async function sha256Hex(value){return bytesToHex(await crypto.subtle.digest("SHA-256",encoder.encode(value)));}
 async function passwordHash(password,saltHex){
   const key=await crypto.subtle.importKey("raw",encoder.encode(password),"PBKDF2",false,["deriveBits"]);
-  const bits=await crypto.subtle.deriveBits({name:"PBKDF2",hash:"SHA-256",salt:hexToBytes(saltHex),iterations:120000},key,256);
+  const bits=await crypto.subtle.deriveBits({name:"PBKDF2",hash:"SHA-256",salt:hexToBytes(saltHex),iterations:100000},key,256);
   return bytesToHex(bits);
 }
 function secureEqual(a,b){
