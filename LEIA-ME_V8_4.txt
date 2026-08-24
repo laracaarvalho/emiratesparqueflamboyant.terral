@@ -1,0 +1,10 @@
+V8.4 - PDF.js hospedado no próprio site
+
+- pdfjs-dist 3.11.174 agora é instalado pelo package.json.
+- Wrangler publica node_modules/pdfjs-dist/build como assets do mesmo domínio.
+- /pdf.min.js e /pdf.worker.min.js deixam de depender de CDN externo.
+- Clique e drag-and-drop usam o mesmo receiveFile().
+- O nome do arquivo aparece assim que o navegador o recebe.
+- Não executar nada no D1.
+
+Ao subir no GitHub, o Cloudflare fará bun install e depois wrangler deploy normalmente.

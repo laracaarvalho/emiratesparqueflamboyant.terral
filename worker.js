@@ -102,7 +102,7 @@ button,a,select,label,.module,.user-btn,.menu-link,.menu-action,.btn,.upload,.em
 <div id="previewWrap" style="display:none"><h3 style="margin-top:18px">Prévia da leitura</h3><div class="hint">Não encontrados podem ser vinculados manualmente ou ignorados.</div><div class="scroll"><table><thead><tr><th>Funcionário no PDF</th><th>Matrícula</th><th>HE 50%</th><th>HE 100%</th><th>Faltas</th><th>Atestados</th><th>Atrasos</th><th>Status / vínculo</th></tr></thead><tbody id="preview"></tbody></table></div><div style="display:flex;justify-content:flex-end;gap:8px;margin-top:14px"><button id="clearBtn" class="btn ghost" type="button">Limpar</button><button id="confirmBtn" class="btn primary" type="button">Confirmar importação</button></div></div><div id="importMsg" class="msg"></div></section>
 <section class="card"><h3>Resumo da competência</h3><div class="hint">Faltas e atestados seguem a quantidade registrada no resumo do próprio cartão.</div><div class="summary-grid"><div class="sum"><small>HE 50%</small><b id="tot50">0h00</b></div><div class="sum"><small>HE 100%</small><b id="tot100">0h00</b></div><div class="sum"><small>Faltas</small><b id="totF">0</b></div><div class="sum"><small>Atestados</small><b id="totA">0</b></div><div class="sum"><small>Atrasos</small><b id="totD">0h00</b></div><div class="sum"><small>Adic. noturno</small><b id="totN">0h00</b></div></div><div class="scroll"><table><thead><tr><th>Funcionário</th><th>Função</th><th>HE 50%</th><th>HE 100%</th><th>Faltas</th><th>Atestados</th><th>Atrasos</th><th>Adic. noturno</th></tr></thead><tbody id="summaryRows"><tr><td colspan="8">Selecione uma competência.</td></tr></tbody></table></div></section>
 <section id="historyCard" class="card admin-only"><h3>Histórico de importações</h3><div class="hint">Guarda competência, nome do arquivo, data e responsável. O PDF original não é armazenado nesta versão.</div><div id="history"></div></section></main>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script src="/pdf.min.js"></script>
 <script type="module">
 const $=id=>document.getElementById(id);let me=null,employees=[],parsedRows=[],selectedFile=null;
 const normalize=s=>String(s||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toUpperCase().replace(/[^A-Z0-9]+/g," ").trim().replace(/\s+/g," ");
@@ -117,19 +117,23 @@ async function loadCompetences(){const d=await api("/api/time/competences"),old=
 $("competence").onchange=loadSummary;
 async function loadSummary(){const c=$("competence").value;if(!c){$("summaryRows").innerHTML='<tr><td colspan="8">Selecione uma competência.</td></tr>';return}const d=await api("/api/time/summary?competence="+encodeURIComponent(c)),rows=d.items||[];$("summaryRows").innerHTML=rows.length?rows.map(r=>'<tr><td><b>'+esc(r.name)+'</b></td><td>'+esc(r.role)+'</td><td>'+hm(r.extra50_minutes)+'</td><td>'+hm(r.extra100_minutes)+'</td><td>'+r.absence_count+'</td><td>'+r.medical_count+'</td><td>'+hm(r.delay_minutes)+'</td><td>'+hm(r.night_minutes)+'</td></tr>').join(""):'<tr><td colspan="8">Nenhum dado importado.</td></tr>';const sum=k=>rows.reduce((a,r)=>a+Number(r[k]||0),0);$("tot50").textContent=hm(sum("extra50_minutes"));$("tot100").textContent=hm(sum("extra100_minutes"));$("totF").textContent=sum("absence_count");$("totA").textContent=sum("medical_count");$("totD").textContent=hm(sum("delay_minutes"));$("totN").textContent=hm(sum("night_minutes"))}
 async function loadHistory(){const d=await api("/api/admin/time-imports");$("history").innerHTML=(d.items||[]).length?d.items.map(x=>'<div class="history-row"><b>'+formatComp(x.competence)+'</b><div><b>'+esc(x.file_name)+'</b><br><span class="hint">'+x.matched_count+' vinculados • '+x.unmatched_count+' ignorados</span></div><div>'+esc(x.imported_by)+'<br><span class="hint">'+esc(x.imported_at)+'</span></div><button class="btn danger" data-del="'+x.id+'">Excluir</button></div>').join(""):'<div class="hint" style="padding:12px 0">Nenhuma importação.</div>';document.querySelectorAll("[data-del]").forEach(b=>b.onclick=async()=>{if(!confirm("Excluir esta competência e seus resumos?"))return;await api("/api/admin/time-imports/"+b.dataset.del,{method:"DELETE"});await loadHistory();await loadCompetences()})}
-$("file").addEventListener("change",e=>{const f=e.target.files&&e.target.files[0];if(f)readPdf(f)});const drop=$("drop");["dragenter","dragover"].forEach(type=>drop.addEventListener(type,e=>{e.preventDefault();e.stopPropagation();drop.classList.add("drag")}));["dragleave","dragend"].forEach(type=>drop.addEventListener(type,e=>{e.preventDefault();e.stopPropagation();drop.classList.remove("drag")}));drop.addEventListener("drop",e=>{
-  e.preventDefault();e.stopPropagation();drop.classList.remove("drag");
-  const files=e.dataTransfer&&e.dataTransfer.files;
-  const f=files&&files[0];
-  if(f){
-    try{$("file").files=files}catch(_){}
-    readPdf(f);
-  }else showMsg("Nenhum arquivo foi identificado ao soltar.");
-});document.addEventListener("dragover",e=>e.preventDefault());document.addEventListener("drop",e=>{if(!e.target.closest||!e.target.closest("#drop"))e.preventDefault()});$("clearBtn").onclick=clearImport;
+function receiveFile(f){
+  if(!f)return showMsg("Nenhum arquivo foi recebido.");
+  $("fileName").innerHTML="<b>Arquivo recebido:</b> "+esc(f.name)+" • "+(f.size/1024).toFixed(0)+" KB";
+  requestAnimationFrame(()=>readPdf(f));
+}
+$("file").addEventListener("change",e=>receiveFile(e.target.files&&e.target.files[0]));
+const drop=$("drop");
+["dragenter","dragover"].forEach(type=>drop.addEventListener(type,e=>{e.preventDefault();e.stopPropagation();drop.classList.add("drag");e.dataTransfer.dropEffect="copy"}));
+["dragleave","dragend"].forEach(type=>drop.addEventListener(type,e=>{e.preventDefault();e.stopPropagation();drop.classList.remove("drag")}));
+drop.addEventListener("drop",e=>{e.preventDefault();e.stopPropagation();drop.classList.remove("drag");receiveFile(e.dataTransfer&&e.dataTransfer.files&&e.dataTransfer.files[0])});
+window.addEventListener("dragover",e=>e.preventDefault(),false);
+window.addEventListener("drop",e=>e.preventDefault(),false);
+$("clearBtn").onclick=clearImport;
 async function getPdfJs(){
   const lib=window.pdfjsLib;
   if(!lib)throw new Error("A biblioteca de leitura do PDF não carregou. Atualize a página e tente novamente.");
-  lib.GlobalWorkerOptions.workerSrc="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+  lib.GlobalWorkerOptions.workerSrc="/pdf.worker.min.js";
   return lib;
 }
 async function pageText(page){const tc=await page.getTextContent(),groups=[];for(const item of tc.items){if(!item.str)continue;const y=Math.round(item.transform[5]*2)/2,x=item.transform[4];let g=groups.find(a=>Math.abs(a.y-y)<=1.5);if(!g){g={y,items:[]};groups.push(g)}g.items.push({x,str:item.str})}groups.sort((a,b)=>b.y-a.y);return groups.map(g=>g.items.sort((a,b)=>a.x-b.x).map(i=>i.str).join(" ")).join("\\n")}
@@ -150,7 +154,8 @@ function matchRow(r){let e=employees.find(x=>r.source_registration&&String(x.reg
 function renderPreview(){const matched=parsedRows.filter(r=>r.employee_id).length;$("mMatched").textContent=matched;$("mUnmatched").textContent=parsedRows.length-matched;const opts='<option value="">Ignorar este registro</option>'+employees.map(e=>'<option value="'+e.id+'">'+esc(e.name)+'</option>').join("");$("preview").innerHTML=parsedRows.map((r,i)=>'<tr><td><b>'+esc(r.source_name)+'</b></td><td>'+esc(r.source_registration)+'</td><td>'+hm(r.extra50_minutes)+'</td><td>'+hm(r.extra100_minutes)+'</td><td>'+r.absence_count+'</td><td>'+r.medical_count+'</td><td>'+hm(r.delay_minutes)+'</td><td>'+(r.employee_id?'<span class="ok">✓ Encontrado</span> <span class="pill">'+esc((employees.find(e=>Number(e.id)===Number(r.employee_id))||{}).name||"")+'</span>':'<span class="warn">⚠ Conferir</span><br><select class="map" data-map="'+i+'">'+opts+'</select>')+'</td></tr>').join("");document.querySelectorAll("[data-map]").forEach(s=>s.onchange=()=>{parsedRows[Number(s.dataset.map)].employee_id=s.value?Number(s.value):null;renderPreview()})}
 function clearImport(){selectedFile=null;parsedRows=[];$("file").value="";$("fileName").textContent="";$("previewWrap").style.display="none";$("importMetrics").style.display="none";$("progress").style.display="none"}
 $("confirmBtn").onclick=async()=>{if(!selectedFile||!parsedRows.length)return;const comp=parsedRows[0].competence,payload={competence:comp,file_name:selectedFile.name,file_size:selectedFile.size,page_count:parsedRows.length,rows:parsedRows.map(r=>({...r,skip:!r.employee_id}))};try{await api("/api/admin/time-import",{method:"POST",body:JSON.stringify(payload)});showMsg("Importação concluída com sucesso.",true);clearImport();await loadCompetences();await loadHistory();$("competence").value=comp;await loadSummary()}catch(e){if(e.status===409&&e.data&&e.data.exists&&confirm("Já existe uma importação para "+formatComp(comp)+". Deseja substituir?")){payload.replace=true;try{await api("/api/admin/time-import",{method:"POST",body:JSON.stringify(payload)});showMsg("Competência substituída com sucesso.",true);clearImport();await loadCompetences();await loadHistory();$("competence").value=comp;await loadSummary()}catch(x){showMsg(x.message)}}else showMsg(e.message)}};
-init().catch(e=>alert(e.message));
+if(!window.pdfjsLib){showMsg("Leitor de PDF não carregado. Atualize a página após o deploy.");}
+init().catch(e=>{console.error(e);alert(e.message)});
 </script></body></html>`;
 }
 

@@ -8,5 +8,8 @@
       "database_name": "emirates-ponto-db",
       "database_id": "497a3cae-8439-4495-a1f4-89af2f1e2d9e"
     }
-  ]
+  ],
+  "assets": {
+    "directory": "./node_modules/pdfjs-dist/build"
+  }
 }
