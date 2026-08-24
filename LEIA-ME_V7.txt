@@ -1,0 +1,16 @@
+V7 — MENU DE USUÁRIO + ADMINISTRAÇÃO DE ACESSOS
+
+NÃO É PRECISO EXECUTAR SQL NO D1.
+O Worker cria automaticamente, quando necessário:
+- coluna email na tabela users
+- tabela password_resets
+
+Novidades:
+- Menu suspenso no nome do usuário, no canto superior direito.
+- Nome e perfil do usuário logado.
+- Administração visível apenas para ADM.
+- Criar usuários pelo site vinculando a um funcionário.
+- Definir e-mail, senha inicial e perfil Comum/Administrador.
+- Redefinir senha, ativar/desativar e excluir acessos.
+- Alterar a própria senha pelo menu.
+- Estrutura de recuperação de senha por e-mail preparada; envio automático será conectado depois.
