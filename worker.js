@@ -137,26 +137,52 @@ async function getPdfJs(){
   lib.GlobalWorkerOptions.workerSrc="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
   return lib;
 }
-async function pageText(page){const tc=await page.getTextContent(),groups=[];for(const item of tc.items){if(!item.str)continue;const y=Math.round(item.transform[5]*2)/2,x=item.transform[4];let g=groups.find(a=>Math.abs(a.y-y)<=1.5);if(!g){g={y,items:[]};groups.push(g)}g.items.push({x,str:item.str})}groups.sort((a,b)=>b.y-a.y);return groups.map(g=>g.items.sort((a,b)=>a.x-b.x).map(i=>i.str).join(" ")).join("\\n")}
+async function pageText(page){
+  const tc=await page.getTextContent();
+  const flow=[];
+  const groups=[];
+  for(const item of tc.items){
+    if(!item.str)continue;
+    flow.push(item.str);
+    if(item.hasEOL)flow.push("\n");
+    const y=Math.round(item.transform[5]*2)/2;
+    const x=item.transform[4];
+    let g=groups.find(a=>Math.abs(a.y-y)<=1.5);
+    if(!g){g={y,items:[]};groups.push(g)}
+    g.items.push({x,str:item.str});
+  }
+  groups.sort((a,b)=>b.y-a.y);
+  const visual=groups.map(g=>g.items.sort((a,b)=>a.x-b.x).map(i=>i.str).join(" "));
+  return flow.join(" ")+"\n"+visual.join("\n");
+}
 const val=(t,re)=>{const m=t.match(re);return m?m[1]:null},toMin=v=>{if(!v)return 0;const [h,m]=v.split(":").map(Number);return h*60+m},toCount=v=>{if(!v)return 0;const [h,m]=v.split(":").map(Number);return Math.round(h+(m||0)/60)};
 function parsePointPage(t){
   const rx=(source)=>new RegExp(source,"i");
-  const name=val(t,rx("Funcionario\s*:\s*(.*?)\s+Categoria de Ponto"));
+  const clean=String(t||"").replace(/\u00a0/g," ").replace(/\s+/g," ").trim();
+
+  const name=val(clean,rx("Funcionario\\s*:\\s*(.*?)\\s+Categoria\\s+de\\s+Ponto"));
   if(!name)return null;
-  const registration=val(t,rx("Matricula\s*:\s*(\S+)"))||"";
-  const cm=t.match(rx("Mes/Ano Competencia\s*:\s*([A-Za-zÀ-ÿ]+)\s*/\s*(\d{4})"));
+
+  const registration=val(clean,rx("Matricula\\s*:\\s*([0-9A-Za-z.-]+)"))||"";
+  const cm=clean.match(rx("Mes\\s*/\\s*Ano\\s+Competencia\\s*:\\s*([A-Za-zÀ-ÿ]+)\\s*/\\s*(\\d{4})"));
   const competence=cm?(cm[2]+"-"+(months[cm[1].toLowerCase()]||"")):"";
+
+  const getTime=(code,label)=>{
+    const mm=clean.match(rx(code+"\\s+"+label+"\\s*=\\s*(\\d{1,3}:\\d{2})"));
+    return mm?mm[1]:null;
+  };
+
   return {
     source_name:name.trim(),
     source_registration:registration.trim(),
     competence,
-    extra50_minutes:toMin(val(t,rx("00207\s+HORA EXTRA 50%\s*=\s*(\d+:\d{2})"))),
-    extra100_minutes:toMin(val(t,rx("00208\s+HORA EXTRA 100%\s*=\s*(\d+:\d{2})"))),
-    absence_count:toCount(val(t,rx("00152\s+FALTAS\s*=\s*(\d+:\d{2})"))),
-    medical_count:toCount(val(t,rx("00239\s+ATESTADO MEDICO\s*=\s*(\d+:\d{2})"))),
-    delay_minutes:toMin(val(t,rx("00164\s+ATRASOS FALTAS\s*=\s*(\d+:\d{2})"))),
-    night_minutes:toMin(val(t,rx("00806\s+ADICIONAL NOTURNO[\s\S]{0,35}?=\s*(\d+:\d{2})"))),
-    bank_minutes:toMin(val(t,rx("Banco de Horas\s*:\s*(\d+:\d{2})"))),
+    extra50_minutes:toMin(getTime("00207","HORA\\s+EXTRA\\s+50%")),
+    extra100_minutes:toMin(getTime("00208","HORA\\s+EXTRA\\s+100%")),
+    absence_count:toCount(getTime("00152","FALTAS")),
+    medical_count:toCount(getTime("00239","ATESTADO\\s+MEDICO")),
+    delay_minutes:toMin(getTime("00164","ATRASOS\\s+FALTAS")),
+    night_minutes:toMin(getTime("00806","ADICIONAL\\s+NOTURNO")),
+    bank_minutes:toMin(val(clean,rx("Banco\\s+de\\s+Horas\\s*:\\s*(\\d{1,3}:\\d{2})"))),
     employee_id:null
   };
 }
@@ -165,7 +191,16 @@ if(!me||me.role!=="admin"){showMsg("Sua sessão não foi reconhecida como Admini
 if(!file||!file.name.toLowerCase().endsWith(".pdf"))return showMsg("Selecione um arquivo PDF.");
 selectedFile=file;parsedRows=[];
 $("fileName").innerHTML="<b>Arquivo recebido:</b> "+esc(file.name)+" • "+(file.size/1024).toFixed(0)+" KB<br><span style=\"color:#690020;font-weight:700\">Lendo o PDF...</span>";
-$("progress").style.display="block";$("bar").style.width="4%";$("previewWrap").style.display="none";$("importMetrics").style.display="none";try{const pdfjs=await getPdfJs(),data=await file.arrayBuffer(),pdf=await pdfjs.getDocument({data}).promise;for(let i=1;i<=pdf.numPages;i++){const row=parsePointPage(await pageText(await pdf.getPage(i)));if(row)parsedRows.push(row);$("bar").style.width=Math.round(i/pdf.numPages*100)+"%"}if(!parsedRows.length)throw new Error("Não encontrei cartões no PDF.");const comps=[...new Set(parsedRows.map(r=>r.competence).filter(Boolean))];if(comps.length!==1)throw new Error("Não foi possível identificar uma competência única.");parsedRows.forEach(matchRow);$("mComp").textContent=formatComp(comps[0]);$("mPages").textContent=pdf.numPages;renderPreview();$("importMetrics").style.display="grid";$("previewWrap").style.display="block";$("bar").style.width="100%"}catch(e){
+$("progress").style.display="block";$("bar").style.width="4%";$("previewWrap").style.display="none";$("importMetrics").style.display="none";try{const pdfjs=await getPdfJs(),data=await file.arrayBuffer(),pdf=await pdfjs.getDocument({data}).promise;for(let i=1;i<=pdf.numPages;i++){
+    const raw=await pageText(await pdf.getPage(i));
+    if(i===1)window.__terralPdfSample=String(raw||"").replace(/\s+/g," ").trim();
+    const row=parsePointPage(raw);
+    if(row)parsedRows.push(row);
+    $("bar").style.width=Math.round(i/pdf.numPages*100)+"%";
+  }if(!parsedRows.length){
+    const sample=window.__terralPdfSample||"";
+    throw new Error("Não encontrei cartões no PDF."+(sample?" Texto lido: "+sample.slice(0,180):""));
+  }const comps=[...new Set(parsedRows.map(r=>r.competence).filter(Boolean))];if(comps.length!==1)throw new Error("Não foi possível identificar uma competência única.");parsedRows.forEach(matchRow);$("mComp").textContent=formatComp(comps[0]);$("mPages").textContent=pdf.numPages;renderPreview();$("importMetrics").style.display="grid";$("previewWrap").style.display="block";$("bar").style.width="100%"}catch(e){
   console.error("PDF_READ_ERROR",e);
   showMsg("Não consegui ler o PDF: "+e.message);
   $("progress").style.display="none";

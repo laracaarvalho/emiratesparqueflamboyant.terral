@@ -1,0 +1,9 @@
+V8.7 - Parser ajustado ao PDF real
+
+- Upload continua igual.
+- A extração de texto agora combina ordem natural do PDF.js e reconstrução visual por linha.
+- O parser normaliza os espaços antes de identificar Funcionario, Matricula, competência e totais.
+- Teste interno validado com ADRIANO ROCHA SANTANA, matrícula 100193, Agosto/2026 e HE 50% de 12h21.
+- Se o navegador ainda não reconhecer, a própria mensagem mostrará uma amostra do texto lido da primeira página.
+
+Não execute nada no D1.
