@@ -1,0 +1,9 @@
+V8.6
+Correção específica para o erro que continuou aparecendo:
+Uncaught SyntaxError: Invalid regular expression flags
+
+O parser do cartão de ponto não usa mais regex literal /.../i.
+Agora usa RegExp construído por texto, evitando que o navegador interprete barras de Mes/Ano ou outros trechos como flags.
+
+Não mexer no D1.
+Substitua os arquivos no GitHub, aguarde o deploy e use Ctrl+F5.

@@ -139,7 +139,27 @@ async function getPdfJs(){
 }
 async function pageText(page){const tc=await page.getTextContent(),groups=[];for(const item of tc.items){if(!item.str)continue;const y=Math.round(item.transform[5]*2)/2,x=item.transform[4];let g=groups.find(a=>Math.abs(a.y-y)<=1.5);if(!g){g={y,items:[]};groups.push(g)}g.items.push({x,str:item.str})}groups.sort((a,b)=>b.y-a.y);return groups.map(g=>g.items.sort((a,b)=>a.x-b.x).map(i=>i.str).join(" ")).join("\\n")}
 const val=(t,re)=>{const m=t.match(re);return m?m[1]:null},toMin=v=>{if(!v)return 0;const [h,m]=v.split(":").map(Number);return h*60+m},toCount=v=>{if(!v)return 0;const [h,m]=v.split(":").map(Number);return Math.round(h+(m||0)/60)};
-function parsePointPage(t){const name=val(t,/Funcionario\s*:\s*(.*?)\s+Categoria de Ponto/i);if(!name)return null;const registration=val(t,/Matricula\s*:\s*(\S+)/i)||"",cm=t.match(/Mes\/Ano Competencia\s*:\s*([A-Za-zÀ-ÿ]+)\s*\/\s*(\d{4})/i),competence=cm?(cm[2]+"-"+(months[cm[1].toLowerCase()]||"")):"";return {source_name:name.trim(),source_registration:registration.trim(),competence,extra50_minutes:toMin(val(t,/00207\s+HORA EXTRA 50%\s*=\s*(\d+:\d{2})/i)),extra100_minutes:toMin(val(t,/00208\s+HORA EXTRA 100%\s*=\s*(\d+:\d{2})/i)),absence_count:toCount(val(t,/00152\s+FALTAS\s*=\s*(\d+:\d{2})/i)),medical_count:toCount(val(t,/00239\s+ATESTADO MEDICO\s*=\s*(\d+:\d{2})/i)),delay_minutes:toMin(val(t,/00164\s+ATRASOS FALTAS\s*=\s*(\d+:\d{2})/i)),night_minutes:toMin(val(t,/00806\s+ADICIONAL NOTURNO[\s\S]{0,35}?=\s*(\d+:\d{2})/i)),bank_minutes:toMin(val(t,/Banco de Horas\s*:\s*(\d+:\d{2})/i)),employee_id:null}}
+function parsePointPage(t){
+  const rx=(source)=>new RegExp(source,"i");
+  const name=val(t,rx("Funcionario\s*:\s*(.*?)\s+Categoria de Ponto"));
+  if(!name)return null;
+  const registration=val(t,rx("Matricula\s*:\s*(\S+)"))||"";
+  const cm=t.match(rx("Mes/Ano Competencia\s*:\s*([A-Za-zÀ-ÿ]+)\s*/\s*(\d{4})"));
+  const competence=cm?(cm[2]+"-"+(months[cm[1].toLowerCase()]||"")):"";
+  return {
+    source_name:name.trim(),
+    source_registration:registration.trim(),
+    competence,
+    extra50_minutes:toMin(val(t,rx("00207\s+HORA EXTRA 50%\s*=\s*(\d+:\d{2})"))),
+    extra100_minutes:toMin(val(t,rx("00208\s+HORA EXTRA 100%\s*=\s*(\d+:\d{2})"))),
+    absence_count:toCount(val(t,rx("00152\s+FALTAS\s*=\s*(\d+:\d{2})"))),
+    medical_count:toCount(val(t,rx("00239\s+ATESTADO MEDICO\s*=\s*(\d+:\d{2})"))),
+    delay_minutes:toMin(val(t,rx("00164\s+ATRASOS FALTAS\s*=\s*(\d+:\d{2})"))),
+    night_minutes:toMin(val(t,rx("00806\s+ADICIONAL NOTURNO[\s\S]{0,35}?=\s*(\d+:\d{2})"))),
+    bank_minutes:toMin(val(t,rx("Banco de Horas\s*:\s*(\d+:\d{2})"))),
+    employee_id:null
+  };
+}
 async function readPdf(file){
 if(!me||me.role!=="admin"){showMsg("Sua sessão não foi reconhecida como Administrador. Atualize a página.");return}
 if(!file||!file.name.toLowerCase().endsWith(".pdf"))return showMsg("Selecione um arquivo PDF.");
