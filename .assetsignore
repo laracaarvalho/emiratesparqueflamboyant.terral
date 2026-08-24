@@ -1,0 +1,11 @@
+node_modules
+.git
+.wrangler
+*.sql
+LEIA-ME_*
+README.md
+preview.html
+index_visual.html
+package.json
+worker.js
+wrangler.jsonc
