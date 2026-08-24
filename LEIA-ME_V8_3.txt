@@ -1,0 +1,8 @@
+V8.3 - Correção da leitura do PDF
+
+- PDF.js agora é carregado como script clássico, mais compatível que o import dinâmico anterior.
+- Ao selecionar/arrastar um PDF, o nome do arquivo aparece imediatamente com o status "Lendo o PDF...".
+- Drag-and-drop reforçado.
+- Em caso de falha, a tela mostra a causa da leitura em vez de parecer que o arquivo não foi recebido.
+- Cursor de mão reforçado em todos os elementos interativos.
+- Nenhuma alteração no D1 é necessária.
