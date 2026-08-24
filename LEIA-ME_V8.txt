@@ -1,0 +1,14 @@
+V8 - CARTÃO DE PONTO
+
+- Somente ADM importa o PDF; o backend também bloqueia acesso comum.
+- PDF lido localmente no navegador com PDF.js.
+- Prévia antes de confirmar.
+- Extrai competência, funcionário, matrícula, HE 50%, HE 100%, faltas, atestados, atrasos, adicional noturno e banco de horas.
+- Não encontrados podem ser vinculados manualmente ou ignorados.
+- Proteção contra competência duplicada e opção de substituir.
+- Histórico de importações.
+- Usuário comum apenas consulta.
+- Resumo da tela Funcionários usa a última competência importada.
+
+Não precisa executar SQL manualmente no D1. As novas tabelas são criadas automaticamente.
+Nesta versão o PDF original não é armazenado; apenas os consolidados são gravados.
