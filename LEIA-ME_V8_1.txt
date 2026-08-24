@@ -1,0 +1,11 @@
+V8.1 - Correções rápidas
+
+1. A área de upload do Cartão de Ponto agora é renderizada no servidor quando a sessão é Administrador.
+   Isso evita que ela desapareça caso outra chamada de API falhe durante o carregamento.
+
+2. O carregamento da lista de funcionários não impede mais a exibição da área de upload.
+
+3. Todos os cards principais agora usam cursor de mão (pointer), com efeito leve ao passar o mouse.
+
+Não é necessário executar nada no D1.
+Suba os arquivos no GitHub substituindo os atuais.
