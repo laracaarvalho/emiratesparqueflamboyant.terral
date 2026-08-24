@@ -1,5 +1,5 @@
 {
-"name": "terral-controle-obras",
+  "name": "terral-controle-obras",
   "main": "worker.js",
   "compatibility_date": "2026-08-22",
   "d1_databases": [
@@ -10,6 +10,6 @@
     }
   ],
   "assets": {
-    "directory": "./node_modules/pdfjs-dist/build"
+    "directory": "./public"
   }
 }

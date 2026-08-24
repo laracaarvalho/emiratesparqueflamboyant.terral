@@ -1,16 +1,587 @@
-V7 — MENU DE USUÁRIO + ADMINISTRAÇÃO DE ACESSOS
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>EMIRATES PARQUE FLAMBOYANT | Controle de Ponto e Produção</title>
+  <style>
+    :root{
+      --bg:#f4f6f8;
+      --card:#ffffff;
+      --text:#1f2937;
+      --muted:#6b7280;
+      --border:#dfe3e8;
+      --primary:#50011b;
+      --primary-2:#741238;
+      --accent:#c7a36a;
+      --danger:#b42318;
+      --shadow:0 8px 24px rgba(15,23,42,.08);
+      --radius:16px;
+    }
 
-NÃO É PRECISO EXECUTAR SQL NO D1.
-O Worker cria automaticamente, quando necessário:
-- coluna email na tabela users
-- tabela password_resets
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family:Arial, Helvetica, sans-serif;
+      background:var(--bg);
+      color:var(--text);
+    }
 
-Novidades:
-- Menu suspenso no nome do usuário, no canto superior direito.
-- Nome e perfil do usuário logado.
-- Administração visível apenas para ADM.
-- Criar usuários pelo site vinculando a um funcionário.
-- Definir e-mail, senha inicial e perfil Comum/Administrador.
-- Redefinir senha, ativar/desativar e excluir acessos.
-- Alterar a própria senha pelo menu.
-- Estrutura de recuperação de senha por e-mail preparada; envio automático será conectado depois.
+    .topbar{
+      background:var(--primary);
+      color:#fff;
+      padding:22px 28px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:20px;
+      box-shadow:0 4px 18px rgba(0,0,0,.16);
+    }
+
+    .brand h1{
+      margin:0;
+      font-size:24px;
+      letter-spacing:.5px;
+    }
+    .brand p{
+      margin:5px 0 0;
+      font-size:13px;
+      opacity:.82;
+      letter-spacing:.4px;
+    }
+
+    .brand-wrap{
+      display:flex;
+      align-items:center;
+      gap:22px;
+      min-width:0;
+    }
+    .terral-logo{
+      width:235px;
+      max-width:32vw;
+      height:auto;
+      display:block;
+      flex:0 0 auto;
+    }
+    .brand-divider{
+      width:1px;
+      height:48px;
+      background:rgba(255,255,255,.28);
+      flex:0 0 auto;
+    }
+    .brand-text{min-width:0}
+
+    .badge{
+      background:rgba(255,255,255,.12);
+      border:1px solid rgba(255,255,255,.22);
+      padding:10px 14px;
+      border-radius:999px;
+      font-size:12px;
+      white-space:nowrap;
+    }
+
+    .layout{
+      display:grid;
+      grid-template-columns:240px 1fr;
+      min-height:calc(100vh - 90px);
+    }
+
+    .sidebar{
+      background:#fff;
+      border-right:1px solid var(--border);
+      padding:22px 14px;
+    }
+
+    .nav-btn{
+      width:100%;
+      border:0;
+      background:transparent;
+      text-align:left;
+      padding:13px 14px;
+      border-radius:10px;
+      margin-bottom:8px;
+      font-size:14px;
+      cursor:pointer;
+      color:var(--text);
+    }
+    .nav-btn:hover,.nav-btn.active{
+      background:#f7edf1;
+      color:var(--primary);
+      font-weight:700;
+    }
+
+    .main{
+      padding:28px;
+      overflow:auto;
+    }
+
+    .section{display:none}
+    .section.active{display:block}
+
+    .section-title{
+      display:flex;
+      justify-content:space-between;
+      align-items:flex-end;
+      gap:16px;
+      margin-bottom:20px;
+    }
+    .section-title h2{margin:0;font-size:24px}
+    .section-title p{margin:6px 0 0;color:var(--muted);font-size:14px}
+
+    .grid{
+      display:grid;
+      grid-template-columns:repeat(4,minmax(0,1fr));
+      gap:16px;
+      margin-bottom:22px;
+    }
+
+    .card{
+      background:var(--card);
+      border:1px solid var(--border);
+      border-radius:var(--radius);
+      padding:18px;
+      box-shadow:var(--shadow);
+    }
+
+    .metric-label{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.7px}
+    .metric-value{font-size:28px;font-weight:800;margin-top:8px;color:var(--primary)}
+
+    .two-col{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:18px;
+    }
+
+    .form-grid{
+      display:grid;
+      grid-template-columns:repeat(3,minmax(0,1fr));
+      gap:14px;
+    }
+
+    .field label{
+      display:block;
+      font-size:12px;
+      font-weight:700;
+      margin-bottom:6px;
+      color:#374151;
+    }
+    .field input,.field select,.field textarea{
+      width:100%;
+      border:1px solid #cfd5db;
+      border-radius:9px;
+      padding:10px 11px;
+      background:#fff;
+      font-size:14px;
+      outline:none;
+    }
+    .field textarea{min-height:80px;resize:vertical}
+    .field input:focus,.field select:focus,.field textarea:focus{border-color:var(--primary-2);box-shadow:0 0 0 3px rgba(80,1,27,.12)}
+
+    .actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}
+    .btn{
+      border:0;
+      border-radius:10px;
+      padding:10px 14px;
+      font-size:14px;
+      font-weight:700;
+      cursor:pointer;
+    }
+    .btn-primary{background:var(--primary);color:#fff}
+    .btn-secondary{background:#edf0f2;color:#25313c}
+    .btn-danger{background:#fee4e2;color:var(--danger)}
+
+    table{
+      width:100%;
+      border-collapse:collapse;
+      margin-top:12px;
+      font-size:13px;
+    }
+    th,td{padding:11px 9px;border-bottom:1px solid var(--border);text-align:left;vertical-align:middle}
+    th{color:#4b5563;font-size:12px;text-transform:uppercase;letter-spacing:.5px;background:#fafafa}
+
+    .status{
+      display:inline-block;
+      padding:5px 8px;
+      border-radius:999px;
+      font-size:11px;
+      font-weight:700;
+      background:#f5e8ed;
+      color:#50011b;
+    }
+
+    .hero{
+      background:linear-gradient(120deg,#fff,#f4f0e5);
+      border:1px solid #e6dfcf;
+      border-radius:18px;
+      padding:24px;
+      margin-bottom:22px;
+      box-shadow:var(--shadow);
+    }
+    .hero h2{margin:0 0 8px;font-size:28px}
+    .hero p{margin:0;color:var(--muted);max-width:850px;line-height:1.55}
+    .hero strong{color:var(--primary)}
+
+    .empty{
+      text-align:center;
+      padding:24px;
+      color:var(--muted);
+      font-size:13px;
+    }
+
+    .notice{
+      margin-top:14px;
+      background:#fff7e6;
+      border:1px solid #f1d39a;
+      padding:12px 14px;
+      border-radius:10px;
+      font-size:13px;
+      color:#705022;
+    }
+
+    @media(max-width:980px){
+      .layout{grid-template-columns:1fr}
+      .sidebar{display:flex;overflow:auto;border-right:0;border-bottom:1px solid var(--border);padding:10px}
+      .nav-btn{min-width:max-content;margin:0 6px 0 0}
+      .grid{grid-template-columns:repeat(2,1fr)}
+      .two-col{grid-template-columns:1fr}
+      .form-grid{grid-template-columns:1fr 1fr}
+    }
+    @media(max-width:640px){
+      .topbar{align-items:flex-start;flex-direction:column;padding:18px}
+      .brand-wrap{gap:12px;align-items:flex-start}
+      .terral-logo{width:180px;max-width:48vw}
+      .brand-divider{height:42px}
+      .brand h1{font-size:18px}
+      .brand p{font-size:11px}
+      .main{padding:16px}
+      .grid{grid-template-columns:1fr}
+      .form-grid{grid-template-columns:1fr}
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand brand-wrap">
+      <img class="terral-logo" src="data:image/png;base64,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" alt="Terral Incorporadora">
+      <div class="brand-divider"></div>
+      <div class="brand-text">
+        <h1>EMIRATES PARQUE FLAMBOYANT</h1>
+        <p>Controle de Ponto e Produção</p>
+      </div>
+    </div>
+    <div class="badge">Sistema interno da obra</div>
+  </header>
+
+  <div class="layout">
+    <aside class="sidebar">
+      <button class="nav-btn active" data-target="dashboard">Painel</button>
+      <button class="nav-btn" data-target="funcionarios">Funcionários</button>
+      <button class="nav-btn" data-target="ponto">Lançar Ponto</button>
+      <button class="nav-btn" data-target="tarefas">Tarefas e Valores</button>
+      <button class="nav-btn" data-target="producao">Lançar Produção</button>
+      <button class="nav-btn" data-target="relatorios">Relatórios</button>
+    </aside>
+
+    <main class="main">
+      <section id="dashboard" class="section active">
+        <div class="hero">
+          <h2>Controle de mão de obra</h2>
+          <p>Base inicial para acompanhamento dos funcionários da obra <strong>EMIRATES PARQUE FLAMBOYANT</strong>, com cadastro, cartão de ponto, tarefas executadas, valores e produção.</p>
+        </div>
+
+        <div class="grid">
+          <div class="card"><div class="metric-label">Funcionários ativos</div><div class="metric-value" id="mFuncionarios">0</div></div>
+          <div class="card"><div class="metric-label">Tarefas cadastradas</div><div class="metric-value" id="mTarefas">0</div></div>
+          <div class="card"><div class="metric-label">Lançamentos de ponto</div><div class="metric-value" id="mPonto">0</div></div>
+          <div class="card"><div class="metric-label">Produção acumulada</div><div class="metric-value" id="mProducao">R$ 0,00</div></div>
+        </div>
+
+        <div class="two-col">
+          <div class="card">
+            <h3>Últimos lançamentos de produção</h3>
+            <div id="ultimasProducoes" class="empty">Nenhum lançamento ainda.</div>
+          </div>
+          <div class="card">
+            <h3>Estrutura preparada</h3>
+            <p style="color:var(--muted);line-height:1.6;font-size:14px">
+              Cadastro de funcionários, lançamento diário de ponto, tabela de tarefas com unidade e valor, produção por funcionário e local da obra.
+            </p>
+            <div class="notice">Nesta primeira versão os dados ficam salvos neste navegador usando armazenamento local.</div>
+          </div>
+        </div>
+      </section>
+
+      <section id="funcionarios" class="section">
+        <div class="section-title">
+          <div><h2>Funcionários</h2><p>Cadastre a equipe própria e mantenha o histórico organizado.</p></div>
+        </div>
+        <div class="card">
+          <div class="form-grid">
+            <div class="field"><label>Nome completo</label><input id="fNome" type="text" placeholder="Ex.: João da Silva"></div>
+            <div class="field"><label>Função</label><input id="fFuncao" type="text" placeholder="Ex.: Pintor"></div>
+            <div class="field"><label>Matrícula</label><input id="fMatricula" type="text" placeholder="Opcional"></div>
+            <div class="field"><label>Equipe</label><input id="fEquipe" type="text" placeholder="Ex.: Acabamento"></div>
+            <div class="field"><label>Responsável / Encarregado</label><input id="fResponsavel" type="text" placeholder="Nome do responsável"></div>
+            <div class="field"><label>Situação</label><select id="fStatus"><option>Ativo</option><option>Desligado</option></select></div>
+          </div>
+          <div class="actions"><button class="btn btn-primary" onclick="adicionarFuncionario()">Salvar funcionário</button></div>
+        </div>
+
+        <div class="card" style="margin-top:18px">
+          <h3>Lista de funcionários</h3>
+          <div style="overflow:auto">
+            <table>
+              <thead><tr><th>Nome</th><th>Função</th><th>Matrícula</th><th>Equipe</th><th>Responsável</th><th>Status</th><th></th></tr></thead>
+              <tbody id="tabelaFuncionarios"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <section id="ponto" class="section">
+        <div class="section-title"><div><h2>Lançar Ponto</h2><p>Registre entrada, intervalo, saída e observações.</p></div></div>
+        <div class="card">
+          <div class="form-grid">
+            <div class="field"><label>Funcionário</label><select id="pFuncionario"></select></div>
+            <div class="field"><label>Data</label><input id="pData" type="date"></div>
+            <div class="field"><label>Entrada</label><input id="pEntrada" type="time"></div>
+            <div class="field"><label>Início intervalo</label><input id="pIniIntervalo" type="time"></div>
+            <div class="field"><label>Fim intervalo</label><input id="pFimIntervalo" type="time"></div>
+            <div class="field"><label>Saída</label><input id="pSaida" type="time"></div>
+            <div class="field"><label>Ocorrência</label><select id="pOcorrencia"><option>Normal</option><option>Falta</option><option>Atestado</option><option>Folga</option></select></div>
+            <div class="field" style="grid-column:span 2"><label>Observação</label><input id="pObs" type="text" placeholder="Opcional"></div>
+          </div>
+          <div class="actions"><button class="btn btn-primary" onclick="adicionarPonto()">Salvar ponto</button></div>
+        </div>
+        <div class="card" style="margin-top:18px">
+          <h3>Últimos registros</h3>
+          <div style="overflow:auto">
+            <table><thead><tr><th>Data</th><th>Funcionário</th><th>Entrada</th><th>Intervalo</th><th>Saída</th><th>Horas</th><th>Ocorrência</th><th></th></tr></thead><tbody id="tabelaPonto"></tbody></table>
+          </div>
+        </div>
+      </section>
+
+      <section id="tarefas" class="section">
+        <div class="section-title"><div><h2>Tarefas e Valores</h2><p>Cadastre os serviços usados nos lançamentos de produção.</p></div></div>
+        <div class="card">
+          <div class="form-grid">
+            <div class="field"><label>Descrição da tarefa</label><input id="tDescricao" type="text" placeholder="Ex.: Pintura de parede"></div>
+            <div class="field"><label>Unidade</label><select id="tUnidade"><option>m²</option><option>m</option><option>un</option><option>hora</option><option>dia</option><option>serviço</option></select></div>
+            <div class="field"><label>Valor unitário (R$)</label><input id="tValor" type="number" step="0.01" min="0" placeholder="0,00"></div>
+          </div>
+          <div class="actions"><button class="btn btn-primary" onclick="adicionarTarefa()">Salvar tarefa</button></div>
+        </div>
+        <div class="card" style="margin-top:18px">
+          <h3>Tabela de tarefas</h3>
+          <div style="overflow:auto">
+            <table><thead><tr><th>Tarefa</th><th>Unidade</th><th>Valor</th><th></th></tr></thead><tbody id="tabelaTarefas"></tbody></table>
+          </div>
+        </div>
+      </section>
+
+      <section id="producao" class="section">
+        <div class="section-title"><div><h2>Lançar Produção</h2><p>Registre o que cada funcionário executou, onde e quanto valeu.</p></div></div>
+        <div class="card">
+          <div class="form-grid">
+            <div class="field"><label>Data</label><input id="prData" type="date"></div>
+            <div class="field"><label>Funcionário</label><select id="prFuncionario"></select></div>
+            <div class="field"><label>Tarefa</label><select id="prTarefa" onchange="atualizarValorTarefa()"></select></div>
+            <div class="field"><label>Torre / Setor</label><input id="prTorre" type="text" placeholder="Ex.: Torre Dubai"></div>
+            <div class="field"><label>Pavimento</label><input id="prPavimento" type="text" placeholder="Ex.: 12º pavimento"></div>
+            <div class="field"><label>Ambiente / Unidade</label><input id="prAmbiente" type="text" placeholder="Ex.: Apto 1203"></div>
+            <div class="field"><label>Quantidade</label><input id="prQuantidade" type="number" step="0.01" min="0" oninput="calcularProducao()"></div>
+            <div class="field"><label>Valor unitário</label><input id="prValor" type="number" step="0.01" min="0" oninput="calcularProducao()"></div>
+            <div class="field"><label>Total</label><input id="prTotal" type="text" readonly></div>
+            <div class="field" style="grid-column:span 3"><label>Observação</label><textarea id="prObs" placeholder="Descrição complementar da atividade"></textarea></div>
+          </div>
+          <div class="actions"><button class="btn btn-primary" onclick="adicionarProducao()">Salvar produção</button></div>
+        </div>
+        <div class="card" style="margin-top:18px">
+          <h3>Histórico de produção</h3>
+          <div style="overflow:auto">
+            <table><thead><tr><th>Data</th><th>Funcionário</th><th>Tarefa</th><th>Local</th><th>Qtd.</th><th>Valor</th><th>Total</th><th></th></tr></thead><tbody id="tabelaProducoes"></tbody></table>
+          </div>
+        </div>
+      </section>
+
+      <section id="relatorios" class="section">
+        <div class="section-title"><div><h2>Relatórios</h2><p>Resumo inicial dos lançamentos cadastrados.</p></div></div>
+        <div class="grid">
+          <div class="card"><div class="metric-label">Funcionários cadastrados</div><div class="metric-value" id="rFuncionarios">0</div></div>
+          <div class="card"><div class="metric-label">Total de pontos</div><div class="metric-value" id="rPontos">0</div></div>
+          <div class="card"><div class="metric-label">Produções lançadas</div><div class="metric-value" id="rProducoes">0</div></div>
+          <div class="card"><div class="metric-label">Valor produzido</div><div class="metric-value" id="rValor">R$ 0,00</div></div>
+        </div>
+        <div class="card">
+          <h3>Resumo por funcionário</h3>
+          <div style="overflow:auto"><table><thead><tr><th>Funcionário</th><th>Lançamentos</th><th>Total produzido</th></tr></thead><tbody id="resumoFuncionario"></tbody></table></div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+<script>
+  const LS = {
+    funcionarios:'emirates_funcionarios_v1',
+    tarefas:'emirates_tarefas_v1',
+    pontos:'emirates_pontos_v1',
+    producoes:'emirates_producoes_v1'
+  };
+
+  let funcionarios = JSON.parse(localStorage.getItem(LS.funcionarios) || '[]');
+  let tarefas = JSON.parse(localStorage.getItem(LS.tarefas) || '[]');
+  let pontos = JSON.parse(localStorage.getItem(LS.pontos) || '[]');
+  let producoes = JSON.parse(localStorage.getItem(LS.producoes) || '[]');
+
+  document.querySelectorAll('.nav-btn').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+      document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById(btn.dataset.target).classList.add('active');
+      renderTudo();
+    })
+  });
+
+  function salvar(){
+    localStorage.setItem(LS.funcionarios, JSON.stringify(funcionarios));
+    localStorage.setItem(LS.tarefas, JSON.stringify(tarefas));
+    localStorage.setItem(LS.pontos, JSON.stringify(pontos));
+    localStorage.setItem(LS.producoes, JSON.stringify(producoes));
+  }
+
+  function dinheiro(v){
+    return Number(v||0).toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
+  }
+
+  function hoje(){
+    return new Date().toISOString().slice(0,10);
+  }
+
+  function adicionarFuncionario(){
+    const nome=fNome.value.trim();
+    if(!nome){alert('Informe o nome do funcionário.');return}
+    funcionarios.push({id:crypto.randomUUID(),nome,funcao:fFuncao.value.trim(),matricula:fMatricula.value.trim(),equipe:fEquipe.value.trim(),responsavel:fResponsavel.value.trim(),status:fStatus.value});
+    ['fNome','fFuncao','fMatricula','fEquipe','fResponsavel'].forEach(id=>document.getElementById(id).value='');
+    salvar();renderTudo();
+  }
+
+  function removerFuncionario(id){
+    if(confirm('Excluir este funcionário do cadastro?')){funcionarios=funcionarios.filter(x=>x.id!==id);salvar();renderTudo();}
+  }
+
+  function adicionarTarefa(){
+    const descricao=tDescricao.value.trim();
+    const valor=Number(tValor.value);
+    if(!descricao){alert('Informe a descrição da tarefa.');return}
+    tarefas.push({id:crypto.randomUUID(),descricao,unidade:tUnidade.value,valor});
+    tDescricao.value='';tValor.value='';salvar();renderTudo();
+  }
+
+  function removerTarefa(id){
+    if(confirm('Excluir esta tarefa?')){tarefas=tarefas.filter(x=>x.id!==id);salvar();renderTudo();}
+  }
+
+  function minutos(h){
+    if(!h) return null;
+    const [hh,mm]=h.split(':').map(Number);return hh*60+mm;
+  }
+
+  function calcularHoras(p){
+    if(p.ocorrencia!=='Normal') return '0h00';
+    const e=minutos(p.entrada), s=minutos(p.saida);
+    if(e===null||s===null) return '-';
+    let total=s-e;
+    const ii=minutos(p.iniIntervalo), fi=minutos(p.fimIntervalo);
+    if(ii!==null&&fi!==null) total-=Math.max(0,fi-ii);
+    total=Math.max(0,total);
+    return `${Math.floor(total/60)}h${String(total%60).padStart(2,'0')}`;
+  }
+
+  function adicionarPonto(){
+    if(!pFuncionario.value){alert('Cadastre e selecione um funcionário.');return}
+    if(!pData.value){alert('Informe a data.');return}
+    pontos.push({id:crypto.randomUUID(),funcionarioId:pFuncionario.value,data:pData.value,entrada:pEntrada.value,iniIntervalo:pIniIntervalo.value,fimIntervalo:pFimIntervalo.value,saida:pSaida.value,ocorrencia:pOcorrencia.value,obs:pObs.value.trim()});
+    salvar();renderTudo();
+  }
+
+  function removerPonto(id){pontos=pontos.filter(x=>x.id!==id);salvar();renderTudo();}
+
+  function atualizarValorTarefa(){
+    const t=tarefas.find(x=>x.id===prTarefa.value);
+    prValor.value=t?Number(t.valor||0).toFixed(2):'';
+    calcularProducao();
+  }
+
+  function calcularProducao(){
+    const total=Number(prQuantidade.value||0)*Number(prValor.value||0);
+    prTotal.value=dinheiro(total);
+  }
+
+  function adicionarProducao(){
+    if(!prFuncionario.value||!prTarefa.value){alert('Selecione funcionário e tarefa.');return}
+    const qtd=Number(prQuantidade.value||0), val=Number(prValor.value||0);
+    if(qtd<=0){alert('Informe a quantidade executada.');return}
+    producoes.push({id:crypto.randomUUID(),data:prData.value||hoje(),funcionarioId:prFuncionario.value,tarefaId:prTarefa.value,torre:prTorre.value.trim(),pavimento:prPavimento.value.trim(),ambiente:prAmbiente.value.trim(),quantidade:qtd,valor:val,total:qtd*val,obs:prObs.value.trim()});
+    prQuantidade.value='';prObs.value='';calcularProducao();salvar();renderTudo();
+  }
+
+  function removerProducao(id){producoes=producoes.filter(x=>x.id!==id);salvar();renderTudo();}
+
+  function nomeFuncionario(id){return funcionarios.find(x=>x.id===id)?.nome||'Funcionário removido'}
+  function nomeTarefa(id){return tarefas.find(x=>x.id===id)?.descricao||'Tarefa removida'}
+
+  function renderFuncionarios(){
+    tabelaFuncionarios.innerHTML=funcionarios.length?funcionarios.map(f=>`<tr><td><strong>${f.nome}</strong></td><td>${f.funcao||'-'}</td><td>${f.matricula||'-'}</td><td>${f.equipe||'-'}</td><td>${f.responsavel||'-'}</td><td><span class="status">${f.status}</span></td><td><button class="btn btn-danger" onclick="removerFuncionario('${f.id}')">Excluir</button></td></tr>`).join(''):`<tr><td colspan="7" class="empty">Nenhum funcionário cadastrado.</td></tr>`;
+
+    const opts='<option value="">Selecione</option>'+funcionarios.filter(f=>f.status==='Ativo').map(f=>`<option value="${f.id}">${f.nome}</option>`).join('');
+    pFuncionario.innerHTML=opts;prFuncionario.innerHTML=opts;
+  }
+
+  function renderTarefas(){
+    tabelaTarefas.innerHTML=tarefas.length?tarefas.map(t=>`<tr><td><strong>${t.descricao}</strong></td><td>${t.unidade}</td><td>${dinheiro(t.valor)}</td><td><button class="btn btn-danger" onclick="removerTarefa('${t.id}')">Excluir</button></td></tr>`).join(''):`<tr><td colspan="4" class="empty">Nenhuma tarefa cadastrada.</td></tr>`;
+    prTarefa.innerHTML='<option value="">Selecione</option>'+tarefas.map(t=>`<option value="${t.id}">${t.descricao} (${t.unidade})</option>`).join('');
+  }
+
+  function renderPontos(){
+    const lista=[...pontos].reverse();
+    tabelaPonto.innerHTML=lista.length?lista.map(p=>`<tr><td>${p.data.split('-').reverse().join('/')}</td><td>${nomeFuncionario(p.funcionarioId)}</td><td>${p.entrada||'-'}</td><td>${p.iniIntervalo&&p.fimIntervalo?p.iniIntervalo+'–'+p.fimIntervalo:'-'}</td><td>${p.saida||'-'}</td><td>${calcularHoras(p)}</td><td>${p.ocorrencia}</td><td><button class="btn btn-danger" onclick="removerPonto('${p.id}')">Excluir</button></td></tr>`).join(''):`<tr><td colspan="8" class="empty">Nenhum ponto lançado.</td></tr>`;
+  }
+
+  function renderProducoes(){
+    const lista=[...producoes].reverse();
+    tabelaProducoes.innerHTML=lista.length?lista.map(p=>{
+      const tarefa=tarefas.find(t=>t.id===p.tarefaId);
+      const local=[p.torre,p.pavimento,p.ambiente].filter(Boolean).join(' • ')||'-';
+      return `<tr><td>${p.data.split('-').reverse().join('/')}</td><td>${nomeFuncionario(p.funcionarioId)}</td><td>${nomeTarefa(p.tarefaId)}</td><td>${local}</td><td>${p.quantidade} ${tarefa?.unidade||''}</td><td>${dinheiro(p.valor)}</td><td><strong>${dinheiro(p.total)}</strong></td><td><button class="btn btn-danger" onclick="removerProducao('${p.id}')">Excluir</button></td></tr>`
+    }).join(''):`<tr><td colspan="8" class="empty">Nenhuma produção lançada.</td></tr>`;
+
+    ultimasProducoes.innerHTML=lista.length?`<table><thead><tr><th>Funcionário</th><th>Tarefa</th><th>Total</th></tr></thead><tbody>${lista.slice(0,5).map(p=>`<tr><td>${nomeFuncionario(p.funcionarioId)}</td><td>${nomeTarefa(p.tarefaId)}</td><td>${dinheiro(p.total)}</td></tr>`).join('')}</tbody></table>`:'Nenhum lançamento ainda.';
+  }
+
+  function renderMetricas(){
+    const total=producoes.reduce((s,p)=>s+Number(p.total||0),0);
+    mFuncionarios.textContent=funcionarios.filter(f=>f.status==='Ativo').length;
+    mTarefas.textContent=tarefas.length;
+    mPonto.textContent=pontos.length;
+    mProducao.textContent=dinheiro(total);
+    rFuncionarios.textContent=funcionarios.length;
+    rPontos.textContent=pontos.length;
+    rProducoes.textContent=producoes.length;
+    rValor.textContent=dinheiro(total);
+
+    resumoFuncionario.innerHTML=funcionarios.length?funcionarios.map(f=>{
+      const ps=producoes.filter(p=>p.funcionarioId===f.id);
+      return `<tr><td>${f.nome}</td><td>${ps.length}</td><td>${dinheiro(ps.reduce((s,p)=>s+Number(p.total||0),0))}</td></tr>`
+    }).join(''):`<tr><td colspan="3" class="empty">Nenhum funcionário cadastrado.</td></tr>`;
+  }
+
+  function renderTudo(){
+    renderFuncionarios();renderTarefas();renderPontos();renderProducoes();renderMetricas();
+  }
+
+  pData.value=hoje();prData.value=hoje();
+  renderTudo();
+</script>
+</body>
+</html>

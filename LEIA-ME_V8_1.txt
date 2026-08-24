@@ -1,11 +1,8 @@
-V8.1 - Correções rápidas
+V5.2 - CORREÇÃO DE LOGIN
 
-1. A área de upload do Cartão de Ponto agora é renderizada no servidor quando a sessão é Administrador.
-   Isso evita que ela desapareça caso outra chamada de API falhe durante o carregamento.
-
-2. O carregamento da lista de funcionários não impede mais a exibição da área de upload.
-
-3. Todos os cards principais agora usam cursor de mão (pointer), com efeito leve ao passar o mouse.
-
-Não é necessário executar nada no D1.
-Suba os arquivos no GitHub substituindo os atuais.
+- Não execute nenhuma migração no D1 novamente.
+- As tabelas users e sessions já existem.
+- Os 6 usuários já estão cadastrados.
+- Esta versão corrige a criação da sessão e restaura o favicon na tela de login.
+- Suba os arquivos no GitHub substituindo os atuais.
+- Se ainda ocorrer erro, a própria tela agora mostrará em qual etapa ele aconteceu.

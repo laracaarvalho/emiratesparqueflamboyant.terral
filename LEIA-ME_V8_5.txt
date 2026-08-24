@@ -1,17 +1,10 @@
-V8.5 - Correção baseada no erro real do Console
+V8.2 - Correções do upload e cursor
 
-CORRIGIDO:
-- SyntaxError: Invalid regular expression flags.
-- As barras invertidas das regex agora são preservadas no HTML que o navegador recebe.
-- O PDF.js não aponta mais para /pdf.min.js inexistente.
-- PDF.js e worker usam a mesma versão 3.11.174 via CDN.
-- Favicon da tela Cartão de Ponto embutido para evitar favicon.ico 404.
-- Cursor pointer reforçado nos elementos interativos.
+- A caixa inteira de upload agora usa o seletor nativo do navegador.
+- Clicar em qualquer ponto da caixa abre a janela para escolher o PDF.
+- Arrastar e soltar PDF foi reforçado com eventos dedicados.
+- O navegador não tenta abrir o PDF fora do sistema ao soltar na página.
+- Cursor de mão aplicado em cards, botões, links, menus, selects e áreas clicáveis.
+- Cards principais recebem efeito visual ao passar o mouse.
 
-VALIDAÇÕES FEITAS ANTES DE gerar o ZIP:
-1. worker.js passou no node --check.
-2. A função pointPage foi executada e o HTML FINAL foi gerado.
-3. As regex foram conferidas no HTML final.
-4. O JavaScript entregue ao navegador passou no node --check.
-
-Não execute nada no D1.
+Não é necessário executar nada no D1.

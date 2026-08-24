@@ -1,10 +1,16 @@
-V8.2 - Correções do upload e cursor
+V7 — MENU DE USUÁRIO + ADMINISTRAÇÃO DE ACESSOS
 
-- A caixa inteira de upload agora usa o seletor nativo do navegador.
-- Clicar em qualquer ponto da caixa abre a janela para escolher o PDF.
-- Arrastar e soltar PDF foi reforçado com eventos dedicados.
-- O navegador não tenta abrir o PDF fora do sistema ao soltar na página.
-- Cursor de mão aplicado em cards, botões, links, menus, selects e áreas clicáveis.
-- Cards principais recebem efeito visual ao passar o mouse.
+NÃO É PRECISO EXECUTAR SQL NO D1.
+O Worker cria automaticamente, quando necessário:
+- coluna email na tabela users
+- tabela password_resets
 
-Não é necessário executar nada no D1.
+Novidades:
+- Menu suspenso no nome do usuário, no canto superior direito.
+- Nome e perfil do usuário logado.
+- Administração visível apenas para ADM.
+- Criar usuários pelo site vinculando a um funcionário.
+- Definir e-mail, senha inicial e perfil Comum/Administrador.
+- Redefinir senha, ativar/desativar e excluir acessos.
+- Alterar a própria senha pelo menu.
+- Estrutura de recuperação de senha por e-mail preparada; envio automático será conectado depois.

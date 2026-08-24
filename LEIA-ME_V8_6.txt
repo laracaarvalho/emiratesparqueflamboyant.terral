@@ -1,9 +1,8 @@
-V8.6
-Correção específica para o erro que continuou aparecendo:
-Uncaught SyntaxError: Invalid regular expression flags
+V8.3 - Correção da leitura do PDF
 
-O parser do cartão de ponto não usa mais regex literal /.../i.
-Agora usa RegExp construído por texto, evitando que o navegador interprete barras de Mes/Ano ou outros trechos como flags.
-
-Não mexer no D1.
-Substitua os arquivos no GitHub, aguarde o deploy e use Ctrl+F5.
+- PDF.js agora é carregado como script clássico, mais compatível que o import dinâmico anterior.
+- Ao selecionar/arrastar um PDF, o nome do arquivo aparece imediatamente com o status "Lendo o PDF...".
+- Drag-and-drop reforçado.
+- Em caso de falha, a tela mostra a causa da leitura em vez de parecer que o arquivo não foi recebido.
+- Cursor de mão reforçado em todos os elementos interativos.
+- Nenhuma alteração no D1 é necessária.
