@@ -1,11 +1,9 @@
-V8.9 - Funcionários em linha única
+V8.6
+Correção específica para o erro que continuou aparecendo:
+Uncaught SyntaxError: Invalid regular expression flags
 
-A aba Funcionários agora mostra cada funcionário em uma única linha.
+O parser do cartão de ponto não usa mais regex literal /.../i.
+Agora usa RegExp construído por texto, evitando que o navegador interprete barras de Mes/Ano ou outros trechos como flags.
 
-Colunas:
-Nome | Sexo | Função | Salário | HE 50% | HE 100% | Faltas | Atestados | Atrasos
-
-Os pequenos cards do resumo foram removidos para deixar a tela mais compacta.
-Em telas menores, a tabela permanece inteira e permite rolagem horizontal.
-
-Nenhuma alteração no D1 é necessária.
+Não mexer no D1.
+Substitua os arquivos no GitHub, aguarde o deploy e use Ctrl+F5.
