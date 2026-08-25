@@ -1,0 +1,23 @@
+TERRAL | CONTROLE DE OBRAS — V11 LAYOUT
+
+Mudanças visuais:
+- números removidos dos cards;
+- texto de disponibilidade removido;
+- nomes das obras menores;
+- ícone de Obras trocado por guindaste/construção;
+- ícone de Usuários trocado por usuário;
+- logo oficial carregada por /terral_logo_transparente.png, com fallback para /terral_logo.png.
+
+Mantido:
+- ADM vê todas as obras;
+- usuário comum vê somente obras liberadas;
+- Administração e permissões da V10.
+
+Como subir:
+1. Abra worker.js no GitHub.
+2. Apague todo o conteúdo.
+3. Cole o worker.js desta versão.
+4. Commit changes.
+5. Aguarde o deploy.
+
+Não precisa executar SQL.

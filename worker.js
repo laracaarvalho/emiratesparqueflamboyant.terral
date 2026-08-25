@@ -379,149 +379,50 @@ return `<!doctype html>
 <title>TERRAL | CONTROLE DE OBRAS</title>
 <link rel="icon" type="image/png" href="/favicon_terral.png">
 <style>
-:root{
-  --wine:#6b1321;--wine-dark:#4f0715;--wine-soft:#8b4751;
-  --cream:#f7f2ea;--cream2:#fbf8f3;--card:#fffdfa;
-  --text:#312d2b;--muted:#746f69;--line:#e6ded5;--green:#24ad57;
-}
-*{box-sizing:border-box}
-html,body{margin:0;min-height:100%;font-family:Arial,Helvetica,sans-serif;color:var(--text);background:var(--cream)}
-body{min-height:100vh}
-button,a{font:inherit}
-.shell{min-height:100vh;display:grid;grid-template-columns:165px 1fr}
-.sidebar{
-  position:fixed;inset:0 auto 0 0;width:165px;z-index:20;
-  background:linear-gradient(180deg,#641522 0%,#51111b 100%);
-  color:white;display:flex;flex-direction:column;box-shadow:4px 0 18px #34101618
-}
-.brand{
-  height:117px;background:#faf6f0;color:#6a1321;display:grid;place-items:center;
-  border-bottom:1px solid #e8dfd7;padding:14px
-}
-.brand img{width:125px;max-height:78px;object-fit:contain}
-.nav{padding:18px 16px;display:flex;flex-direction:column;gap:12px}
-.nav-item{
-  min-height:80px;border:0;border-radius:10px;background:transparent;color:#fff;
-  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:7px;
-  text-decoration:none;font-size:13px;font-weight:700;cursor:pointer;transition:.18s
-}
-.nav-item:hover{background:#ffffff10}
-.nav-item.active{background:#89505a}
-.nav-icon{font-size:28px;line-height:1}
-.nav-spacer{flex:1}
-.logout{margin:0 17px 22px;border-top:1px solid #ffffff50;padding-top:22px}
-.main{grid-column:2;padding:28px 34px 34px;min-width:0}
-.top{
-  display:flex;align-items:flex-start;justify-content:space-between;gap:20px;margin-bottom:28px
-}
-.title-wrap{display:flex;gap:17px;align-items:center}
-.title-icon{font-size:36px;color:#a59e96}
-.title h1{margin:0;color:#651522;font-size:30px;letter-spacing:-.3px}
-.title p{margin:6px 0 0;color:#625d58;font-size:15px}
-.user{display:flex;align-items:center;gap:11px;position:relative}
-.user-ico{font-size:24px}
-.user-text strong{display:block;font-size:14px}
-.user-text small{display:block;color:#77716c;margin-top:2px}
-.user-menu-btn{border:0;background:transparent;font-size:16px;cursor:pointer;padding:10px}
-.user-menu{
-  display:none;position:absolute;right:0;top:48px;width:220px;background:white;border:1px solid var(--line);
-  border-radius:10px;box-shadow:0 14px 38px #3b1e1e22;overflow:hidden;z-index:30
-}
-.user-menu.open{display:block}
-.user-menu a,.user-menu button{
-  display:block;width:100%;border:0;background:white;text-align:left;padding:12px 14px;
-  text-decoration:none;color:#322f2d;cursor:pointer
-}
-.user-menu a:hover,.user-menu button:hover{background:#faf6f2}
-.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:23px}
-.project-card{
-  position:relative;background:var(--card);border:1px solid var(--line);border-radius:13px;overflow:hidden;
-  box-shadow:0 5px 15px #40221e20;min-width:0;transition:transform .18s,box-shadow .18s
-}
-.project-card.allowed:hover{transform:translateY(-3px);box-shadow:0 12px 25px #40221e28}
-.image-wrap{height:194px;position:relative;background:#ddd;overflow:hidden}
-.image-wrap img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .3s}
-.project-card.allowed:hover .image-wrap img{transform:scale(1.025)}
-.number{
-  position:absolute;left:13px;top:12px;width:37px;height:37px;border-radius:7px;
-  background:linear-gradient(160deg,#87303e,#5d1420);color:#fff;display:grid;place-items:center;
-  font-size:17px;font-weight:800;box-shadow:0 3px 10px #0004
-}
-.card-body{height:78px;padding:13px 17px;display:flex;justify-content:space-between;gap:14px;align-items:center}
-.project-info{min-width:0}
-.project-name{font-weight:800;color:#5f1721;font-size:15px;line-height:1.15}
-.status{margin-top:7px;color:#7b756f;font-size:13px;display:flex;align-items:center;gap:6px}
-.dot{width:9px;height:9px;border-radius:50%;background:var(--green);flex:0 0 auto}
-.access-btn{
-  border:0;border-radius:6px;background:linear-gradient(100deg,#55131d,#771d2b);color:#fff;
-  padding:10px 15px;font-weight:800;cursor:pointer;white-space:nowrap;text-decoration:none
-}
-.locked .image-wrap:after{content:"";position:absolute;inset:0;background:#222b;backdrop-filter:grayscale(1)}
-.lock{
-  display:none;position:absolute;z-index:5;left:50%;top:96px;transform:translate(-50%,-50%);
-  width:72px;height:72px;border-radius:50%;background:#fff;place-items:center;font-size:32px;
-  box-shadow:0 6px 22px #0004
-}
-.locked .lock{display:grid}
-.locked .card-body{filter:grayscale(1);opacity:.54;background:#d8d8d8}
-.locked .dot{background:#8b8b8b}
-.locked .access-btn{background:#aaa;color:#ddd;pointer-events:none}
-.notice{
-  margin-top:24px;border-top:1px solid #e3dbd1;padding:20px 10px 0;color:#56514d;
-  display:flex;gap:12px;align-items:center;font-size:13px
-}
-.notice-icon{
-  width:38px;height:38px;border:2px solid #bbb2a9;border-radius:50%;display:grid;place-items:center;
-  color:#7e756d;font-weight:800;font-size:20px
-}
-@media(max-width:1120px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
-@media(max-width:760px){
-  .shell{display:block}.sidebar{position:static;width:100%;height:auto;flex-direction:row;align-items:center}
-  .brand{width:140px;height:78px}.nav{flex:1;flex-direction:row;padding:8px;overflow:auto}
-  .nav-item{min-width:86px;min-height:62px}.nav-spacer,.logout{display:none}
-  .main{padding:22px 14px}.top{align-items:flex-start}.title h1{font-size:24px}
-  .user-text{display:none}.grid{grid-template-columns:1fr}.image-wrap{height:205px}
-}
-</style>
-</head>
+:root{--wine:#681522;--wine-2:#7e2433;--wine-3:#54111b;--cream:#f7f1e8;--card:#fffdfa;--text:#311f21;--muted:#766f69;--line:#e9dfd4;--shadow:0 8px 24px rgba(71,35,30,.12)}
+*{box-sizing:border-box}html,body{margin:0;min-height:100%;font-family:Arial,Helvetica,sans-serif;background:var(--cream);color:var(--text)}body{min-height:100vh}a,button{font:inherit}button,a,.nav-item,.project-card,.access-btn,.user-menu-btn{cursor:pointer!important}
+.app{min-height:100vh;display:grid;grid-template-columns:210px 1fr}
+.sidebar{position:fixed;inset:0 auto 0 0;width:210px;height:100vh;background:linear-gradient(180deg,#6c0f21 0%,#59101a 100%);color:#fff;display:flex;flex-direction:column;z-index:20;box-shadow:4px 0 18px rgba(60,18,24,.12)}
+.brand{height:145px;display:flex;align-items:center;justify-content:center;padding:24px 20px;background:#6c0f21;border-bottom:1px solid rgba(255,255,255,.08)}
+.brand img{width:170px;max-width:100%;height:auto;object-fit:contain;display:block}
+.nav{padding:28px 16px;display:flex;flex-direction:column;gap:14px}.nav-item{min-height:76px;border:0;border-radius:11px;background:transparent;color:white;display:flex;align-items:center;gap:18px;padding:0 20px;text-decoration:none;font-size:15px;font-weight:700;transition:.18s}.nav-item:hover{background:rgba(255,255,255,.08)}.nav-item.active{background:#96505b}.nav-icon{width:32px;height:32px;display:grid;place-items:center;flex:0 0 32px}.nav-icon svg{width:29px;height:29px;stroke:currentColor;fill:none;stroke-width:1.8}.nav-spacer{flex:1}.logout{margin:0 18px 24px;padding-top:22px;border-top:1px solid rgba(255,255,255,.28)}.logout .nav-item{width:100%}
+.main{grid-column:2;padding:34px 42px 34px;min-width:0}.top{display:flex;justify-content:space-between;align-items:flex-start;gap:20px;margin-bottom:30px}.title-wrap{display:flex;align-items:flex-start;gap:18px}.title-icon{width:44px;height:44px;display:grid;place-items:center;color:var(--wine);margin-top:2px}.title-icon svg{width:39px;height:39px;stroke:currentColor;fill:none;stroke-width:1.7}.title h1{margin:0;color:var(--wine);font-size:38px;line-height:1.08;letter-spacing:-.7px}.title p{margin:8px 0 0;color:#625b56;font-size:17px}
+.user{position:relative;display:flex;align-items:center;gap:12px;padding-top:4px}.user-ico{width:34px;height:34px;display:grid;place-items:center;color:var(--wine)}.user-ico svg{width:30px;height:30px;stroke:currentColor;fill:none;stroke-width:1.7}.user-text strong{display:block;font-size:15px}.user-text small{display:block;color:#77706b;margin-top:3px;font-size:13px}.user-menu-btn{border:0;background:transparent;color:#2f2926;font-size:18px;padding:8px 10px}.user-menu{display:none;position:absolute;right:0;top:48px;width:215px;background:#fff;border:1px solid var(--line);border-radius:10px;box-shadow:0 14px 38px rgba(57,24,24,.18);overflow:hidden;z-index:30}.user-menu.open{display:block}.user-menu a,.user-menu button{display:block;width:100%;border:0;background:#fff;text-align:left;padding:12px 14px;text-decoration:none;color:#322f2d}.user-menu a:hover,.user-menu button:hover{background:#faf5f0}
+.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:22px 24px}.project-card{background:var(--card);border:1px solid var(--line);border-radius:14px;overflow:hidden;box-shadow:var(--shadow);transition:transform .18s,box-shadow .18s}.project-card:hover{transform:translateY(-3px);box-shadow:0 14px 30px rgba(71,35,30,.16)}.image-wrap{height:225px;background:#ddd;overflow:hidden}.image-wrap img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .28s}.project-card:hover .image-wrap img{transform:scale(1.02)}
+.card-body{min-height:77px;padding:15px 18px;display:flex;align-items:center;justify-content:space-between;gap:14px}.project-name{color:var(--wine);font-weight:800;font-size:14px;line-height:1.2;letter-spacing:.05px;text-transform:uppercase;max-width:70%}.access-btn{flex:0 0 auto;border:0;border-radius:7px;background:linear-gradient(100deg,#5d111d,#7b1d2c);color:#fff;padding:11px 16px;font-weight:800;text-decoration:none;white-space:nowrap;box-shadow:0 3px 8px rgba(93,17,29,.14)}.access-btn:hover{filter:brightness(1.06)}
+.empty{grid-column:1/-1;background:white;border:1px solid var(--line);border-radius:14px;padding:28px;text-align:center;color:var(--muted)}
+@media(max-width:1200px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:820px){.app{display:block}.sidebar{position:static;width:100%;height:auto;flex-direction:row;align-items:center}.brand{width:170px;height:85px;padding:14px}.nav{flex:1;flex-direction:row;padding:10px;overflow:auto}.nav-item{min-width:95px;min-height:62px;padding:0 12px;justify-content:center;gap:8px}.nav-spacer,.logout{display:none}.main{padding:24px 16px}.top{align-items:flex-start}.title h1{font-size:29px}.title p{font-size:15px}.user-text{display:none}.grid{grid-template-columns:1fr}.image-wrap{height:220px}}
+</style></head>
 <body>
-<div class="shell">
-  <aside class="sidebar">
-    <div class="brand"><img src="/terral_logo.png" alt="Terral Incorporadora"></div>
-    <nav class="nav">
-      <a class="nav-item" href="/"><span class="nav-icon">⌂</span><span>Início</span></a>
-      <a class="nav-item active" href="/"><span class="nav-icon">▥</span><span>Obras</span></a>
-      <a id="usersNav" class="nav-item" href="/admin" style="display:none"><span class="nav-icon">♧</span><span>Usuários</span></a>
-      <div class="nav-spacer"></div>
-    </nav>
-    <div class="logout"><button id="sideLogout" class="nav-item" style="width:100%"><span class="nav-icon">⇥</span><span>Sair</span></button></div>
-  </aside>
+<div class="app">
+<aside class="sidebar">
+  <div class="brand"><img src="/terral_logo_transparente.png" onerror="this.onerror=null;this.src='/terral_logo.png'" alt="Terral Incorporadora"></div>
+  <nav class="nav">
+    <a class="nav-item" href="/"><span class="nav-icon"><svg viewBox="0 0 24 24"><path d="M3 11.5 12 4l9 7.5"/><path d="M5.5 10.5V21h13V10.5"/><path d="M9.5 21v-6h5v6"/></svg></span><span>Início</span></a>
+    <a class="nav-item active" href="/"><span class="nav-icon"><svg viewBox="0 0 24 24"><path d="M4 20h16"/><path d="M7 20V8h7"/><path d="M11 8V4h7v4"/><path d="M15 4V2"/><path d="M18 4V2"/><path d="M14 8h6"/><path d="M18 8v12"/><path d="M7 12h11"/><path d="M9 12v8"/></svg></span><span>Obras</span></a>
+    <a id="usersNav" class="nav-item" href="/admin" style="display:none"><span class="nav-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4.5 21c.8-4.2 3.4-6.4 7.5-6.4s6.7 2.2 7.5 6.4"/></svg></span><span>Usuários</span></a>
+    <div class="nav-spacer"></div>
+  </nav>
+  <div class="logout"><button id="sideLogout" class="nav-item" type="button"><span class="nav-icon"><svg viewBox="0 0 24 24"><path d="M10 5H5v14h5"/><path d="M13 8l4 4-4 4"/><path d="M8 12h9"/></svg></span><span>Sair</span></button></div>
+</aside>
 
-  <main class="main">
-    <header class="top">
-      <div class="title-wrap">
-        <div class="title-icon">▥</div>
-        <div class="title"><h1>Selecione a obra</h1><p>Escolha a obra que deseja acessar</p></div>
-      </div>
-      <div class="user">
-        <div class="user-ico">♙</div>
-        <div class="user-text"><strong id="userName">Usuário</strong><small id="userRole">Acesso</small></div>
-        <button id="userMenuBtn" class="user-menu-btn" type="button">⌄</button>
-        <div id="userMenu" class="user-menu">
-          <a id="adminLink" href="/admin" style="display:none">Administração</a>
-          <button id="logoutBtn" type="button">Sair</button>
-        </div>
-      </div>
-    </header>
-
-    <section id="projects" class="grid"></section>
-
-    <div class="notice">
-      <div class="notice-icon">i</div>
-      <div>Você pode visualizar todas as obras.<br><b>Apenas as obras liberadas para o seu acesso estão disponíveis.</b></div>
-    </div>
-  </main>
+<main class="main">
+<header class="top">
+  <div class="title-wrap">
+    <div class="title-icon"><svg viewBox="0 0 24 24"><path d="M4 20h16"/><path d="M7 20V8h7"/><path d="M11 8V4h7v4"/><path d="M15 4V2"/><path d="M18 4V2"/><path d="M14 8h6"/><path d="M18 8v12"/><path d="M7 12h11"/><path d="M9 12v8"/></svg></div>
+    <div class="title"><h1>Selecione a obra</h1><p>Escolha a obra que deseja acessar</p></div>
+  </div>
+  <div class="user">
+    <div class="user-ico"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4.5 21c.8-4.2 3.4-6.4 7.5-6.4s6.7 2.2 7.5 6.4"/></svg></div>
+    <div class="user-text"><strong id="userName">Usuário</strong><small id="userRole">Acesso</small></div>
+    <button id="userMenuBtn" class="user-menu-btn" type="button">⌄</button>
+    <div id="userMenu" class="user-menu"><a id="adminLink" href="/admin" style="display:none">Administração</a><button id="logoutBtn" type="button">Sair</button></div>
+  </div>
+</header>
+<section id="projects" class="grid"></section>
+</main>
 </div>
+
 <script>
 const esc=s=>String(s??"").replace(/[&<>"']/g,ch=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[ch]));
 async function api(url,opt={}){const r=await fetch(url,opt);const d=await r.json().catch(()=>({}));if(!r.ok)throw new Error(d.error||"Erro");return d}
@@ -532,25 +433,25 @@ async function init(){
   userRole.textContent=me.role==="admin"?"Administrador":"Acesso comum";
   if(me.role==="admin"){adminLink.style.display="block";usersNav.style.display="flex";}
   const d=await api("/api/projects");
-  projects.innerHTML=d.items.map((p,i)=>{
-    const allowed=!!p.allowed;
-    const href=allowed?"/obra/"+encodeURIComponent(p.slug):"#";
-    return '<article class="project-card '+(allowed?'allowed':'locked')+'">'+
-      '<div class="image-wrap"><img src="'+esc(p.image_path)+'" alt="'+esc(p.name)+'"><div class="number">'+(i+1)+'</div><div class="lock">🔒</div></div>'+
-      '<div class="card-body"><div class="project-info"><div class="project-name">'+esc(p.name)+'</div>'+
-      '<div class="status"><span class="dot"></span>'+(allowed?'Acesso liberado':'Acesso não liberado')+'</div></div>'+
-      (allowed?'<a class="access-btn" href="'+href+'">Acessar&nbsp; →</a>':'<span class="access-btn">Bloqueado</span>')+
-      '</div></article>';
+  const items=d.items||[];
+  if(!items.length){projects.innerHTML='<div class="empty">Nenhuma obra foi liberada para este acesso.</div>';return;}
+  projects.innerHTML=items.map(p=>{
+    const href="/obra/"+encodeURIComponent(p.slug);
+    return '<article class="project-card">'+
+      '<div class="image-wrap"><img src="'+esc(p.image_path)+'" alt="'+esc(p.name)+'"></div>'+
+      '<div class="card-body"><div class="project-name">'+esc(p.name)+'</div>'+
+      '<a class="access-btn" href="'+href+'">Acessar&nbsp; →</a></div></article>';
   }).join("");
 }
 userMenuBtn.onclick=e=>{e.stopPropagation();userMenu.classList.toggle("open")};
 document.addEventListener("click",()=>userMenu.classList.remove("open"));
 async function logout(){await fetch("/api/logout",{method:"POST"});location.href="/login"}
 logoutBtn.onclick=logout;sideLogout.onclick=logout;
-init().catch(e=>{projects.innerHTML='<div style="color:#9d1d2d">Não foi possível carregar as obras.</div>'});
+init().catch(()=>{projects.innerHTML='<div class="empty">Não foi possível carregar as obras.</div>'});
 </script>
 </body></html>`;
 }
+
 
 function projectPlaceholderPage(projectName){
 return `<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
