@@ -1,0 +1,61 @@
+TERRAL | CONTROLE DE OBRAS — V10 ADMINISTRAÇÃO E ACESSOS
+
+O QUE ESTA VERSÃO FAZ
+
+1. Administração reorganizada
+- Lista limpa de usuários.
+- Um único botão GERENCIAR por usuário.
+- Modal com abas:
+  DADOS
+  OBRAS LIBERADAS
+  SEGURANÇA
+
+2. Controle por obra
+- Administrador vê todas as obras.
+- Usuário comum vê SOMENTE os cards das obras liberadas.
+- Um login pode ter uma, duas ou várias obras.
+- O backend também bloqueia acesso direto por URL.
+
+3. Segurança
+- Administrador consegue redefinir a senha sem informar a senha antiga.
+- Sessões antigas do usuário são encerradas ao alterar a senha.
+- Recuperação por e-mail com link de uso único válido por 30 minutos.
+- Tela "Esqueci minha senha" funcional.
+
+4. Imagens e assets
+- Mantidas as correções:
+  imagens na raiz do repositório;
+  Static Assets pelo binding ASSETS;
+  run_worker_first=true;
+  logo em /terral_logo.png;
+  favicon em /favicon_terral.png.
+
+COMO SUBIR
+
+Opção recomendada:
+1. No GitHub, abra worker.js.
+2. Apague todo o conteúdo.
+3. Cole o conteúdo do worker.js desta pasta.
+4. Commit changes.
+5. Confira se o wrangler.jsonc do repositório está igual ao arquivo desta pasta.
+6. Mantenha o .assetsignore no repositório.
+7. Aguarde o deploy do Cloudflare.
+
+PARA O E-MAIL DE RECUPERAÇÃO FUNCIONAR
+
+O código usa a API do Resend. No Cloudflare Worker, configure:
+
+Segredo:
+RESEND_API_KEY = sua chave da API do Resend
+
+Variável:
+RESET_FROM_EMAIL = remetente verificado, por exemplo:
+Terral Controle de Obras <acessos@seudominio.com.br>
+
+Sem essas duas configurações, todo o restante funciona normalmente,
+mas o botão "Enviar link de recuperação" mostrará que o envio ainda não foi configurado.
+
+IMPORTANTE
+- Não recrie o D1.
+- Não apague as tabelas existentes.
+- As tabelas projects, user_projects e password_resets são usadas automaticamente.

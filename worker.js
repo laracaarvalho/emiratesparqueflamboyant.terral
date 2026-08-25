@@ -58,10 +58,95 @@ async function ensureAdminSchema(env){
 function isAdmin(auth){return auth && auth.role==='admin';}
 function safeText(v){return String(v??'').replace(/[&<>\"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;',"'":'&#39;'}[m]));}
 
-function adminPage(){
-return "<!doctype html><html lang=\"pt-BR\"><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width,initial-scale=1\"><title>TERRAL | ADMINISTRAÇÃO</title>\n<style>\n:root{--wine:#690020;--wine2:#8a1237;--bg:#f3f4f6;--text:#202631;--muted:#68717e;--line:#e4e7eb;--green:#167c43;--red:#b42318}*{box-sizing:border-box}body{margin:0;background:var(--bg);font-family:Arial,Helvetica,sans-serif;color:var(--text)}\nheader{background:linear-gradient(90deg,#5b001a,var(--wine2));color:#fff;padding:16px 28px;display:flex;align-items:center;justify-content:space-between;box-shadow:0 2px 10px #0002}header h1{font-size:20px;margin:0}header small{opacity:.9}header a{color:#fff;text-decoration:none;font-weight:700}\n.wrap{max-width:1180px;margin:28px auto;padding:0 20px}.intro{display:flex;justify-content:space-between;align-items:flex-end;gap:20px;margin-bottom:18px}.intro h2{margin:0 0 5px;font-size:27px}.intro p{margin:0;color:var(--muted)}\n.grid{display:grid;grid-template-columns:390px 1fr;gap:18px;align-items:start}.card{background:#fff;border:1px solid var(--line);border-radius:14px;box-shadow:0 9px 28px #0f172a0d;padding:20px}.card h3{margin:0 0 4px;color:var(--wine)}.hint{font-size:12px;color:var(--muted);margin-bottom:18px}\nlabel{display:block;font-size:12px;font-weight:800;margin:12px 0 6px}.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}input,select{width:100%;padding:11px 12px;border:1px solid #cfd4da;border-radius:8px;background:#fff;font-size:14px}.btn{border:0;border-radius:8px;padding:10px 13px;font-weight:800;cursor:pointer}.primary{width:100%;margin-top:17px;color:#fff;background:linear-gradient(90deg,#60001c,var(--wine2))}.ghost{background:#f4f5f6;color:var(--text)}.danger{background:#fff1f1;color:var(--red)}.tiny{padding:7px 9px;font-size:11px}\n.msg{display:none;margin-top:12px;border-radius:8px;padding:10px;font-size:12px}.ok{display:block;background:#eff9f2;color:#13733d;border:1px solid #b7ddc2}.err{display:block;background:#fff0f1;color:#a61b32;border:1px solid #f3c7cf}\n.toolbar{display:flex;gap:10px;margin:12px 0}.toolbar input{flex:1}table{width:100%;border-collapse:collapse}th,td{text-align:left;border-bottom:1px solid var(--line);padding:11px 9px;font-size:13px}th{font-size:10px;text-transform:uppercase;color:#6b7280;background:#fafafb}.badge{font-size:10px;padding:4px 7px;border-radius:999px;background:#f5e9ee;color:var(--wine);font-weight:800}.badge.off{background:#eee;color:#777}.actions{display:flex;gap:5px;flex-wrap:wrap}.empty{text-align:center;color:var(--muted);padding:25px}.modal{position:fixed;inset:0;background:#0007;display:none;place-items:center;padding:20px;z-index:20}.modal.open{display:grid}.modalbox{width:min(430px,100%);background:white;border-radius:14px;padding:21px}.modalbox h3{margin-top:0}.modal-actions{display:flex;gap:8px;margin-top:16px}.modal-actions .btn{flex:1}\n@media(max-width:900px){.summary{grid-template-columns:repeat(2,1fr)}.grid{grid-template-columns:1fr}.intro{align-items:flex-start;flex-direction:column}.row{grid-template-columns:1fr}}\nbutton,a,select,label,.module,.user-btn,.menu-link,.menu-action,.btn,.upload,.emp-card{cursor:pointer!important}button *,a *,label *,.module *,.user-btn *,.menu-link *,.menu-action *,.btn *,.upload *,.emp-card *{cursor:pointer!important}button,button *,a,a *,select,select *,label,label *,.module,.module *,.user-btn,.user-btn *,.menu-link,.menu-link *,.menu-action,.menu-action *,.btn,.btn *,.upload,.upload *,.emp-card,.emp-card *{cursor:pointer!important}</style></head><body>\n<header><div><h1>Administração</h1><small>Usuários e acessos • EMIRATES PARQUE FLAMBOYANT</small></div><a href=\"/\">← Voltar ao painel</a></header>\n<main class=\"wrap\"><div class=\"intro\"><div><h2>Usuários e Acessos</h2><p>Crie e gerencie quem pode entrar no sistema.</p></div><div id=\"adminName\" style=\"font-size:12px;color:var(--muted)\"></div></div>\n<div class=\"grid\"><section class=\"card\"><h3>Criar novo acesso</h3><div class=\"hint\">O e-mail ficará preparado para recuperação de senha. O envio automático será conectado em uma etapa posterior.</div>\n<form id=\"createForm\"><label>Funcionário</label><select id=\"employee\" required><option value=\"\">Carregando...</option></select><label>Usuário</label><input id=\"username\" required placeholder=\"NOME.SOBRENOME\" autocomplete=\"off\"><label>E-mail</label><input id=\"email\" type=\"email\" placeholder=\"nome@empresa.com.br\"><div class=\"row\"><div><label>Senha inicial</label><input id=\"password\" type=\"password\" required minlength=\"4\" autocomplete=\"new-password\"></div><div><label>Tipo de acesso</label><select id=\"role\"><option value=\"common\">Comum</option><option value=\"admin\">Administrador</option></select></div></div><button class=\"btn primary\" type=\"submit\">Criar usuário</button><div id=\"formMsg\" class=\"msg\"></div></form></section>\n<section class=\"card\"><h3>Usuários cadastrados</h3><div class=\"toolbar\"><input id=\"search\" placeholder=\"Buscar usuário, funcionário ou e-mail...\"></div><div style=\"overflow:auto\"><table><thead><tr><th>Funcionário / usuário</th><th>E-mail</th><th>Acesso</th><th>Status</th><th>Ações</th></tr></thead><tbody id=\"tbody\"><tr><td colspan=\"5\" class=\"empty\">Carregando...</td></tr></tbody></table></div></section></div></main>\n<div id=\"passModal\" class=\"modal\"><div class=\"modalbox\"><h3>Redefinir senha</h3><div id=\"passWho\" class=\"hint\"></div><label>Nova senha</label><input id=\"newPass\" type=\"password\" minlength=\"4\"><div class=\"modal-actions\"><button class=\"btn ghost\" type=\"button\" onclick=\"closePass()\">Cancelar</button><button class=\"btn primary\" style=\"margin:0\" type=\"button\" onclick=\"savePass()\">Salvar nova senha</button></div><div id=\"passMsg\" class=\"msg\"></div></div></div>\n<script>\nlet users=[],employees=[],currentUser=null,passId=null;\nconst esc=s=>String(s??'').replace(/[&<>\\\"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','\\\"':'&quot;',\"'\":'&#39;'}[m]));\nasync function api(url,opt){const r=await fetch(url,opt);const d=await r.json().catch(()=>({}));if(r.status===401){location.href='/login';throw new Error('Sessão expirada');}if(!r.ok)throw new Error(d.error||'Erro na operação.');return d;}\nasync function load(){const me=await api('/api/me');currentUser=me.user;adminName.textContent=(currentUser.name||currentUser.username)+' • Administrador';employees=await api('/api/employees');employee.innerHTML='<option value=\"\">Selecione o funcionário</option>'+employees.map(e=>`<option value=\"${e.id}\">${esc(e.name)} — ${esc(e.role)}</option>`).join('');await loadUsers();}\nasync function loadUsers(){users=(await api('/api/admin/users')).users||[];render();}\nfunction render(){const q=search.value.toLowerCase().trim();const list=users.filter(u=>!q||[u.username,u.employee_name,u.email].some(v=>String(v||'').toLowerCase().includes(q)));tbody.innerHTML=list.length?list.map(u=>`<tr><td><b>${esc(u.employee_name||'Sem vínculo')}</b><br><span style=\"color:#6b7280\">${esc(u.username)}</span></td><td>${esc(u.email||'—')}</td><td><span class=\"badge\">${u.role==='admin'?'Administrador':'Comum'}</span></td><td><span class=\"badge ${Number(u.active)===1?'':'off'}\">${Number(u.active)===1?'Ativo':'Inativo'}</span></td><td><div class=\"actions\"><button class=\"btn tiny ghost\" onclick=\"editEmail(${u.id})\">E-mail</button><button class=\"btn tiny ghost\" onclick=\"openPass(${u.id})\">Senha</button>${u.id!==currentUser.id?`<button class=\"btn tiny ghost\" onclick=\"toggleUser(${u.id},${Number(u.active)===1?0:1})\">${Number(u.active)===1?'Desativar':'Ativar'}</button><button class=\"btn tiny danger\" onclick=\"deleteUser(${u.id})\">Excluir</button>`:''}</div></td></tr>`).join(''):'<tr><td colspan=\"5\" class=\"empty\">Nenhum usuário encontrado.</td></tr>';}\nsearch.oninput=render;\ncreateForm.onsubmit=async e=>{e.preventDefault();formMsg.className='msg';try{await api('/api/admin/users',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({employee_id:Number(employee.value),username:username.value,email:email.value,password:password.value,role:role.value})});formMsg.textContent='Usuário criado com sucesso.';formMsg.className='msg ok';createForm.reset();await loadUsers();}catch(err){formMsg.textContent=err.message;formMsg.className='msg err';}};\nasync function toggleUser(id,active){try{await api('/api/admin/users/'+id,{method:'PATCH',headers:{'content-type':'application/json'},body:JSON.stringify({active})});await loadUsers();}catch(e){alert(e.message)}}\nasync function editEmail(id){const u=users.find(x=>x.id===id);const v=prompt('E-mail do usuário:',u?.email||'');if(v===null)return;try{await api('/api/admin/users/'+id,{method:'PATCH',headers:{'content-type':'application/json'},body:JSON.stringify({email:v.trim()})});await loadUsers();}catch(e){alert(e.message)}}\nfunction openPass(id){passId=id;const u=users.find(x=>x.id===id);passWho.textContent=(u?.employee_name||u?.username||'Usuário');newPass.value='';passMsg.className='msg';passModal.classList.add('open');newPass.focus();}function closePass(){passModal.classList.remove('open');passId=null;}\nasync function savePass(){passMsg.className='msg';try{await api('/api/admin/users/'+passId+'/password',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({password:newPass.value})});passMsg.textContent='Senha redefinida.';passMsg.className='msg ok';setTimeout(closePass,700);}catch(e){passMsg.textContent=e.message;passMsg.className='msg err';}}\nasync function deleteUser(id){const u=users.find(x=>x.id===id);if(!confirm('Excluir o acesso de '+(u?.username||'este usuário')+'?'))return;try{await api('/api/admin/users/'+id,{method:'DELETE'});await loadUsers();}catch(e){alert(e.message)}}\nload().catch(e=>tbody.innerHTML='<tr><td colspan=\"5\" class=\"empty\">'+esc(e.message)+'</td></tr>');\n</script></body></html>";
+
+
+async function createPasswordReset(env,userId){
+  await ensureAdminSchema(env);
+  const token=randomHex(32);
+  const tokenHash=await sha256Hex(token);
+  await env.DB.prepare("DELETE FROM password_resets WHERE user_id=? OR datetime(expires_at)<=datetime('now')").bind(userId).run();
+  await env.DB.prepare("INSERT INTO password_resets (user_id,token_hash,expires_at,used) VALUES (?,?,datetime('now','+30 minutes'),0)").bind(userId,tokenHash).run();
+  return token;
 }
 
+async function sendPasswordResetEmail(env,to,name,resetUrl){
+  if(!env.RESEND_API_KEY || !env.RESET_FROM_EMAIL){
+    throw new Error("Envio de e-mail ainda não configurado. Configure RESEND_API_KEY e RESET_FROM_EMAIL no Cloudflare.");
+  }
+  const subject="Recuperação de senha | TERRAL Controle de Obras";
+  const safeName=safeText(name||"Usuário");
+  const html=`<div style="font-family:Arial,sans-serif;color:#202631;line-height:1.55"><h2 style="color:#690020">TERRAL | Controle de Obras</h2><p>Olá, <b>${safeName}</b>.</p><p>Foi solicitado um link para redefinir sua senha de acesso.</p><p><a href="${resetUrl}" style="display:inline-block;background:#790229;color:white;text-decoration:none;padding:12px 18px;border-radius:8px;font-weight:700">Redefinir minha senha</a></p><p style="color:#68717e;font-size:13px">Este link é válido por 30 minutos e pode ser usado uma única vez.</p><p style="color:#68717e;font-size:12px">Se você não solicitou esta alteração, ignore este e-mail.</p></div>`;
+  const r=await fetch("https://api.resend.com/emails",{
+    method:"POST",
+    headers:{"Authorization":"Bearer "+env.RESEND_API_KEY,"Content-Type":"application/json"},
+    body:JSON.stringify({from:env.RESET_FROM_EMAIL,to:[to],subject,html})
+  });
+  const d=await r.json().catch(()=>({}));
+  if(!r.ok)throw new Error(d.message||"Não foi possível enviar o e-mail de recuperação.");
+  return d;
+}
+function adminPage(){
+return String.raw`<!doctype html>
+<html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>TERRAL | ADMINISTRAÇÃO</title>
+<style>
+:root{--wine:#690020;--wine2:#8a1237;--wine3:#540018;--bg:#f4f4f5;--text:#202631;--muted:#68717e;--line:#e1e4e8;--green:#167c43;--red:#b42318;--soft:#f7edf1}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);font-family:Arial,Helvetica,sans-serif;color:var(--text)}button,a,input,select,label{font:inherit}button,a,.btn,.user-card,.tab,.project-check{cursor:pointer!important}
+header{height:70px;background:linear-gradient(90deg,#5b001a,var(--wine2));color:#fff;padding:0 28px;display:flex;align-items:center;justify-content:space-between;box-shadow:0 2px 10px #0002}header h1{font-size:20px;margin:0}header small{opacity:.9}header a{color:#fff;text-decoration:none;font-weight:700}
+.wrap{max-width:1240px;margin:28px auto;padding:0 22px}.intro{display:flex;align-items:flex-end;justify-content:space-between;gap:18px;margin-bottom:18px}.intro h2{font-size:29px;margin:0 0 4px}.intro p{margin:0;color:var(--muted)}
+.stats{display:flex;gap:9px;flex-wrap:wrap}.stat{background:#fff;border:1px solid var(--line);border-radius:999px;padding:8px 13px;font-size:12px;color:var(--muted)}.stat b{color:var(--wine)}
+.layout{display:grid;grid-template-columns:350px 1fr;gap:18px;align-items:start}.card{background:#fff;border:1px solid var(--line);border-radius:14px;box-shadow:0 8px 24px #0f172a0c;padding:20px}.card h3{margin:0 0 4px;color:var(--wine)}.hint{font-size:12px;color:var(--muted);line-height:1.45;margin-bottom:16px}
+label{display:block;font-size:12px;font-weight:800;margin:12px 0 6px}input,select{width:100%;padding:11px 12px;border:1px solid #cfd4da;border-radius:8px;background:#fff;font-size:14px;outline:none}input:focus,select:focus{border-color:#9d4963;box-shadow:0 0 0 3px #8a123713}.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.btn{border:0;border-radius:8px;padding:10px 13px;font-weight:800}.primary{background:linear-gradient(90deg,#60001c,var(--wine2));color:#fff}.wide{width:100%;margin-top:17px}.ghost{background:#f2f3f5;color:var(--text)}.danger{background:#fff0f0;color:var(--red)}.outline{background:#fff;border:1px solid var(--line);color:var(--wine)}
+.msg{display:none;margin-top:12px;border-radius:8px;padding:10px;font-size:12px}.msg.ok{display:block;background:#eff9f2;color:#13733d;border:1px solid #b7ddc2}.msg.err{display:block;background:#fff0f1;color:#a61b32;border:1px solid #f3c7cf}
+.list-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:13px}.search{max-width:370px}.user-list{display:flex;flex-direction:column;gap:9px}.user-card{border:1px solid var(--line);border-radius:11px;padding:13px 14px;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;align-items:center;transition:.15s;background:#fff}.user-card:hover{border-color:#c8a1ae;box-shadow:0 5px 15px #5f10200d}.user-main{min-width:0}.user-name{font-weight:800;font-size:14px}.user-meta{font-size:12px;color:var(--muted);margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.badges{display:flex;gap:6px;align-items:center;margin-top:8px}.badge{font-size:10px;padding:4px 7px;border-radius:999px;background:var(--soft);color:var(--wine);font-weight:800}.badge.active{background:#eaf7ef;color:var(--green)}.badge.off{background:#eee;color:#777}.manage{background:#690020;color:#fff;border:0;border-radius:8px;padding:9px 13px;font-weight:800;white-space:nowrap}.empty{text-align:center;color:var(--muted);padding:30px}
+.modal{position:fixed;inset:0;background:#1119;display:none;align-items:center;justify-content:center;padding:22px;z-index:50}.modal.open{display:flex}.modalbox{width:min(780px,100%);max-height:90vh;overflow:auto;background:#fff;border-radius:16px;box-shadow:0 25px 80px #0004}.modalhead{padding:20px 22px 15px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;gap:15px;align-items:flex-start}.modalhead h3{margin:0;color:var(--wine);font-size:20px}.modalhead p{margin:4px 0 0;color:var(--muted);font-size:12px}.close{border:0;background:#f3f3f4;width:34px;height:34px;border-radius:50%;font-size:19px}.tabs{display:flex;padding:0 22px;border-bottom:1px solid var(--line);gap:5px}.tab{border:0;background:transparent;padding:14px 12px;font-weight:800;color:#777;border-bottom:3px solid transparent}.tab.active{color:var(--wine);border-bottom-color:var(--wine)}.panel{display:none;padding:22px}.panel.active{display:block}.section-title{font-size:15px;font-weight:800;color:var(--wine);margin-bottom:4px}.panel-note{font-size:12px;color:var(--muted);margin-bottom:16px}
+.projects-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.project-check{border:1px solid var(--line);border-radius:10px;padding:11px 12px;display:flex;align-items:center;gap:10px;background:#fff}.project-check:has(input:checked){border-color:#a25a70;background:#fbf4f7}.project-check input{width:18px;height:18px;margin:0}.project-check span{font-size:12px;font-weight:700}.actions-row{display:flex;justify-content:flex-end;gap:8px;margin-top:18px;flex-wrap:wrap}.security-block{border:1px solid var(--line);border-radius:11px;padding:16px;margin-bottom:14px}.security-block h4{margin:0 0 4px;color:var(--wine)}.security-block p{margin:0 0 14px;font-size:12px;color:var(--muted);line-height:1.45}.inline-actions{display:flex;gap:8px;align-items:flex-end}.inline-actions>div{flex:1}.inline-actions .btn{min-height:41px}.danger-zone{border-top:1px solid var(--line);margin-top:20px;padding-top:18px}
+@media(max-width:900px){.layout{grid-template-columns:1fr}.intro{align-items:flex-start;flex-direction:column}.projects-grid{grid-template-columns:1fr}.row{grid-template-columns:1fr}.list-head{align-items:flex-start;flex-direction:column}.search{max-width:none}.inline-actions{flex-direction:column;align-items:stretch}.user-card{grid-template-columns:1fr}.manage{width:100%}}
+</style></head><body>
+<header><div><h1>Administração</h1><small>Usuários, obras e segurança • TERRAL CONTROLE DE OBRAS</small></div><a href="/">← Voltar às obras</a></header>
+<main class="wrap">
+  <div class="intro"><div><h2>Usuários e Acessos</h2><p>Crie acessos e controle quais obras cada login pode visualizar.</p></div><div class="stats"><span class="stat"><b id="sTotal">0</b> usuários</span><span class="stat"><b id="sActive">0</b> ativos</span><span class="stat"><b id="sAdmin">0</b> administrador(es)</span></div></div>
+  <div class="layout">
+    <section class="card"><h3>Criar novo acesso</h3><div class="hint">Depois de criar o login, clique em <b>Gerenciar</b> para liberar uma ou mais obras.</div>
+      <form id="createForm"><label>Funcionário</label><select id="employee" required><option value="">Carregando...</option></select><label>Usuário</label><input id="username" required placeholder="NOME.SOBRENOME" autocomplete="off"><label>E-mail</label><input id="email" type="email" placeholder="nome@terral.com.br"><div class="row"><div><label>Senha inicial</label><input id="password" type="password" required minlength="4" autocomplete="new-password"></div><div><label>Tipo de acesso</label><select id="role"><option value="common">Comum</option><option value="admin">Administrador</option></select></div></div><button class="btn primary wide" type="submit">Criar usuário</button><div id="formMsg" class="msg"></div></form>
+    </section>
+    <section class="card"><div class="list-head"><div><h3>Usuários cadastrados</h3><div class="hint" style="margin:3px 0 0">Clique em Gerenciar para editar dados, obras e senha.</div></div><input id="search" class="search" placeholder="Buscar usuário, funcionário ou e-mail..."></div><div id="userList" class="user-list"><div class="empty">Carregando...</div></div></section>
+  </div>
+</main>
+
+<div id="manageModal" class="modal"><div class="modalbox">
+  <div class="modalhead"><div><h3 id="mName">Usuário</h3><p id="mUser">USUARIO</p></div><button class="close" type="button" onclick="closeManage()">×</button></div>
+  <div class="tabs"><button class="tab active" data-tab="data" type="button">Dados</button><button class="tab" data-tab="projects" type="button">Obras liberadas</button><button class="tab" data-tab="security" type="button">Segurança</button></div>
+  <div id="panel-data" class="panel active"><div class="section-title">Dados do acesso</div><div class="panel-note">Atualize e-mail, perfil e status deste login.</div><div class="row"><div><label>E-mail</label><input id="mEmail" type="email"></div><div><label>Tipo de acesso</label><select id="mRole"><option value="common">Comum</option><option value="admin">Administrador</option></select></div></div><label>Status</label><select id="mActive"><option value="1">Ativo</option><option value="0">Inativo</option></select><div class="actions-row"><button class="btn primary" type="button" onclick="saveData()">Salvar dados</button></div><div id="dataMsg" class="msg"></div><div class="danger-zone"><button id="deleteBtn" class="btn danger" type="button" onclick="deleteManaged()">Excluir acesso</button></div></div>
+  <div id="panel-projects" class="panel"><div class="section-title">Obras liberadas</div><div class="panel-note">O usuário comum verá somente os cards marcados abaixo. Administradores enxergam todas as obras automaticamente.</div><div id="projectsGrid" class="projects-grid"></div><div class="actions-row"><button class="btn primary" type="button" onclick="saveProjects()">Salvar acessos às obras</button></div><div id="projectsMsg" class="msg"></div></div>
+  <div id="panel-security" class="panel"><div class="section-title">Segurança</div><div class="panel-note">O Administrador pode redefinir a senha sem informar a senha antiga.</div><div class="security-block"><h4>Definir nova senha</h4><p>A nova senha passa a valer imediatamente e as sessões abertas desse usuário serão encerradas.</p><div class="row"><div><label>Nova senha</label><input id="newPass" type="password" minlength="4" autocomplete="new-password"></div><div><label>Confirmar nova senha</label><input id="newPass2" type="password" minlength="4" autocomplete="new-password"></div></div><div class="actions-row"><button class="btn primary" type="button" onclick="savePassword()">Alterar senha</button></div><div id="passMsg" class="msg"></div></div><div class="security-block"><h4>Recuperação por e-mail</h4><p>Envia um link de uso único, válido por 30 minutos, para o e-mail cadastrado do usuário.</p><div id="recoveryEmail" style="font-weight:800;font-size:13px;margin-bottom:12px">—</div><button class="btn outline" type="button" onclick="sendRecovery()">Enviar link de recuperação</button><div id="emailMsg" class="msg"></div></div></div>
+</div></div>
+<script>
+let users=[],employees=[],projects=[],currentUser=null,managed=null,managedProjectIds=[];
+const esc=s=>String(s??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+async function api(url,opt={}){const r=await fetch(url,opt);const d=await r.json().catch(()=>({}));if(r.status===401){location.href='/login';throw new Error('Sessão expirada');}if(!r.ok)throw new Error(d.error||'Erro na operação.');return d;}
+function setMsg(id,text,ok){const e=document.getElementById(id);e.textContent=text;e.className='msg '+(ok?'ok':'err');}
+function clearMsg(id){const e=document.getElementById(id);e.className='msg';e.textContent='';}
+async function load(){const me=await api('/api/me');currentUser=me.user;employees=await api('/api/employees');employee.innerHTML='<option value="">Selecione o funcionário</option>'+employees.map(e=>'<option value="'+e.id+'">'+esc(e.name)+' — '+esc(e.role)+'</option>').join('');projects=(await api('/api/admin/projects')).items||[];await loadUsers();}
+async function loadUsers(){users=(await api('/api/admin/users')).users||[];document.getElementById('sTotal').textContent=users.length;document.getElementById('sActive').textContent=users.filter(u=>Number(u.active)===1).length;document.getElementById('sAdmin').textContent=users.filter(u=>u.role==='admin').length;renderUsers();}
+function renderUsers(){const q=search.value.toLowerCase().trim();const list=users.filter(u=>!q||[u.username,u.employee_name,u.email].some(v=>String(v||'').toLowerCase().includes(q)));userList.innerHTML=list.length?list.map(u=>'<div class="user-card"><div class="user-main"><div class="user-name">'+esc(u.employee_name||'Sem vínculo')+'</div><div class="user-meta">'+esc(u.username)+' • '+esc(u.email||'Sem e-mail cadastrado')+'</div><div class="badges"><span class="badge">'+(u.role==='admin'?'Administrador':'Comum')+'</span><span class="badge '+(Number(u.active)===1?'active':'off')+'">'+(Number(u.active)===1?'Ativo':'Inativo')+'</span></div></div><button class="manage" type="button" onclick="openManage('+u.id+')">Gerenciar</button></div>').join(''):'<div class="empty">Nenhum usuário encontrado.</div>';}
+search.oninput=renderUsers;
+createForm.onsubmit=async e=>{e.preventDefault();clearMsg('formMsg');try{await api('/api/admin/users',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({employee_id:Number(employee.value),username:username.value,email:email.value,password:password.value,role:role.value})});setMsg('formMsg','Usuário criado com sucesso. Agora use Gerenciar para liberar as obras.',true);createForm.reset();await loadUsers();}catch(err){setMsg('formMsg',err.message,false);}};
+async function openManage(id){managed=users.find(u=>Number(u.id)===Number(id));if(!managed)return;mName.textContent=managed.employee_name||managed.username;mUser.textContent=managed.username;mEmail.value=managed.email||'';mRole.value=managed.role;mActive.value=String(Number(managed.active));recoveryEmail.textContent=managed.email||'Nenhum e-mail cadastrado';deleteBtn.style.display=Number(managed.id)===Number(currentUser.id)?'none':'inline-block';clearMsg('dataMsg');clearMsg('projectsMsg');clearMsg('passMsg');clearMsg('emailMsg');newPass.value='';newPass2.value='';await loadManagedProjects();switchTab('data');manageModal.classList.add('open');}
+function closeManage(){manageModal.classList.remove('open');managed=null;}
+function switchTab(name){document.querySelectorAll('.tab').forEach(b=>b.classList.toggle('active',b.dataset.tab===name));document.querySelectorAll('.panel').forEach(p=>p.classList.toggle('active',p.id==='panel-'+name));}
+document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>switchTab(b.dataset.tab));manageModal.addEventListener('click',e=>{if(e.target===manageModal)closeManage()});
+async function loadManagedProjects(){if(!managed)return;const d=await api('/api/admin/users/'+managed.id+'/projects');managedProjectIds=(d.project_ids||[]).map(Number);renderProjectChecks();}
+function renderProjectChecks(){projectsGrid.innerHTML=projects.map(p=>'<label class="project-check"><input type="checkbox" value="'+p.id+'" '+(managedProjectIds.includes(Number(p.id))?'checked':'')+' '+(managed&&managed.role==='admin'?'disabled':'')+'><span>'+esc(p.name)+'</span></label>').join('')+(managed&&managed.role==='admin'?'<div class="panel-note" style="grid-column:1/-1;margin:4px 0 0">Administrador tem acesso automático a todas as obras.</div>':'');}
+async function saveProjects(){if(!managed)return;clearMsg('projectsMsg');try{const ids=[...projectsGrid.querySelectorAll('input[type=checkbox]:checked')].map(x=>Number(x.value));await api('/api/admin/users/'+managed.id+'/projects',{method:'PUT',headers:{'content-type':'application/json'},body:JSON.stringify({project_ids:ids})});managedProjectIds=ids;setMsg('projectsMsg','Acessos às obras atualizados.',true);}catch(e){setMsg('projectsMsg',e.message,false);}}
+async function saveData(){if(!managed)return;clearMsg('dataMsg');try{await api('/api/admin/users/'+managed.id,{method:'PATCH',headers:{'content-type':'application/json'},body:JSON.stringify({email:mEmail.value.trim(),role:mRole.value,active:Number(mActive.value)})});setMsg('dataMsg','Dados atualizados.',true);await loadUsers();managed=users.find(u=>Number(u.id)===Number(managed.id));if(managed){recoveryEmail.textContent=managed.email||'Nenhum e-mail cadastrado';renderProjectChecks();}}catch(e){setMsg('dataMsg',e.message,false);}}
+async function savePassword(){if(!managed)return;clearMsg('passMsg');if(newPass.value.length<4)return setMsg('passMsg','A senha deve ter pelo menos 4 caracteres.',false);if(newPass.value!==newPass2.value)return setMsg('passMsg','As senhas não conferem.',false);try{await api('/api/admin/users/'+managed.id+'/password',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({password:newPass.value})});newPass.value='';newPass2.value='';setMsg('passMsg','Senha alterada com sucesso.',true);}catch(e){setMsg('passMsg',e.message,false);}}
+async function sendRecovery(){if(!managed)return;clearMsg('emailMsg');if(!managed.email)return setMsg('emailMsg','Cadastre um e-mail antes de enviar a recuperação.',false);try{await api('/api/admin/users/'+managed.id+'/send-reset',{method:'POST'});setMsg('emailMsg','E-mail de recuperação enviado para '+managed.email+'.',true);}catch(e){setMsg('emailMsg',e.message,false);}}
+async function deleteManaged(){if(!managed||Number(managed.id)===Number(currentUser.id))return;if(!confirm('Excluir o acesso de '+managed.username+'?'))return;try{await api('/api/admin/users/'+managed.id,{method:'DELETE'});closeManage();await loadUsers();}catch(e){alert(e.message);}}
+load().catch(e=>userList.innerHTML='<div class="empty">'+esc(e.message)+'</div>');
+</script></body></html>`;
+}
 
 function normalizePersonName(value){
   return String(value||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toUpperCase().replace(/[^A-Z0-9]+/g," ").trim().replace(/\s+/g," ");
@@ -292,7 +377,7 @@ return `<!doctype html>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>TERRAL | CONTROLE DE OBRAS</title>
-<link rel="icon" type="image/png" href="/brand/favicon_terral.png">
+<link rel="icon" type="image/png" href="/favicon_terral.png">
 <style>
 :root{
   --wine:#6b1321;--wine-dark:#4f0715;--wine-soft:#8b4751;
@@ -402,7 +487,7 @@ button,a{font:inherit}
 <body>
 <div class="shell">
   <aside class="sidebar">
-    <div class="brand"><img src="/brand/terral_logo.png" alt="Terral Incorporadora"></div>
+    <div class="brand"><img src="/terral_logo.png" alt="Terral Incorporadora"></div>
     <nav class="nav">
       <a class="nav-item" href="/"><span class="nav-icon">⌂</span><span>Início</span></a>
       <a class="nav-item active" href="/"><span class="nav-icon">▥</span><span>Obras</span></a>
@@ -482,11 +567,8 @@ export default {
     const url=new URL(request.url);
     const path=url.pathname;
 
-    // ARQUIVOS ESTÁTICOS: imagens, logos e favicon
-    if (
-      request.method === "GET" &&
-      /\.(png|jpg|jpeg|webp|gif|svg|ico)$/i.test(path)
-    ) {
+    // Static assets (imagens, logo e favicon)
+    if(request.method==="GET" && /\.(png|jpg|jpeg|webp|gif|svg|ico)$/i.test(path)){
       return env.ASSETS.fetch(request);
     }
 
@@ -561,7 +643,38 @@ export default {
     if(request.method==="OPTIONS") return new Response(null,{status:204,headers:{"Access-Control-Allow-Origin":"*","Access-Control-Allow-Headers":"Content-Type","Access-Control-Allow-Methods":"GET, POST, PUT, DELETE, OPTIONS"}});
 
     if(path==="/recuperar-senha" && request.method==="GET"){
-      return new Response(`<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>TERRAL | RECUPERAR SENHA</title><style>body{margin:0;min-height:100vh;display:grid;place-items:center;background:#f3f4f6;font-family:Arial;color:#202631;padding:20px}.box{max-width:460px;background:white;border-radius:16px;padding:28px;box-shadow:0 15px 45px #0001}.box h1{font-size:23px;color:#690020}.box p{color:#68717e;line-height:1.5}.box a{display:block;text-align:center;background:#780329;color:white;text-decoration:none;padding:12px;border-radius:8px;margin-top:20px;font-weight:700}button,a,select,label,.module,.user-btn,.menu-link,.menu-action,.btn,.upload,.emp-card{cursor:pointer!important}button *,a *,label *,.module *,.user-btn *,.menu-link *,.menu-action *,.btn *,.upload *,.emp-card *{cursor:pointer!important}button,button *,a,a *,select,select *,label,label *,.module,.module *,.user-btn,.user-btn *,.menu-link,.menu-link *,.menu-action,.menu-action *,.btn,.btn *,.upload,.upload *,.emp-card,.emp-card *{cursor:pointer!important}</style></head><body><div class="box"><h1>Recuperação de senha</h1><p>O sistema já está preparado para armazenar o e-mail de cada usuário. O envio automático do link de recuperação será conectado em uma próxima etapa.</p><p>Enquanto isso, solicite ao Administrador a redefinição da sua senha pelo menu <b>Usuário → Administração</b>.</p><a href="/login">Voltar ao login</a></div></body></html>`,{headers:{"content-type":"text/html; charset=UTF-8"}});
+      const token=String(url.searchParams.get("token")||"");
+      const page=token?`<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>TERRAL | NOVA SENHA</title><style>body{margin:0;min-height:100vh;display:grid;place-items:center;background:#f3f4f6;font-family:Arial;color:#202631;padding:20px}.box{width:min(430px,100%);background:#fff;border-radius:16px;padding:28px;box-shadow:0 15px 45px #0001}h1{font-size:23px;color:#690020}p{color:#68717e;line-height:1.5;font-size:13px}label{display:block;font-size:12px;font-weight:800;margin:12px 0 6px}input{width:100%;box-sizing:border-box;padding:11px;border:1px solid #ccd2d9;border-radius:8px}button{width:100%;border:0;background:#780329;color:white;padding:12px;border-radius:8px;margin-top:16px;font-weight:800;cursor:pointer}.msg{margin-top:12px;font-size:13px}</style></head><body><div class="box"><h1>Definir nova senha</h1><p>Escolha uma nova senha para seu acesso ao TERRAL | Controle de Obras.</p><form id="f"><label>Nova senha</label><input id="p1" type="password" minlength="4" required><label>Confirmar nova senha</label><input id="p2" type="password" minlength="4" required><button>Salvar nova senha</button><div id="msg" class="msg"></div></form></div><script>f.onsubmit=async e=>{e.preventDefault();msg.textContent='';if(p1.value!==p2.value){msg.textContent='As senhas não conferem.';return}const r=await fetch('/api/reset-password',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({token:${JSON.stringify(token)},password:p1.value})});const d=await r.json().catch(()=>({}));if(r.ok){msg.innerHTML='Senha alterada com sucesso. <a href="/login">Entrar no sistema</a>';f.querySelector('button').disabled=true}else msg.textContent=d.error||'Não foi possível alterar a senha.'};</script></body></html>`:`<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>TERRAL | RECUPERAR SENHA</title><style>body{margin:0;min-height:100vh;display:grid;place-items:center;background:#f3f4f6;font-family:Arial;color:#202631;padding:20px}.box{width:min(430px,100%);background:white;border-radius:16px;padding:28px;box-shadow:0 15px 45px #0001}h1{font-size:23px;color:#690020}p{color:#68717e;line-height:1.5;font-size:13px}label{display:block;font-size:12px;font-weight:800;margin:12px 0 6px}input{width:100%;box-sizing:border-box;padding:11px;border:1px solid #ccd2d9;border-radius:8px}button{width:100%;border:0;background:#780329;color:white;padding:12px;border-radius:8px;margin-top:16px;font-weight:800;cursor:pointer}.back{display:block;text-align:center;margin-top:16px;color:#690020;text-decoration:none;font-size:13px}.msg{margin-top:12px;font-size:13px}</style></head><body><div class="box"><h1>Recuperar senha</h1><p>Informe seu usuário ou e-mail cadastrado. Se encontrarmos seu acesso, você receberá um link válido por 30 minutos.</p><form id="f"><label>Usuário ou e-mail</label><input id="identity" required><button>Enviar link de recuperação</button><div id="msg" class="msg"></div></form><a class="back" href="/login">Voltar ao login</a></div><script>f.onsubmit=async e=>{e.preventDefault();msg.textContent='Enviando...';const r=await fetch('/api/request-password-reset',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({identity:identity.value})});const d=await r.json().catch(()=>({}));msg.textContent=r.ok?(d.message||'Confira seu e-mail.'):(d.error||'Não foi possível enviar o e-mail.');};</script></body></html>`;
+      return new Response(page,{headers:{"content-type":"text/html; charset=UTF-8"}});
+    }
+
+    if(path==="/api/request-password-reset" && request.method==="POST"){
+      await ensureAdminSchema(env);
+      const b=await request.json().catch(()=>({}));
+      const identity=String(b.identity||"").trim();
+      if(!identity)return json({error:"Informe seu usuário ou e-mail."},400);
+      const user=await env.DB.prepare(`SELECT u.id,u.username,u.email,e.name AS employee_name FROM users u LEFT JOIN employees e ON e.id=u.employee_id WHERE u.active=1 AND (UPPER(u.username)=UPPER(?) OR LOWER(u.email)=LOWER(?)) LIMIT 1`).bind(identity,identity).first();
+      if(!user||!String(user.email||"").trim())return json({message:"Se o acesso possuir um e-mail válido, o link de recuperação será enviado."});
+      try{
+        const token=await createPasswordReset(env,user.id);
+        const link=url.origin+"/recuperar-senha?token="+encodeURIComponent(token);
+        await sendPasswordResetEmail(env,String(user.email).trim(),user.employee_name||user.username,link);
+        return json({message:"Se o acesso possuir um e-mail válido, o link de recuperação será enviado."});
+      }catch(e){return json({error:String(e&&e.message||e)},503);}
+    }
+
+    if(path==="/api/reset-password" && request.method==="POST"){
+      await ensureAdminSchema(env);
+      const b=await request.json().catch(()=>({})),token=String(b.token||""),password=String(b.password||"");
+      if(!token||password.length<4)return json({error:"Link ou nova senha inválidos."},400);
+      const tokenHash=await sha256Hex(token);
+      const reset=await env.DB.prepare(`SELECT pr.id,pr.user_id FROM password_resets pr JOIN users u ON u.id=pr.user_id WHERE pr.token_hash=? AND pr.used=0 AND u.active=1 AND datetime(pr.expires_at)>datetime('now') LIMIT 1`).bind(tokenHash).first();
+      if(!reset)return json({error:"Este link expirou ou já foi utilizado."},400);
+      const salt=randomHex(16),hash=await passwordHash(password,salt);
+      await env.DB.prepare("UPDATE users SET password_hash=?,salt=? WHERE id=?").bind(hash,salt,reset.user_id).run();
+      await env.DB.prepare("UPDATE password_resets SET used=1 WHERE id=?").bind(reset.id).run();
+      await env.DB.prepare("DELETE FROM sessions WHERE user_id=?").bind(reset.user_id).run();
+      return json({ok:true});
     }
 
     if(path==="/api/health" && request.method==="GET"){
@@ -600,11 +713,12 @@ export default {
 
     if(path==="/api/projects" && request.method==="GET"){
       await ensureProjectsSchema(env);
-      const rows=(await env.DB.prepare(`SELECT id,slug,name,image_path,active,sort_order FROM projects WHERE active=1 ORDER BY sort_order,name`).all()).results||[];
-      if(auth.role==="admin")return json({items:rows.map(p=>({...p,allowed:true}))});
-      const allowedRows=(await env.DB.prepare("SELECT project_id FROM user_projects WHERE user_id=?").bind(auth.id).all()).results||[];
-      const allowed=new Set(allowedRows.map(x=>Number(x.project_id)));
-      return json({items:rows.map(p=>({...p,allowed:allowed.has(Number(p.id))}))});
+      if(auth.role==="admin"){
+        const rows=(await env.DB.prepare(`SELECT id,slug,name,image_path,active,sort_order FROM projects WHERE active=1 ORDER BY sort_order,name`).all()).results||[];
+        return json({items:rows.map(p=>({...p,allowed:true}))});
+      }
+      const rows=(await env.DB.prepare(`SELECT p.id,p.slug,p.name,p.image_path,p.active,p.sort_order FROM projects p INNER JOIN user_projects up ON up.project_id=p.id WHERE p.active=1 AND up.user_id=? ORDER BY p.sort_order,p.name`).bind(auth.id).all()).results||[];
+      return json({items:rows.map(p=>({...p,allowed:true}))});
     }
 
     const projectMatch=path.match(/^\/obra\/([a-z0-9-]+)$/);
@@ -645,6 +759,58 @@ export default {
       await ensureAdminSchema(env);
       const r=await env.DB.prepare(`SELECT u.id,u.username,u.email,u.role,u.employee_id,u.active,e.name AS employee_name,e.role AS employee_role FROM users u LEFT JOIN employees e ON e.id=u.employee_id ORDER BY e.name COLLATE NOCASE,u.username COLLATE NOCASE`).all();
       return json({users:r.results||[]});
+    }
+
+    if(path==="/api/admin/projects" && request.method==="GET"){
+      if(!isAdmin(auth))return json({error:"Acesso restrito ao Administrador."},403);
+      await ensureProjectsSchema(env);
+      const r=await env.DB.prepare("SELECT id,slug,name,image_path,sort_order FROM projects WHERE active=1 ORDER BY sort_order,name").all();
+      return json({items:r.results||[]});
+    }
+
+    const adminUserProjects=path.match(/^\/api\/admin\/users\/(\d+)\/projects$/);
+    if(adminUserProjects && request.method==="GET"){
+      if(!isAdmin(auth))return json({error:"Acesso restrito ao Administrador."},403);
+      await ensureProjectsSchema(env);
+      const id=Number(adminUserProjects[1]);
+      const u=await env.DB.prepare("SELECT id,role FROM users WHERE id=?").bind(id).first();
+      if(!u)return json({error:"Usuário não encontrado."},404);
+      const r=await env.DB.prepare("SELECT project_id FROM user_projects WHERE user_id=? ORDER BY project_id").bind(id).all();
+      return json({project_ids:(r.results||[]).map(x=>Number(x.project_id)),role:u.role});
+    }
+    if(adminUserProjects && request.method==="PUT"){
+      if(!isAdmin(auth))return json({error:"Acesso restrito ao Administrador."},403);
+      await ensureProjectsSchema(env);
+      const id=Number(adminUserProjects[1]),b=await request.json().catch(()=>({}));
+      const ids=[...new Set((Array.isArray(b.project_ids)?b.project_ids:[]).map(Number).filter(Number.isInteger))];
+      const u=await env.DB.prepare("SELECT id,role FROM users WHERE id=?").bind(id).first();
+      if(!u)return json({error:"Usuário não encontrado."},404);
+      if(u.role==='admin')return json({ok:true,project_ids:[]});
+      if(ids.length){
+        const marks=ids.map(()=>'?').join(',');
+        const valid=(await env.DB.prepare(`SELECT id FROM projects WHERE active=1 AND id IN (${marks})`).bind(...ids).all()).results||[];
+        if(valid.length!==ids.length)return json({error:"Uma ou mais obras selecionadas são inválidas."},400);
+      }
+      await env.DB.prepare("DELETE FROM user_projects WHERE user_id=?").bind(id).run();
+      if(ids.length)await env.DB.batch(ids.map(pid=>env.DB.prepare("INSERT INTO user_projects(user_id,project_id) VALUES (?,?)").bind(id,pid)));
+      return json({ok:true,project_ids:ids});
+    }
+
+    const adminSendReset=path.match(/^\/api\/admin\/users\/(\d+)\/send-reset$/);
+    if(adminSendReset && request.method==="POST"){
+      if(!isAdmin(auth))return json({error:"Acesso restrito ao Administrador."},403);
+      await ensureAdminSchema(env);
+      const id=Number(adminSendReset[1]);
+      const u=await env.DB.prepare(`SELECT u.id,u.username,u.email,u.active,e.name AS employee_name FROM users u LEFT JOIN employees e ON e.id=u.employee_id WHERE u.id=?`).bind(id).first();
+      if(!u)return json({error:"Usuário não encontrado."},404);
+      if(Number(u.active)!==1)return json({error:"Ative o usuário antes de enviar uma recuperação."},400);
+      if(!String(u.email||'').trim())return json({error:"Este usuário não possui e-mail cadastrado."},400);
+      try{
+        const token=await createPasswordReset(env,id);
+        const link=url.origin+"/recuperar-senha?token="+encodeURIComponent(token);
+        await sendPasswordResetEmail(env,String(u.email).trim(),u.employee_name||u.username,link);
+        return json({ok:true});
+      }catch(e){return json({error:String(e&&e.message||e)},503);}
     }
     if(path==="/api/admin/users" && request.method==="POST"){
       if(!isAdmin(auth)) return json({error:"Acesso restrito ao Administrador."},403);
@@ -698,6 +864,7 @@ export default {
       const id=Number(adminUserMatch[1]);if(id===Number(auth.id))return json({error:"Você não pode excluir seu próprio acesso."},400);
       await env.DB.prepare("DELETE FROM sessions WHERE user_id=?").bind(id).run();
       await env.DB.prepare("DELETE FROM password_resets WHERE user_id=?").bind(id).run().catch(()=>null);
+      await env.DB.prepare("DELETE FROM user_projects WHERE user_id=?").bind(id).run().catch(()=>null);
       await env.DB.prepare("DELETE FROM users WHERE id=?").bind(id).run();
       return json({ok:true});
     }
