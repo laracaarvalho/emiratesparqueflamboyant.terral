@@ -482,6 +482,14 @@ export default {
     const url=new URL(request.url);
     const path=url.pathname;
 
+    // ARQUIVOS ESTÁTICOS: imagens, logos e favicon
+    if (
+      request.method === "GET" &&
+      /\.(png|jpg|jpeg|webp|gif|svg|ico)$/i.test(path)
+    ) {
+      return env.ASSETS.fetch(request);
+    }
+
     if(path==="/login" && request.method==="GET"){
       const auth=await getAuth(request,env);
       if(auth)return Response.redirect(url.origin+"/",302);
