@@ -303,7 +303,7 @@ init().catch(e=>{console.error(e);alert(e.message)});
 
 const TERRAL_PROJECTS = [
   {slug:"ambiente-terral",name:"AMBIENTE TERRAL",image:"/ambiente-terral.jpg",sort_order:1},
-  {slug:"serrano",name:"SERRANO",image:"",sort_order:2},
+  {slug:"serrano",name:"SERRANO",image:"/serrano-terral.jpg",sort_order:2},
   {slug:"aero17",name:"AERO17",image:"",sort_order:3},
   {slug:"ita-marista",name:"ITÁ MARISTA",image:"",sort_order:4},
   {slug:"alameda-areiao",name:"ALAMEDA AREIÃO",image:"",sort_order:5},
