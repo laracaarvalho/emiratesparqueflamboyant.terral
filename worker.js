@@ -302,15 +302,15 @@ init().catch(e=>{console.error(e);alert(e.message)});
 
 
 const TERRAL_PROJECTS = [
-  {slug:"ambiente-terral",name:"AMBIENTE TERRAL",image:"/ambiente-terral.jpg",sort_order:1},
-  {slug:"serrano",name:"SERRANO",image:"/serrano.jpg",sort_order:2},
-  {slug:"aero17",name:"AERO17",image:"/aero17.jpg",sort_order:3},
-  {slug:"ita-marista",name:"ITÁ MARISTA",image:"/ita-marista.jpg",sort_order:4},
-  {slug:"alameda-areiao",name:"ALAMEDA AREIÃO",image:"/alameda-areiao.jpg",sort_order:5},
-  {slug:"casa-conceito-praca-do-sol",name:"CASA CONCEITO — PRAÇA DO SOL",image:"/casa-conceito.jpg",sort_order:6},
-  {slug:"origyn-bueno",name:"ORIGYN BUENO",image:"/origyn-bueno.jpg",sort_order:7},
-  {slug:"hype-vaca-brava",name:"HYPE VACA BRAVA",image:"/hype-vaca-brava.jpg",sort_order:8},
-  {slug:"emirates-parque-flamboyant",name:"EMIRATES PARQUE FLAMBOYANT",image:"/emirates-parque-flamboyant.jpg",sort_order:9}
+  {slug:"ambiente-terral",name:"AMBIENTE TERRAL",image:"",sort_order:1},
+  {slug:"serrano",name:"SERRANO",image:"",sort_order:2},
+  {slug:"aero17",name:"AERO17",image:"",sort_order:3},
+  {slug:"ita-marista",name:"ITÁ MARISTA",image:"",sort_order:4},
+  {slug:"alameda-areiao",name:"ALAMEDA AREIÃO",image:"",sort_order:5},
+  {slug:"casa-conceito-praca-do-sol",name:"CASA CONCEITO — PRAÇA DO SOL",image:"",sort_order:6},
+  {slug:"origyn-bueno",name:"ORIGYN BUENO",image:"",sort_order:7},
+  {slug:"hype-vaca-brava",name:"HYPE VACA BRAVA",image:"",sort_order:8},
+  {slug:"emirates-parque-flamboyant",name:"EMIRATES PARQUE FLAMBOYANT",image:"",sort_order:9}
 ];
 
 async function ensureProjectsSchema(env){
@@ -388,10 +388,10 @@ return `<!doctype html>
 .nav{padding:28px 16px;display:flex;flex-direction:column;gap:14px}.nav-item{min-height:76px;border:0;border-radius:11px;background:transparent;color:white;display:flex;align-items:center;gap:18px;padding:0 20px;text-decoration:none;font-size:15px;font-weight:700;transition:.18s}.nav-item:hover{background:rgba(255,255,255,.08)}.nav-item.active{background:#96505b}.nav-icon{width:32px;height:32px;display:grid;place-items:center;flex:0 0 32px}.nav-icon svg{width:29px;height:29px;stroke:currentColor;fill:none;stroke-width:1.8}.nav-spacer{flex:1}.logout{margin:0 18px 24px;padding-top:22px;border-top:1px solid rgba(255,255,255,.28)}.logout .nav-item{width:100%}
 .main{grid-column:2;padding:34px 42px 34px;min-width:0}.top{display:flex;justify-content:space-between;align-items:flex-start;gap:20px;margin-bottom:30px}.title-wrap{display:flex;align-items:flex-start;gap:18px}.title-icon{width:44px;height:44px;display:grid;place-items:center;color:var(--wine);margin-top:2px}.title-icon svg{width:39px;height:39px;stroke:currentColor;fill:none;stroke-width:1.7}.title h1{margin:0;color:var(--wine);font-size:38px;line-height:1.08;letter-spacing:-.7px}.title p{margin:8px 0 0;color:#625b56;font-size:17px}
 .user{position:relative;display:flex;align-items:center;gap:12px;padding-top:4px}.user-ico{width:34px;height:34px;display:grid;place-items:center;color:var(--wine)}.user-ico svg{width:30px;height:30px;stroke:currentColor;fill:none;stroke-width:1.7}.user-text strong{display:block;font-size:15px}.user-text small{display:block;color:#77706b;margin-top:3px;font-size:13px}.user-menu-btn{border:0;background:transparent;color:#2f2926;font-size:18px;padding:8px 10px}.user-menu{display:none;position:absolute;right:0;top:48px;width:215px;background:#fff;border:1px solid var(--line);border-radius:10px;box-shadow:0 14px 38px rgba(57,24,24,.18);overflow:hidden;z-index:30}.user-menu.open{display:block}.user-menu a,.user-menu button{display:block;width:100%;border:0;background:#fff;text-align:left;padding:12px 14px;text-decoration:none;color:#322f2d}.user-menu a:hover,.user-menu button:hover{background:#faf5f0}
-.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:22px 24px}.project-card{background:var(--card);border:1px solid var(--line);border-radius:14px;overflow:hidden;box-shadow:var(--shadow);transition:transform .18s,box-shadow .18s}.project-card:hover{transform:translateY(-3px);box-shadow:0 14px 30px rgba(71,35,30,.16)}.image-wrap{height:225px;background:#ddd;overflow:hidden}.image-wrap img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .28s}.project-card:hover .image-wrap img{transform:scale(1.02)}
+.grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:22px 24px}.project-card{background:var(--card);border:1px solid var(--line);border-radius:14px;overflow:hidden;box-shadow:var(--shadow);transition:transform .18s,box-shadow .18s}.project-card:hover{transform:translateY(-3px);box-shadow:0 14px 30px rgba(71,35,30,.16)}.image-wrap{height:180px;background:linear-gradient(135deg,#eee7df,#e2d9cf);overflow:hidden;position:relative}.image-wrap img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .28s}.image-placeholder{width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:#9b9088;font-size:12px;font-weight:700;letter-spacing:.7px;text-transform:uppercase}.project-card:hover .image-wrap img{transform:scale(1.02)}
 .card-body{min-height:77px;padding:15px 18px;display:flex;align-items:center;justify-content:space-between;gap:14px}.project-name{color:var(--wine);font-weight:800;font-size:14px;line-height:1.2;letter-spacing:.05px;text-transform:uppercase;max-width:70%}.access-btn{flex:0 0 auto;border:0;border-radius:7px;background:linear-gradient(100deg,#5d111d,#7b1d2c);color:#fff;padding:11px 16px;font-weight:800;text-decoration:none;white-space:nowrap;box-shadow:0 3px 8px rgba(93,17,29,.14)}.access-btn:hover{filter:brightness(1.06)}
 .empty{grid-column:1/-1;background:white;border:1px solid var(--line);border-radius:14px;padding:28px;text-align:center;color:var(--muted)}
-@media(max-width:1200px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:820px){.app{display:block}.sidebar{position:static;width:100%;height:auto;flex-direction:row;align-items:center}.brand{width:170px;height:85px;padding:14px}.nav{flex:1;flex-direction:row;padding:10px;overflow:auto}.nav-item{min-width:95px;min-height:62px;padding:0 12px;justify-content:center;gap:8px}.nav-spacer,.logout{display:none}.main{padding:24px 16px}.top{align-items:flex-start}.title h1{font-size:29px}.title p{font-size:15px}.user-text{display:none}.grid{grid-template-columns:1fr}.image-wrap{height:220px}}
+@media(max-width:1450px){.grid{grid-template-columns:repeat(3,minmax(0,1fr))}}@media(max-width:1050px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:820px){.app{display:block}.sidebar{position:static;width:100%;height:auto;flex-direction:row;align-items:center}.brand{width:170px;height:85px;padding:14px}.nav{flex:1;flex-direction:row;padding:10px;overflow:auto}.nav-item{min-width:95px;min-height:62px;padding:0 12px;justify-content:center;gap:8px}.nav-spacer,.logout{display:none}.main{padding:24px 16px}.top{align-items:flex-start}.title h1{font-size:29px}.title p{font-size:15px}.user-text{display:none}.grid{grid-template-columns:1fr}.image-wrap{height:220px}}
 </style></head>
 <body>
 <div class="app">
@@ -438,7 +438,7 @@ async function init(){
   projects.innerHTML=items.map(p=>{
     const href="/obra/"+encodeURIComponent(p.slug);
     return '<article class="project-card">'+
-      '<div class="image-wrap"><img src="'+esc(p.image_path)+'" alt="'+esc(p.name)+'"></div>'+
+      '<div class="image-wrap">'+(p.image_path?'<img src="'+esc(p.image_path)+'" alt="'+esc(p.name)+'">':'<div class="image-placeholder">Imagem será adicionada</div>')+'</div>'+
       '<div class="card-body"><div class="project-name">'+esc(p.name)+'</div>'+
       '<a class="access-btn" href="'+href+'">Acessar&nbsp; →</a></div></article>';
   }).join("");

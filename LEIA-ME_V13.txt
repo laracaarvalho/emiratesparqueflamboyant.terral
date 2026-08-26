@@ -1,0 +1,35 @@
+TERRAL | CONTROLE DE OBRAS — V13
+ETAPA 1: LAYOUT 3x4 + TODAS AS IMAGENS REMOVIDAS
+
+O QUE MUDA
+- Todos os cards ficam SEM FOTO.
+- O espaço da foto permanece reservado com fundo neutro.
+- Desktop passa a exibir 4 cards por linha.
+- Em telas menores:
+  até 1450 px: 3 cards por linha
+  até 1050 px: 2 cards por linha
+  celular: 1 card por linha
+- Nenhuma permissão, login, administração, senha ou banco foi alterado.
+- O favicon T transparente da V12 foi mantido.
+
+IMPORTANTE
+A lista TERRAL_PROJECTS agora grava image_path vazio para todas as obras.
+Assim não existe risco de uma foto antiga aparecer no card errado.
+
+PRÓXIMA ETAPA
+Vamos adicionar uma imagem por vez:
+1. escolher a obra;
+2. subir a imagem com nome definido;
+3. alterar somente o image daquela obra;
+4. testar no site;
+5. passar para a próxima.
+
+COMO SUBIR
+1. No GitHub, abra worker.js.
+2. Apague todo o conteúdo.
+3. Cole o worker.js desta versão.
+4. Commit changes.
+5. Aguarde o deploy.
+6. Atualize o site.
+
+Não precisa executar SQL.
