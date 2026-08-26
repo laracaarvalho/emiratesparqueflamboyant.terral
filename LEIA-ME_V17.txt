@@ -1,0 +1,15 @@
+TERRAL | CONTROLE DE OBRAS — V17 REFINO VISUAL
+
+ALTERAÇÕES
+- Títulos das funções menores e mais sutis.
+- Marsala mais fechado e discreto.
+- Menos espaço vertical entre os grupos.
+- Nomes dos funcionários levemente menores.
+- Quantidade de funcionários por grupo mais discreta.
+- Nenhum cálculo, ponto, permissão ou banco foi alterado.
+
+COMO ATUALIZAR
+1. Substitua somente worker.js no GitHub.
+2. Commit changes.
+3. Aguarde o deploy.
+4. Atualize a tela de Funcionários.

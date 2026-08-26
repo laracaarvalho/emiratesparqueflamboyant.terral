@@ -896,12 +896,12 @@ header h1{margin:0;font-size:21px}header small{opacity:.9}header a{color:#fff;te
 .toolbar input{flex:1;min-width:230px}
 .pill{padding:9px 12px;border-radius:999px;background:#f5e9ee;color:var(--wine);font-size:12px;font-weight:800}
 .note{margin:10px 2px 20px;color:var(--muted);font-size:12px}
-.group{margin:22px 0}.gt{display:flex;justify-content:space-between;align-items:center;margin-bottom:9px}.gt h2{font-size:17px;color:var(--wine);margin:0}.gt span{font-size:12px;color:var(--muted)}
+.group{margin:16px 0}.gt{display:flex;justify-content:space-between;align-items:center;margin-bottom:9px}.gt h2{font-size:14px;font-weight:700;color:#7a2433;margin:0;letter-spacing:.2px}.gt span{font-size:11px;color:#7a7f87}
 .box{background:#fff;border:1px solid var(--line);border-radius:13px;overflow:auto;box-shadow:0 8px 24px #0f172a0b}
 table{width:100%;min-width:1180px;border-collapse:collapse;table-layout:fixed}
 th,td{padding:12px 8px;border-bottom:1px solid var(--line);text-align:left;white-space:nowrap;vertical-align:middle}
 th{font-size:9px;text-transform:uppercase;letter-spacing:.25px;color:#6b7280;background:#fafafb;font-weight:800}
-td{font-size:12px}
+td{font-size:11.5px}
 tbody tr:hover{background:#fcfafb}
 td.name{min-width:220px;white-space:normal}.salary{font-weight:800;color:var(--wine)}.point{text-align:center;font-weight:700}.col-name{width:22%}.col-sex{width:7%}.col-role{width:18%}.col-salary{width:10%}.col-he50{width:7%}.col-he100{width:7%}.col-sat{width:6%}.col-sun{width:6%}.col-abs{width:5%}.col-med{width:6%}.col-delay{width:6%}th.num{text-align:center}
 .adm{font-size:9px;background:#f5e9ee;color:var(--wine);padding:4px 7px;border-radius:999px;margin-left:6px}
