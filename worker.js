@@ -310,7 +310,7 @@ const TERRAL_PROJECTS = [
   {slug:"casa-conceito-praca-do-sol",name:"CASA CONCEITO",image:"/casaconceito-terral.jpg",sort_order:6},
   {slug:"origyn-bueno",name:"ORIGYN BUENO",image:"/origyn-terral.jpg",sort_order:7},
   {slug:"hype-vaca-brava",name:"HYPE VACA BRAVA",image:"/hypevacabrava-terral.jpg",sort_order:8},
-  {slug:"emirates-parque-flamboyant",name:"EMIRATES PARQUE FLAMBOYANT",image:"",sort_order:9}
+  {slug:"emirates-parque-flamboyant",name:"EMIRATES PARQUE FLAMBOYANT",image:"/emirates-terral.jpg",sort_order:9}
 ];
 
 async function ensureProjectsSchema(env){
