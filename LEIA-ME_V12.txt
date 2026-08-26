@@ -1,0 +1,21 @@
+TERRAL | CONTROLE DE OBRAS — V12
+
+ALTERAÇÕES
+- Novo favicon: apenas o T da Terral, em marsala e com fundo transparente.
+- Nova imagem do SERRANO.
+- Nova imagem do ITÁ MARISTA.
+- Nova imagem do HYPE VACA BRAVA.
+- Todo o restante permanece igual à V11.
+
+ARQUIVOS QUE VOCÊ PRECISA SUBIR/ATUALIZAR NO GITHUB
+1. worker.js
+2. favicon-terral-t.svg
+3. serrano.jpg
+4. ita-marista.jpg
+5. hype-vaca-brava.jpg
+
+IMPORTANTE
+- Substitua os arquivos de imagem antigos pelos novos com exatamente os mesmos nomes.
+- Não precisa executar SQL.
+- Não precisa alterar o D1.
+- Não precisa mexer no wrangler.jsonc.

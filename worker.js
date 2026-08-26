@@ -377,7 +377,7 @@ return `<!doctype html>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>TERRAL | CONTROLE DE OBRAS</title>
-<link rel="icon" type="image/png" href="/favicon_terral.png">
+<link rel="icon" type="image/svg+xml" href="/favicon-terral-t.svg">
 <style>
 :root{--wine:#681522;--wine-2:#7e2433;--wine-3:#54111b;--cream:#f7f1e8;--card:#fffdfa;--text:#311f21;--muted:#766f69;--line:#e9dfd4;--shadow:0 8px 24px rgba(71,35,30,.12)}
 *{box-sizing:border-box}html,body{margin:0;min-height:100%;font-family:Arial,Helvetica,sans-serif;background:var(--cream);color:var(--text)}body{min-height:100vh}a,button{font:inherit}button,a,.nav-item,.project-card,.access-btn,.user-menu-btn{cursor:pointer!important}
