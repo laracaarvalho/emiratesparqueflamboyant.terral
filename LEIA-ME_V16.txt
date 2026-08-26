@@ -1,0 +1,14 @@
+TERRAL | CONTROLE DE OBRAS — V16
+
+AJUSTE VISUAL
+- Todas as tabelas de funções passam a usar exatamente a mesma largura para cada coluna.
+- SÁBADOS fica exatamente alinhado com SÁBADOS em todos os grupos.
+- O mesmo vale para HE 50%, HE 100%, DOMINGOS, FALTAS, ATESTADOS e ATRASOS.
+- Colunas numéricas centralizadas.
+- Não altera nenhum cálculo, ponto, funcionário, permissão ou banco.
+
+COMO SUBIR
+1. Substitua somente worker.js no GitHub.
+2. Commit changes.
+3. Aguarde o deploy.
+4. Atualize a tela de Funcionários.

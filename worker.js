@@ -898,12 +898,12 @@ header h1{margin:0;font-size:21px}header small{opacity:.9}header a{color:#fff;te
 .note{margin:10px 2px 20px;color:var(--muted);font-size:12px}
 .group{margin:22px 0}.gt{display:flex;justify-content:space-between;align-items:center;margin-bottom:9px}.gt h2{font-size:17px;color:var(--wine);margin:0}.gt span{font-size:12px;color:var(--muted)}
 .box{background:#fff;border:1px solid var(--line);border-radius:13px;overflow:auto;box-shadow:0 8px 24px #0f172a0b}
-table{width:100%;min-width:1180px;border-collapse:collapse}
-th,td{padding:12px 10px;border-bottom:1px solid var(--line);text-align:left;white-space:nowrap;vertical-align:middle}
+table{width:100%;min-width:1180px;border-collapse:collapse;table-layout:fixed}
+th,td{padding:12px 8px;border-bottom:1px solid var(--line);text-align:left;white-space:nowrap;vertical-align:middle}
 th{font-size:9px;text-transform:uppercase;letter-spacing:.25px;color:#6b7280;background:#fafafb;font-weight:800}
 td{font-size:12px}
 tbody tr:hover{background:#fcfafb}
-td.name{min-width:220px;white-space:normal}.salary{font-weight:800;color:var(--wine)}.point{text-align:center;font-weight:700}
+td.name{min-width:220px;white-space:normal}.salary{font-weight:800;color:var(--wine)}.point{text-align:center;font-weight:700}.col-name{width:22%}.col-sex{width:7%}.col-role{width:18%}.col-salary{width:10%}.col-he50{width:7%}.col-he100{width:7%}.col-sat{width:6%}.col-sun{width:6%}.col-abs{width:5%}.col-med{width:6%}.col-delay{width:6%}th.num{text-align:center}
 .adm{font-size:9px;background:#f5e9ee;color:var(--wine);padding:4px 7px;border-radius:999px;margin-left:6px}
 .empty{text-align:center;padding:35px;color:var(--muted)}
 @media(max-width:760px){.wrap{padding:0 12px}.role-summary{grid-template-columns:1fr;gap:10px}.team-summary{padding:17px}.other-modal{width:96vw}table{min-width:1120px}}
@@ -1018,17 +1018,22 @@ function render(){
     '<section class="group">'+
       '<div class="gt"><h2>'+esc(k)+'</h2><span>'+groups[k].length+' funcionário(s)</span></div>'+
       '<div class="box"><table>'+
+        '<colgroup>'+
+          '<col class="col-name"><col class="col-sex"><col class="col-role"><col class="col-salary">'+
+          '<col class="col-he50"><col class="col-he100"><col class="col-sat"><col class="col-sun">'+
+          '<col class="col-abs"><col class="col-med"><col class="col-delay">'+
+        '</colgroup>'+
         '<thead><tr>'+
           '<th>Nome</th><th>Sexo</th><th>Função</th><th>Salário</th>'+
-          '<th>HE 50%</th><th>HE 100%</th><th>Sábados</th><th>Domingos</th>'+
-          '<th>Faltas</th><th>Atestados</th><th>Atrasos</th>'+
+          '<th class="num">HE 50%</th><th class="num">HE 100%</th><th class="num">Sábados</th><th class="num">Domingos</th>'+
+          '<th class="num">Faltas</th><th class="num">Atestados</th><th class="num">Atrasos</th>'+
         '</tr></thead>'+
         '<tbody>'+groups[k].map(e=>
           '<tr>'+
             '<td class="name"><b>'+esc(e.name)+'</b>'+(Number(e.admin_only)===1?'<span class="adm">ADM</span>':'')+'</td>'+
             '<td>'+(e.sex==="F"?"Feminino":e.sex==="M"?"Masculino":"—")+'</td>'+
             '<td>'+esc(e.role)+'</td>'+
-            '<td class="salary">'+money(e.salary)+'</td>'+
+            '<td class="salary" style="text-align:center">'+money(e.salary)+'</td>'+
             '<td class="point">'+hm(e.extra50_minutes)+'</td>'+
             '<td class="point">'+hm(e.extra100_minutes)+'</td>'+
             '<td class="point">'+Number(e.saturday_count||0)+'</td>'+
