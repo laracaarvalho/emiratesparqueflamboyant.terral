@@ -1,0 +1,29 @@
+TERRAL | CONTROLE DE OBRAS — V15
+
+RESUMO DA EQUIPE
+- Painel compacto no padrão aprovado.
+- Mostra as 5 funções com maior quantidade.
+- Mostra o total de funcionários ativos.
+- "Outras funções" soma todas as demais.
+- "Outras funções" é clicável.
+- Ao clicar, abre uma janela com todas as funções restantes em ordem alfabética.
+- O resumo usa a mesma lista devolvida ao login:
+  ADM vê o resumo completo;
+  usuário comum vê o resumo apenas dos funcionários permitidos para aquele acesso.
+
+SÁBADOS E DOMINGOS
+- Não muda a visualização individual.
+- Continua nas mesmas colunas da tabela.
+- A leitura considera todo o período expresso no cartão.
+- Não corta mais pelo mês da competência.
+- FOLGA sem horário não conta.
+- Sábado/domingo com marcação de horário conta uma vez.
+
+ATUALIZAÇÃO
+1. Substitua somente worker.js no GitHub.
+2. Faça o commit.
+3. Aguarde o deploy.
+4. Reimporte o cartão de ponto.
+5. Se a competência já existir, escolha SUBSTITUIR.
+
+Não precisa executar SQL.

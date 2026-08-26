@@ -295,25 +295,22 @@ function parsePointPage(t){
   // Conta somente finais de semana realmente trabalhados.
   // O cartão pode trazer "FOLGA" no sábado/domingo; isso não conta se não houver marcação.
   const weekendWorked=(dayLabel)=>{
-    if(!competence)return 0;
-    const parts=competence.split("-");
-    const targetYear=Number(parts[0]);
-    const targetMonth=Number(parts[1]);
     const dates=new Set();
 
+    // Conta TODO sábado/domingo expresso no cartão de ponto,
+    // mesmo quando o período atravessa dois meses.
+    // Só conta quando existe marcação efetiva de horário.
     for(const originalLine of raw.split("\n")){
       const line=String(originalLine||"").replace(/\s+/g," ").trim();
       if(!line)continue;
+
       const dm=line.match(new RegExp("^"+dayLabel+"\\s+(\\d{2})/(\\d{2})/(\\d{2})\\s+(.*)$","i"));
       if(!dm)continue;
 
-      const dd=Number(dm[1]),mm=Number(dm[2]),yy=2000+Number(dm[3]);
-      if(mm!==targetMonth||yy!==targetYear)continue;
-
-      // Em sábado/domingo, qualquer HH:MM após a data representa marcação de jornada.
       const afterDate=dm[4]||"";
       if(!new RegExp("\\b\\d{1,2}:\\d{2}\\b").test(afterDate))continue;
 
+      const dd=Number(dm[1]),mm=Number(dm[2]),yy=2000+Number(dm[3]);
       dates.add(String(yy)+"-"+String(mm).padStart(2,"0")+"-"+String(dd).padStart(2,"0"));
     }
     return dates.size;
@@ -869,11 +866,31 @@ body{margin:0;font-family:Arial,Helvetica,sans-serif;background:var(--bg);color:
 header{background:linear-gradient(90deg,var(--wine3),var(--wine2));color:#fff;padding:17px 30px;display:flex;align-items:center;justify-content:space-between;box-shadow:0 2px 10px #0002}
 header h1{margin:0;font-size:21px}header small{opacity:.9}header a{color:#fff;text-decoration:none;font-weight:700}
 .wrap{max-width:1280px;margin:28px auto;padding:0 20px}
-.summary-title{font-size:13px;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);font-weight:800;margin:0 0 10px 2px}
-.role-summary{display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:10px;margin-bottom:18px}
-.role-card{background:#fff;border:1px solid var(--line);border-radius:11px;padding:13px 14px;box-shadow:0 7px 20px #0f172a0b}
-.role-card small{display:block;color:var(--muted);font-size:10px;text-transform:uppercase;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.role-card b{display:block;color:var(--wine);font-size:24px;margin-top:5px}
+.team-summary{background:#303030;color:#fff;border:1px solid #454545;border-radius:18px;padding:20px 22px;margin-bottom:20px;box-shadow:0 10px 26px #0f172a16}
+.team-summary-head{display:flex;align-items:center;gap:12px;padding-bottom:15px;border-bottom:1px solid #a5a5a5}
+.team-summary-head .team-icon{width:22px;height:22px;color:#b00032;flex:0 0 22px}
+.team-summary-head .team-icon svg{width:100%;height:100%;stroke:currentColor;fill:none;stroke-width:1.8}
+.team-summary-head h2{font-size:17px;margin:0;color:#fff}
+.team-summary-head p{margin:3px 0 0;color:#ddd;font-size:12px}
+.role-summary{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:17px 38px;padding-top:18px}
+.role-item{display:flex;align-items:center;gap:10px;min-height:52px}
+.role-item-icon{width:17px;height:17px;color:#b00032;flex:0 0 17px;display:grid;place-items:center;font-size:15px}
+.role-item-number{color:#b00032;font-size:23px;line-height:1;font-weight:500}
+.role-item-number small{color:#ddd;font-size:9px;font-weight:400;margin-left:3px}
+.role-item-name{font-size:14px;font-weight:800;color:#fff;margin-top:4px}
+.role-item.clickable{border:0;background:transparent;text-align:left;padding:0;width:100%;color:inherit;border-radius:8px}
+.role-item.clickable:hover{background:#ffffff0a}
+.role-item.clickable:focus{outline:2px solid #8b2340;outline-offset:3px}
+.modal-overlay{display:none;position:fixed;inset:0;background:#0008;z-index:60;align-items:center;justify-content:center;padding:20px}
+.modal-overlay.open{display:flex}
+.other-modal{width:min(520px,96vw);max-height:80vh;overflow:auto;background:#fff;border-radius:16px;box-shadow:0 25px 70px #0005}
+.other-modal-head{display:flex;align-items:center;justify-content:space-between;padding:18px 20px;border-bottom:1px solid var(--line)}
+.other-modal-head h3{margin:0;color:var(--wine);font-size:18px}
+.other-modal-head button{border:0;background:#f2f2f2;border-radius:8px;width:34px;height:34px;font-size:20px;color:#555}
+.other-list{padding:8px 20px 18px}
+.other-row{display:flex;justify-content:space-between;gap:20px;padding:11px 2px;border-bottom:1px solid var(--line);font-size:13px}
+.other-row:last-child{border-bottom:0}
+.other-row b{color:var(--wine);font-size:15px}
 .toolbar{background:#fff;border:1px solid var(--line);border-radius:14px;padding:16px;display:flex;gap:12px;flex-wrap:wrap;box-shadow:0 10px 28px #0f172a10}
 .toolbar input,.toolbar select{padding:11px 12px;border:1px solid #ccd2d9;border-radius:9px;font-size:14px;background:#fff}
 .toolbar input{flex:1;min-width:230px}
@@ -889,23 +906,39 @@ tbody tr:hover{background:#fcfafb}
 td.name{min-width:220px;white-space:normal}.salary{font-weight:800;color:var(--wine)}.point{text-align:center;font-weight:700}
 .adm{font-size:9px;background:#f5e9ee;color:var(--wine);padding:4px 7px;border-radius:999px;margin-left:6px}
 .empty{text-align:center;padding:35px;color:var(--muted)}
-@media(max-width:760px){.wrap{padding:0 12px}.role-summary{grid-template-columns:repeat(2,1fr)}table{min-width:1120px}}
+@media(max-width:760px){.wrap{padding:0 12px}.role-summary{grid-template-columns:1fr;gap:10px}.team-summary{padding:17px}.other-modal{width:96vw}table{min-width:1120px}}
 button,a,select,label{cursor:pointer!important}
 </style>
 </head>
 <body>
 <header><div><h1>Funcionários Ativos</h1><small>EMIRATES PARQUE FLAMBOYANT</small></div><a href="/obra/emirates-parque-flamboyant">← Voltar</a></header>
 <main class="wrap">
-  <div class="summary-title">Resumo da equipe por função</div>
-  <div id="roleSummary" class="role-summary"></div>
+  <section class="team-summary">
+    <div class="team-summary-head">
+      <span class="team-icon">
+        <svg viewBox="0 0 24 24"><circle cx="8" cy="8" r="3"/><circle cx="16" cy="8" r="3"/><path d="M2.5 19c.5-3.7 2.4-5.6 5.5-5.6s5 1.9 5.5 5.6"/><path d="M11 14.3c1.1-.6 2.3-.9 3.8-.9 3.1 0 5 1.9 5.5 5.6"/></svg>
+      </span>
+      <div><h2>Resumo da equipe</h2><p id="summaryTotal">0 funcionários ativos</p></div>
+    </div>
+    <div id="roleSummary" class="role-summary"></div>
+  </section>
 
   <div class="toolbar">
     <input id="q" placeholder="Buscar funcionário...">
     <select id="role"><option value="">Todas as funções</option></select>
     <span class="pill" id="total">...</span>
   </div>
-  <div class="note">Sábados e domingos são puxados da competência mais recente do cartão de ponto e só contam quando houve marcação efetiva.</div>
+  <div class="note">Sábados e domingos seguem todo o período expresso no cartão de ponto e só contam quando houve marcação efetiva.</div>
   <div id="list"></div>
+  <div id="otherModal" class="modal-overlay" aria-hidden="true">
+    <div class="other-modal" role="dialog" aria-modal="true" aria-labelledby="otherTitle">
+      <div class="other-modal-head">
+        <h3 id="otherTitle">Outras funções</h3>
+        <button id="closeOther" type="button" aria-label="Fechar">×</button>
+      </div>
+      <div id="otherList" class="other-list"></div>
+    </div>
+  </div>
 </main>
 <script>
 const money=v=>Number(v||0).toLocaleString("pt-BR",{style:"currency",currency:"BRL"});
@@ -924,11 +957,53 @@ async function load(){
 
 function renderRoleSummary(){
   const counts={};
-  all.forEach(e=>counts[e.role]=(counts[e.role]||0)+1);
-  const roles=Object.keys(counts).sort((a,b)=>a.localeCompare(b,"pt-BR"));
-  roleSummary.innerHTML=roles.map(r=>
-    '<div class="role-card"><small>'+esc(r)+'</small><b>'+counts[r]+'</b></div>'
-  ).join("");
+  all.forEach(e=>{
+    const key=String(e.role||"SEM FUNÇÃO").trim()||"SEM FUNÇÃO";
+    counts[key]=(counts[key]||0)+1;
+  });
+
+  summaryTotal.textContent=all.length+" funcionário"+(all.length===1?" ativo":"s ativos");
+
+  const ranked=Object.entries(counts).sort((a,b)=>{
+    const diff=b[1]-a[1];
+    return diff||a[0].localeCompare(b[0],"pt-BR");
+  });
+
+  const top=ranked.slice(0,5);
+  const others=ranked.slice(5).sort((a,b)=>a[0].localeCompare(b[0],"pt-BR"));
+  const otherTotal=others.reduce((sum,item)=>sum+Number(item[1]||0),0);
+  const icons=["♟","⚒","▰","⚡","▣"];
+
+  const html=top.map((item,i)=>
+    '<div class="role-item">'+
+      '<span class="role-item-icon">'+icons[i%icons.length]+'</span>'+
+      '<div><div class="role-item-number">'+item[1]+'<small>func.</small></div>'+
+      '<div class="role-item-name">'+esc(item[0])+'</div></div>'+
+    '</div>'
+  );
+
+  if(others.length){
+    html.push(
+      '<button id="otherFunctionsBtn" class="role-item clickable" type="button">'+
+        '<span class="role-item-icon">…</span>'+
+        '<div><div class="role-item-number">'+otherTotal+'<small>func.</small></div>'+
+        '<div class="role-item-name">Outras funções</div></div>'+
+      '</button>'
+    );
+  }
+
+  roleSummary.innerHTML=html.join("");
+
+  const btn=document.getElementById("otherFunctionsBtn");
+  if(btn){
+    btn.onclick=()=>{
+      otherList.innerHTML=others.map(item=>
+        '<div class="other-row"><span>'+esc(item[0])+'</span><b>'+item[1]+'</b></div>'
+      ).join("");
+      otherModal.classList.add("open");
+      otherModal.setAttribute("aria-hidden","false");
+    };
+  }
 }
 
 function render(){
@@ -966,6 +1041,17 @@ function render(){
     '</section>'
   ).join("")||'<div class="empty">Nenhum funcionário encontrado.</div>';
 }
+closeOther.onclick=()=>{
+  otherModal.classList.remove("open");
+  otherModal.setAttribute("aria-hidden","true");
+};
+otherModal.onclick=e=>{
+  if(e.target===otherModal)closeOther.click();
+};
+document.addEventListener("keydown",e=>{
+  if(e.key==="Escape"&&otherModal.classList.contains("open"))closeOther.click();
+});
+
 q.oninput=render;role.onchange=render;
 load().catch(()=>list.innerHTML='<div class="empty">Erro ao carregar funcionários do D1.</div>');
 </script>
