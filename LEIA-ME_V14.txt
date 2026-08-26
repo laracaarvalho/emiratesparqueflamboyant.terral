@@ -1,0 +1,52 @@
+TERRAL | CONTROLE DE OBRAS — V14 PONTO OPERACIONAL
+
+ALTERAÇÕES
+
+FUNCIONÁRIOS
+- Novo resumo da equipe por função acima da lista:
+  PEDREIRO, SERVENTE, PINTOR, ENCANADOR etc.
+- A contagem é automática a partir dos funcionários ativos.
+- Novas colunas na lista:
+  SÁBADOS
+  DOMINGOS
+
+CARTÃO DE PONTO
+- A importação agora calcula, por funcionário:
+  saturday_count
+  sunday_count
+- Sábado/domingo só conta quando existe marcação de horário.
+- Linha apenas com FOLGA não conta.
+- Só conta a data que estiver dentro do mês/ano da competência.
+  Ex.: competência Agosto/2026 ignora os dias de julho que aparecem no mesmo cartão.
+- O resumo mensal mostra Sábados trabalhados e Domingos trabalhados.
+- A prévia da importação também mostra esses valores.
+
+BANCO
+- As colunas saturday_count e sunday_count são criadas automaticamente.
+- NÃO execute SQL manualmente.
+
+IMPORTANTE SOBRE AGOSTO
+Os dados que já foram importados antes desta versão não possuem a contagem de finais de semana.
+Depois do deploy:
+1. Abra Cartão de Ponto.
+2. Importe novamente PONTO EMIRATES AGOSTO.pdf.
+3. Quando avisar que Agosto/2026 já existe, escolha SUBSTITUIR.
+4. O sistema recalculará sábados e domingos.
+
+IMAGENS
+O worker desta versão utiliza os nomes padrão:
+ambiente-terral.jpg
+serrano.jpg
+aero17.jpg
+ita-marista.jpg
+alameda-areiao.jpg
+casa-conceito.jpg
+origyn-bueno.jpg
+hype-vaca-brava.jpg
+emirates-parque-flamboyant.jpg
+
+COMO SUBIR
+- Substitua somente worker.js no GitHub.
+- Commit changes.
+- Aguarde o deploy.
+- Reimporte Agosto/2026.
