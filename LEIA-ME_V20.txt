@@ -1,0 +1,23 @@
+TERRAL | CONTROLE DE OBRAS — V20 IMAGENS VINCULADAS
+
+Esta versão liga cada card EXATAMENTE ao arquivo enviado:
+
+AMBIENTE TERRAL -> /ambiente-terral.jpg
+SERRANO -> /serrano-terral.jpg
+AERO17 -> /aero17-terral.jpg
+ITÁ MARISTA -> /itamarista-terral.jpg
+ALAMEDA AREIÃO -> /alameda-terral.jpg
+CASA CONCEITO -> /casaconceito-terral.jpg
+ORIGYN BUENO -> /origyn-terral.jpg
+HYPE VACA BRAVA -> /hypevacabrava-terral.jpg
+EMIRATES PARQUE FLAMBOYANT -> /emirates-terral.jpg
+
+COMO ATUALIZAR
+1. Confirme que os 9 JPGs já estão na raiz do repositório GitHub.
+2. Substitua SOMENTE worker.js pelo worker.js desta V20.
+3. Commit changes.
+4. Aguarde o deploy do Cloudflare.
+5. Atualize a página com Ctrl+F5.
+
+Não execute SQL.
+Não altere os nomes dos JPGs.

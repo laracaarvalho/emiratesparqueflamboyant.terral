@@ -363,15 +363,15 @@ init().catch(e=>{console.error(e);alert(e.message)});
 
 
 const TERRAL_PROJECTS = [
-  {slug:"ambiente-terral",name:"AMBIENTE TERRAL",image:"",sort_order:1},
-  {slug:"serrano",name:"SERRANO",image:"",sort_order:2},
-  {slug:"aero17",name:"AERO17",image:"",sort_order:3},
-  {slug:"ita-marista",name:"ITÁ MARISTA",image:"",sort_order:4},
-  {slug:"alameda-areiao",name:"ALAMEDA AREIÃO",image:"",sort_order:5},
-  {slug:"casa-conceito-praca-do-sol",name:"CASA CONCEITO",image:"",sort_order:6},
-  {slug:"origyn-bueno",name:"ORIGYN BUENO",image:"",sort_order:7},
-  {slug:"hype-vaca-brava",name:"HYPE VACA BRAVA",image:"",sort_order:8},
-  {slug:"emirates-parque-flamboyant",name:"EMIRATES PARQUE FLAMBOYANT",image:"",sort_order:9}
+  {slug:"ambiente-terral",name:"AMBIENTE TERRAL",image:"/ambiente-terral.jpg",sort_order:1},
+  {slug:"serrano",name:"SERRANO",image:"/serrano-terral.jpg",sort_order:2},
+  {slug:"aero17",name:"AERO17",image:"/aero17-terral.jpg",sort_order:3},
+  {slug:"ita-marista",name:"ITÁ MARISTA",image:"/itamarista-terral.jpg",sort_order:4},
+  {slug:"alameda-areiao",name:"ALAMEDA AREIÃO",image:"/alameda-terral.jpg",sort_order:5},
+  {slug:"casa-conceito-praca-do-sol",name:"CASA CONCEITO",image:"/casaconceito-terral.jpg",sort_order:6},
+  {slug:"origyn-bueno",name:"ORIGYN BUENO",image:"/origyn-terral.jpg",sort_order:7},
+  {slug:"hype-vaca-brava",name:"HYPE VACA BRAVA",image:"/hypevacabrava-terral.jpg",sort_order:8},
+  {slug:"emirates-parque-flamboyant",name:"EMIRATES PARQUE FLAMBOYANT",image:"/emirates-terral.jpg",sort_order:9}
 ];
 
 async function ensureProjectsSchema(env){
