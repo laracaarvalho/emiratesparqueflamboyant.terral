@@ -1,0 +1,15 @@
+TERRAL | CONTROLE DE OBRAS — V18 CARDS TRAVADOS
+
+- Todos os cards têm a mesma altura.
+- Área da imagem fixa em 170 px no desktop.
+- Fotos usam object-fit: cover e object-position: center center.
+- Faixa inferior do card fixa.
+- Nome da obra limitado a 2 linhas.
+- Botão Acessar alinhado e com largura mínima fixa.
+- Nenhuma regra do sistema foi alterada.
+
+ATUALIZAÇÃO:
+1. Substitua somente worker.js no GitHub.
+2. Commit changes.
+3. Aguarde o deploy.
+4. Atualize a página de Obras.
