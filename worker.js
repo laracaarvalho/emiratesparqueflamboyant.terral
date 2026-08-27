@@ -540,7 +540,9 @@ async function ensureOperationalSchema(env){
   await env.DB.prepare("CREATE INDEX IF NOT EXISTS idx_operational_tasks_employee ON operational_tasks(employee_id)").run();
 }
 
-function operationalPage(){
+function operationalPage(auth){
+  const loggedName=String(auth?.name||auth?.username||"Usuário").replace(/[&<>"']/g,ch=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[ch]));
+  const loggedRole=auth?.role==="admin"?"Administrador":"Acesso comum";
 return String.raw`<!doctype html>
 <html lang="pt-BR">
 <head>
@@ -549,98 +551,314 @@ return String.raw`<!doctype html>
 <title>TERRAL | OPERACIONAL EMIRATES</title>
 <link rel="icon" type="image/svg+xml" href="/favicon-terral-t.svg">
 <style>
-:root{--wine:#731126;--wine2:#8d1730;--cream:#f7f2e9;--card:#fffdfa;--text:#24221f;--muted:#756e67;--line:#e7ddd1;--green-bg:#edf7df;--yellow-bg:#fff6c7;--red-bg:#fff0ef;--gray-bg:#f4f4f4;--shadow:0 8px 25px rgba(65,35,28,.10)}
-*{box-sizing:border-box}html,body{margin:0;min-height:100%;font-family:Arial,Helvetica,sans-serif;background:var(--cream);color:var(--text)}
-button,a,select,input,textarea,.unit,.floor-btn,.tower-btn{font:inherit}button,a,select,.unit,.floor-btn,.tower-btn{cursor:pointer!important}
-.topbar{height:82px;background:#fffaf4;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:0 30px;position:sticky;top:0;z-index:25}
-.top-left{display:flex;align-items:center;gap:17px}.top-left img{width:145px;height:auto}.sep{width:1px;height:40px;background:#d9ccc0}.top-title h1{margin:0;color:var(--wine);font-size:23px}.top-title p{margin:4px 0 0;color:var(--muted);font-size:12px}.top-user{text-align:right}.top-user b{display:block;font-size:13px}.top-user small{color:var(--muted)}
-.layout{display:grid;grid-template-columns:185px 1fr;min-height:calc(100vh - 82px)}.sidebar{background:linear-gradient(180deg,#771326,#5b0d19);color:#fff;padding:22px 13px;display:flex;flex-direction:column;gap:9px}.nav{display:flex;align-items:center;gap:12px;color:#fff;text-decoration:none;padding:13px;border-radius:9px;font-weight:700;font-size:13px}.nav:hover,.nav.active{background:rgba(255,255,255,.16)}.nav span:first-child{font-size:19px;width:24px;text-align:center}
-.main{padding:24px 26px 38px;min-width:0}.tabs{display:flex;gap:26px;border-bottom:1px solid var(--line);margin-bottom:17px}.tab{padding:10px 3px;border:0;background:transparent;font-weight:800;color:#555;border-bottom:3px solid transparent}.tab.active{color:var(--wine);border-color:var(--wine)}
-.towers{display:flex;gap:10px;margin-bottom:15px}.tower-btn{border:1px solid var(--line);background:#fff8f0;color:#4e443e;border-radius:8px;padding:12px 24px;font-weight:800}.tower-btn.active{background:linear-gradient(90deg,var(--wine),var(--wine2));color:#fff;border-color:transparent}
-.workspace{display:grid;grid-template-columns:180px minmax(520px,1fr) 285px;gap:14px;align-items:start}.panel{background:var(--card);border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow)}
-.floors{padding:11px}.floors h3{font-size:13px;margin:2px 4px 10px}.floor-list{max-height:610px;overflow:auto;padding-right:3px}.floor-btn{width:100%;border:0;background:#f2ece5;border-radius:7px;margin-bottom:7px;text-align:left;padding:9px 11px}.floor-btn b{display:block;font-size:14px}.floor-btn small{color:#8b817a;font-size:10px}.floor-btn.active{background:linear-gradient(90deg,var(--wine),var(--wine2));color:#fff}.floor-btn.active small{color:#fff}
-.visual{padding:13px}.visual-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px}.visual-head h2{font-size:18px;margin:0}.badge{font-size:10px;background:#f1ece5;border-radius:999px;padding:6px 9px;color:#655d57}
+:root{
+  --wine:#731126;--wine2:#8d1730;--wine3:#5b0b1b;
+  --cream:#f7f2e9;--card:#fffdfa;--text:#24221f;--muted:#756e67;
+  --line:#e7ddd1;--green-bg:#edf7df;--yellow-bg:#fff6c7;--red-bg:#fff0ef;
+  --gray-bg:#f4f4f4;--shadow:0 8px 25px rgba(65,35,28,.10)
+}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%;font-family:Arial,Helvetica,sans-serif;background:var(--cream);color:var(--text)}
+button,a,select,input,textarea,.unit,.floor-btn,.tower-btn{font:inherit}
+button,a,select,.unit,.floor-btn,.tower-btn{cursor:pointer!important}
+
+/* Estrutura igual ao restante do sistema: logo sempre sobre marsala */
+.shell{display:grid;grid-template-columns:205px minmax(0,1fr);min-height:100vh}
+.sidebar{background:linear-gradient(180deg,#7c1227,#5b0d19);color:#fff;display:flex;flex-direction:column;min-height:100vh;position:sticky;top:0;height:100vh}
+.brand{height:112px;display:flex;align-items:center;justify-content:center;border-bottom:1px solid rgba(255,255,255,.12);padding:18px}
+.brand img{width:165px;max-width:100%;height:auto;display:block}
+.nav-wrap{padding:22px 14px;display:flex;flex-direction:column;gap:9px;flex:1}
+.nav{display:flex;align-items:center;gap:12px;color:#fff;text-decoration:none;padding:14px 13px;border-radius:9px;font-weight:700;font-size:13px}
+.nav:hover,.nav.active{background:rgba(255,255,255,.16)}
+.nav span:first-child{font-size:19px;width:24px;text-align:center}
+.content{min-width:0;background:var(--cream)}
+.topbar{height:112px;background:var(--cream);border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:0 34px}
+.top-title h1{margin:0;color:var(--wine);font-size:26px}
+.top-title p{margin:5px 0 0;color:var(--muted);font-size:13px}
+.top-user{text-align:right;display:flex;align-items:center;gap:11px}
+.user-icon{width:34px;height:34px;border:1px solid #dacdc2;border-radius:50%;display:grid;place-items:center;color:var(--wine);font-size:18px}
+.top-user b{display:block;font-size:13px}.top-user small{color:var(--muted)}
+.main{padding:24px 30px 40px;min-width:0}
+.tabs{display:flex;gap:26px;border-bottom:1px solid var(--line);margin-bottom:17px}
+.tab{padding:10px 3px;border:0;background:transparent;font-weight:800;color:#555;border-bottom:3px solid transparent}
+.tab.active{color:var(--wine);border-color:var(--wine)}
+.towers{display:flex;gap:10px;margin-bottom:15px}
+.tower-btn{border:1px solid var(--line);background:#fff8f0;color:#4e443e;border-radius:8px;padding:12px 24px;font-weight:800}
+.tower-btn.active{background:linear-gradient(90deg,var(--wine),var(--wine2));color:#fff;border-color:transparent}
+.workspace{display:grid;grid-template-columns:180px minmax(520px,1fr) 300px;gap:14px;align-items:start}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow)}
+.floors{padding:11px}.floors h3{font-size:13px;margin:2px 4px 10px}
+.floor-list{max-height:610px;overflow:auto;padding-right:3px}
+.floor-btn{width:100%;border:0;background:#f2ece5;border-radius:7px;margin-bottom:7px;text-align:left;padding:9px 11px}
+.floor-btn b{display:block;font-size:14px}.floor-btn small{color:#8b817a;font-size:10px}
+.floor-btn.active{background:linear-gradient(90deg,var(--wine),var(--wine2));color:#fff}.floor-btn.active small{color:#fff}
+.visual{padding:13px}.visual-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px}
+.visual-head h2{font-size:18px;margin:0}.badge{font-size:10px;background:#f1ece5;border-radius:999px;padding:6px 9px;color:#655d57}
 .units{display:grid;gap:9px}.units.dubai,.units.istanbul{grid-template-columns:repeat(5,minmax(0,1fr))}
-.unit{border:1px solid #d3d3d3;border-radius:10px;min-height:180px;padding:12px 8px;text-align:center;background:var(--gray-bg);display:flex;flex-direction:column;align-items:center;justify-content:center;transition:.15s}.unit:hover{transform:translateY(-2px);box-shadow:0 8px 18px #0001}.unit.selected{outline:3px solid #7c1b31;outline-offset:2px}.apt-label{font-size:10px}.apt{font-size:19px;font-weight:800;margin:4px 0 9px}.ico{width:40px;height:40px;border-radius:50%;display:grid;place-items:center;font-weight:900;font-size:20px;margin-bottom:8px}.status{font-size:11px;font-weight:800}.detail{font-size:10px;line-height:1.35;margin-top:8px;min-height:28px;color:#48433f}
-.unit.sem_servico{background:linear-gradient(#fff,#f3f3f3);border-color:#d5d5d5}.unit.sem_servico .ico{background:#c8c8c8;color:#fff}.unit.sem_servico .status{color:#8d8d8d}.unit.em_andamento{background:linear-gradient(#fffbe5,var(--yellow-bg));border-color:#f0bd13}.unit.em_andamento .ico{background:#ffc928;color:#7e5c00}.unit.em_andamento .status{color:#c98700}.unit.parada{background:linear-gradient(#fff7f6,var(--red-bg));border-color:#ef7775}.unit.parada .ico{background:#e33434;color:#fff}.unit.parada .status{color:#d32727}.unit.concluida{background:linear-gradient(#f8ffef,var(--green-bg));border-color:#87bd52}.unit.concluida .ico{background:#72b82f;color:#fff}.unit.concluida .status{color:#559a1b}
-.legend{display:flex;gap:17px;flex-wrap:wrap;border:1px solid var(--line);border-radius:8px;margin-top:11px;padding:9px 11px;font-size:10px;color:#635c57}.dot{width:11px;height:11px;border-radius:3px;display:inline-block;margin-right:5px;vertical-align:-1px}
-.form{padding:14px}.form h3{font-size:15px;margin:0 0 12px}.field{margin-bottom:9px}.field label{display:block;font-size:10px;font-weight:800;margin-bottom:5px}.field input,.field select,.field textarea{width:100%;border:1px solid #d9d1c9;border-radius:7px;padding:9px 10px;background:#fff;font-size:12px}.field input[readonly]{background:#f5f2ee;color:#746d67}.field textarea{min-height:68px;resize:vertical}.save{width:100%;border:0;border-radius:7px;background:linear-gradient(90deg,var(--wine),var(--wine2));color:#fff;padding:11px;font-weight:800}.auto-note{font-size:9px;color:#8d827a;margin-top:4px}
-.detail-panel{margin-top:14px;padding:13px}.detail-title{display:flex;justify-content:space-between;align-items:center;margin-bottom:9px}.detail-title h3{margin:0;font-size:14px;color:var(--wine)}.task-table{width:100%;border-collapse:collapse;font-size:10px}.task-table th,.task-table td{padding:8px 6px;border-bottom:1px solid var(--line);text-align:left}.task-table th{background:#f4eee7;color:#6d655e}.task-table button{border:0;border-radius:5px;padding:5px 7px;font-size:9px;font-weight:800}.b-yellow{background:#fff0a6;color:#9a6500}.b-red{background:#ffd6d4;color:#b51e1c}.b-green{background:#dff2cd;color:#397b12}
-.building{margin-top:15px;padding:14px}.building h3{font-size:14px;margin:0 0 11px}.building-grid{overflow:auto}.b-row{display:grid;grid-template-columns:40px repeat(10,23px);gap:4px;align-items:center;margin-bottom:4px}.fl{font-size:9px;text-align:center}.mini{width:23px;height:18px;border:1px solid #ddd;border-radius:3px;background:#eee}.mini.em_andamento{background:#ffd537;border-color:#eab900}.mini.parada{background:#ef6967;border-color:#df4b49}.mini.concluida{background:#8dcc50;border-color:#73b33a}.mini.sem_servico{background:#eee}.mini.blank{visibility:hidden}.toast{position:fixed;right:24px;bottom:24px;background:#222;color:#fff;border-radius:8px;padding:11px 14px;font-size:11px;opacity:0;transform:translateY(10px);pointer-events:none;transition:.2s;z-index:99}.toast.show{opacity:1;transform:none}
-@media(max-width:1240px){.workspace{grid-template-columns:165px 1fr}.form{grid-column:1/-1}}@media(max-width:850px){.layout{display:block}.sidebar{display:none}.main{padding:15px}.workspace{display:block}.floors,.visual,.form{margin-bottom:12px}.units.dubai,.units.istanbul{grid-template-columns:repeat(2,1fr)}.topbar{padding:0 15px}.top-left img{width:105px}.sep{display:none}.top-title h1{font-size:18px}}
+.unit{border:1px solid #d3d3d3;border-radius:10px;min-height:180px;padding:12px 8px;text-align:center;background:var(--gray-bg);display:flex;flex-direction:column;align-items:center;justify-content:center;transition:.15s}
+.unit:hover{transform:translateY(-2px);box-shadow:0 8px 18px #0001}.unit.selected{outline:3px solid #7c1b31;outline-offset:2px}
+.apt-label{font-size:10px}.apt{font-size:19px;font-weight:800;margin:4px 0 9px}
+.ico{width:40px;height:40px;border-radius:50%;display:grid;place-items:center;font-weight:900;font-size:20px;margin-bottom:8px}
+.status{font-size:11px;font-weight:800}.detail{font-size:10px;line-height:1.35;margin-top:8px;min-height:28px;color:#48433f}
+.unit.sem_servico{background:linear-gradient(#fff,#f3f3f3);border-color:#d5d5d5}.unit.sem_servico .ico{background:#c8c8c8;color:#fff}.unit.sem_servico .status{color:#8d8d8d}
+.unit.em_andamento{background:linear-gradient(#fffbe5,var(--yellow-bg));border-color:#f0bd13}.unit.em_andamento .ico{background:#ffc928;color:#7e5c00}.unit.em_andamento .status{color:#c98700}
+.unit.parada{background:linear-gradient(#fff7f6,var(--red-bg));border-color:#ef7775}.unit.parada .ico{background:#e33434;color:#fff}.unit.parada .status{color:#d32727}
+.unit.concluida{background:linear-gradient(#f8ffef,var(--green-bg));border-color:#87bd52}.unit.concluida .ico{background:#72b82f;color:#fff}.unit.concluida .status{color:#559a1b}
+.legend{display:flex;gap:17px;flex-wrap:wrap;border:1px solid var(--line);border-radius:8px;margin-top:11px;padding:9px 11px;font-size:10px;color:#635c57}
+.dot{width:11px;height:11px;border-radius:3px;display:inline-block;margin-right:5px;vertical-align:-1px}
+.form{padding:15px}.form h3{font-size:16px;margin:0 0 14px;color:#29231f}
+.field{margin-bottom:10px}.field label{display:block;font-size:10px;font-weight:800;margin-bottom:5px}
+.field input,.field select,.field textarea{width:100%;border:1px solid #d9d1c9;border-radius:7px;padding:9px 10px;background:#fff;font-size:12px}
+.field input[readonly]{background:#f2eee9;color:#4f4945;font-weight:700;cursor:not-allowed}
+.field textarea{min-height:68px;resize:vertical}
+.save{width:100%;border:0;border-radius:7px;background:linear-gradient(90deg,var(--wine),var(--wine2));color:#fff;padding:11px;font-weight:800}
+.auto-note{font-size:9px;color:#8d827a;margin-top:4px}
+.detail-panel{margin-top:14px;padding:13px}.detail-title{display:flex;justify-content:space-between;align-items:center;margin-bottom:9px}
+.detail-title h3{margin:0;font-size:14px;color:var(--wine)}
+.task-table{width:100%;border-collapse:collapse;font-size:10px}.task-table th,.task-table td{padding:8px 6px;border-bottom:1px solid var(--line);text-align:left}
+.task-table th{background:#f4eee7;color:#6d655e}.task-table button{border:0;border-radius:5px;padding:5px 7px;font-size:9px;font-weight:800}
+.b-yellow{background:#fff0a6;color:#9a6500}.b-red{background:#ffd6d4;color:#b51e1c}.b-green{background:#dff2cd;color:#397b12}
+.building{margin-top:15px;padding:14px}.building h3{font-size:14px;margin:0 0 11px}.building-grid{overflow:auto}
+.b-row{display:grid;grid-template-columns:40px repeat(10,23px);gap:4px;align-items:center;margin-bottom:4px}.fl{font-size:9px;text-align:center}
+.mini{width:23px;height:18px;border:1px solid #ddd;border-radius:3px;background:#eee}.mini.em_andamento{background:#ffd537;border-color:#eab900}.mini.parada{background:#ef6967;border-color:#df4b49}.mini.concluida{background:#8dcc50;border-color:#73b33a}.mini.blank{visibility:hidden}
+.toast{position:fixed;right:24px;bottom:24px;background:#222;color:#fff;border-radius:8px;padding:11px 14px;font-size:11px;opacity:0;transform:translateY(10px);pointer-events:none;transition:.2s;z-index:99}.toast.show{opacity:1;transform:none}
+@media(max-width:1240px){.workspace{grid-template-columns:165px 1fr}.form{grid-column:1/-1}}
+@media(max-width:850px){.shell{display:block}.sidebar{display:none}.main{padding:15px}.workspace{display:block}.floors,.visual,.form{margin-bottom:12px}.units.dubai,.units.istanbul{grid-template-columns:repeat(2,1fr)}.topbar{padding:0 15px}.top-title h1{font-size:18px}}
 </style>
 </head>
 <body>
-<header class="topbar">
-<div class="top-left"><img src="/terral_logo_transparente.png" onerror="this.onerror=null;this.src='/terral_logo.png'" alt="Terral"><div class="sep"></div><div class="top-title"><h1>Controle Operacional</h1><p>Emirates Parque Flamboyant</p></div></div>
-<div class="top-user"><b id="loggedName">Usuário</b><small id="loggedRole">Acesso</small></div>
-</header>
-<div class="layout">
+<div class="shell">
 <aside class="sidebar">
-<a class="nav" href="/obra/emirates-parque-flamboyant"><span>⌂</span><span>Início</span></a>
-<a class="nav" href="/"><span>▥</span><span>Obras</span></a>
-<a class="nav active" href="/tarefas"><span>☑</span><span>Tarefas</span></a>
-<a class="nav" href="/funcionarios"><span>♙</span><span>Funcionários</span></a>
-<div style="flex:1"></div><a class="nav" href="/obra/emirates-parque-flamboyant"><span>←</span><span>Voltar</span></a>
+  <div class="brand"><img src="/terral_logo_transparente.png" onerror="this.onerror=null;this.src='/terral_logo.png'" alt="Terral Incorporadora"></div>
+  <div class="nav-wrap">
+    <a class="nav" href="/obra/emirates-parque-flamboyant"><span>⌂</span><span>Início</span></a>
+    <a class="nav" href="/"><span>▥</span><span>Obras</span></a>
+    <a class="nav active" href="/tarefas"><span>☑</span><span>Tarefas</span></a>
+    <a class="nav" href="/funcionarios"><span>♙</span><span>Funcionários</span></a>
+    <div style="flex:1"></div>
+    <a class="nav" href="/obra/emirates-parque-flamboyant"><span>←</span><span>Voltar</span></a>
+  </div>
 </aside>
+
+<div class="content">
+<header class="topbar">
+  <div class="top-title"><h1>Controle Operacional</h1><p>Emirates Parque Flamboyant</p></div>
+  <div class="top-user"><div class="user-icon">♙</div><div><b>${loggedName}</b><small>${loggedRole}</small></div></div>
+</header>
+
 <main class="main">
-<div class="tabs"><button class="tab active">VISUALIZAÇÃO DA OBRA</button><button class="tab" id="scrollListBtn">LISTAGEM DE SERVIÇOS</button></div>
-<div class="towers"><button class="tower-btn active" data-tower="DUBAI">▥ &nbsp; TORRE DUBAI</button><button class="tower-btn" data-tower="ISTAMBUL">▥ &nbsp; TORRE ISTAMBUL</button></div>
-<div class="workspace">
-<section class="panel floors"><h3>Selecione o pavimento</h3><div id="floorList" class="floor-list"></div></section>
-<section>
-<div class="panel visual"><div class="visual-head"><h2 id="visualTitle">Torre Dubai - Pavimento 06</h2><span id="unitCount" class="badge">5 unidades</span></div><div id="units" class="units dubai"></div><div class="legend"><span><i class="dot" style="background:#8dcc50"></i>Concluído</span><span><i class="dot" style="background:#ffd537"></i>Em andamento</span><span><i class="dot" style="background:#ef6967"></i>Parado</span><span><i class="dot" style="background:#eee;border:1px solid #ddd"></i>Sem serviço</span></div></div>
-<section id="detailPanel" class="panel detail-panel"><div class="detail-title"><h3 id="detailTitle">Serviços da unidade</h3><span id="detailCount" class="badge">0 registros</span></div><div style="overflow:auto"><table class="task-table"><thead><tr><th>Serviço</th><th>Funcionário</th><th>Responsável</th><th>Início</th><th>Término</th><th>Status</th><th>Observações</th><th>Ação</th></tr></thead><tbody id="taskRows"><tr><td colspan="8">Selecione uma unidade.</td></tr></tbody></table></div></section>
-</section>
-<aside class="panel form"><h3>Lançar novo serviço</h3>
-<div class="field"><label>Responsável</label><input id="responsible" readonly><div class="auto-note">Automático pelo usuário logado.</div></div>
-<div class="field"><label>Funcionário</label><select id="employee"></select></div>
-<div class="field"><label>Torre</label><select id="formTower"><option value="DUBAI">Torre Dubai</option><option value="ISTAMBUL">Torre Istambul</option></select></div>
-<div class="field"><label>Pavimento</label><select id="formFloor"></select></div>
-<div class="field"><label>Local / Apartamento</label><select id="formApartment"></select></div>
-<div class="field"><label>Serviço</label><input id="service" list="serviceList" placeholder="Ex.: Checklist Pintura"><datalist id="serviceList"><option>Checklist Pintura</option><option>Checklist Elétrica</option><option>Checklist Hidráulica</option><option>Correção de Pintura</option><option>Limpeza</option><option>Rejunte</option><option>Acabamento</option></datalist></div>
-<div class="field"><label>Data de início</label><input value="Automática ao salvar" readonly><div class="auto-note">Data e hora do servidor. Não editável.</div></div>
-<div class="field"><label>Data de término</label><input value="Automática ao concluir" readonly><div class="auto-note">Gravada somente ao concluir o serviço.</div></div>
-<div class="field"><label>Status inicial</label><select id="status"><option value="EM_ANDAMENTO">Em andamento</option><option value="PARADA">Parada</option></select></div>
-<div class="field"><label>Observações</label><textarea id="observations" placeholder="Digite observações (opcional)"></textarea></div>
-<button id="saveTask" class="save">Salvar serviço</button>
-</aside>
+  <div class="tabs"><button class="tab active">VISUALIZAÇÃO DA OBRA</button><button class="tab" id="scrollListBtn">LISTAGEM DE SERVIÇOS</button></div>
+  <div class="towers"><button class="tower-btn active" data-tower="DUBAI">▥ &nbsp; TORRE DUBAI</button><button class="tower-btn" data-tower="ISTAMBUL">▥ &nbsp; TORRE ISTAMBUL</button></div>
+
+  <div class="workspace">
+    <section class="panel floors"><h3>Selecione o pavimento</h3><div id="floorList" class="floor-list"></div></section>
+
+    <section>
+      <div class="panel visual">
+        <div class="visual-head"><h2 id="visualTitle">Torre Dubai - Pavimento 06</h2><span id="unitCount" class="badge">5 unidades</span></div>
+        <div id="units" class="units dubai"></div>
+        <div class="legend"><span><i class="dot" style="background:#8dcc50"></i>Concluído</span><span><i class="dot" style="background:#ffd537"></i>Em andamento</span><span><i class="dot" style="background:#ef6967"></i>Parado</span><span><i class="dot" style="background:#eee;border:1px solid #ddd"></i>Sem serviço</span></div>
+      </div>
+
+      <section id="detailPanel" class="panel detail-panel">
+        <div class="detail-title"><h3 id="detailTitle">Serviços da unidade</h3><span id="detailCount" class="badge">0 registros</span></div>
+        <div style="overflow:auto"><table class="task-table"><thead><tr><th>Serviço</th><th>Funcionário</th><th>Função</th><th>Responsável</th><th>Início</th><th>Término</th><th>Status</th><th>Observações</th><th>Ação</th></tr></thead><tbody id="taskRows"><tr><td colspan="9">Selecione uma unidade.</td></tr></tbody></table></div>
+      </section>
+    </section>
+
+    <aside class="panel form">
+      <h3>Lançar novo serviço</h3>
+      <div class="field"><label>Responsável</label><input id="responsible" value="${loggedName}" readonly><div class="auto-note">Puxado automaticamente pelo login. Não pode ser alterado.</div></div>
+      <div class="field"><label>Funcionário</label><select id="employee"><option value="">Carregando funcionários...</option></select></div>
+      <div class="field"><label>Função</label><input id="employeeRole" value="" placeholder="Preenchida ao selecionar o funcionário" readonly></div>
+      <div class="field"><label>Torre</label><select id="formTower"><option value="DUBAI">Torre Dubai</option><option value="ISTAMBUL">Torre Istambul</option></select></div>
+      <div class="field"><label>Pavimento</label><select id="formFloor"></select></div>
+      <div class="field"><label>Local / Apartamento</label><select id="formApartment"></select></div>
+      <div class="field"><label>Serviço</label><input id="service" list="serviceList" placeholder="Ex.: Checklist Pintura"><datalist id="serviceList"><option>Checklist Pintura</option><option>Checklist Elétrica</option><option>Checklist Hidráulica</option><option>Correção de Pintura</option><option>Limpeza</option><option>Rejunte</option><option>Acabamento</option></datalist></div>
+      <div class="field"><label>Data de início</label><input value="Automática ao salvar" readonly><div class="auto-note">Data e hora exatas gravadas pelo servidor.</div></div>
+      <div class="field"><label>Data de término</label><input value="Automática ao concluir" readonly><div class="auto-note">Somente ao marcar o serviço como Concluído.</div></div>
+      <div class="field"><label>Status inicial</label><select id="status"><option value="EM_ANDAMENTO">Em andamento</option><option value="PARADA">Parada</option></select></div>
+      <div class="field"><label>Observações</label><textarea id="observations" placeholder="Digite observações (opcional)"></textarea></div>
+      <button id="saveTask" class="save">Salvar serviço</button>
+    </aside>
+  </div>
+
+  <section class="panel building"><h3>Mapa geral das torres</h3><div style="display:grid;grid-template-columns:1fr 1fr;gap:18px"><div><b style="font-size:11px">TORRE DUBAI</b><div id="buildingDubai" class="building-grid"></div></div><div><b style="font-size:11px">TORRE ISTAMBUL</b><div id="buildingIstambul" class="building-grid"></div></div></div></section>
+</main>
 </div>
-<section class="panel building"><h3>Mapa geral das torres</h3><div style="display:grid;grid-template-columns:1fr 1fr;gap:18px"><div><b style="font-size:11px">TORRE DUBAI</b><div id="buildingDubai" class="building-grid"></div></div><div><b style="font-size:11px">TORRE ISTAMBUL</b><div id="buildingIstambul" class="building-grid"></div></div></div></section>
-</main></div><div id="toast" class="toast"></div>
+</div>
+<div id="toast" class="toast"></div>
+
 <script>
-const PROJECT="emirates-parque-flamboyant";let me={},employees=[],tasks=[],tower="DUBAI",floor=6,selectedApartment="601";
+const PROJECT="emirates-parque-flamboyant";
+let employees=[],tasks=[],tower="DUBAI",floor=6,selectedApartment="601";
+
+const $=id=>document.getElementById(id);
 const esc=s=>String(s??"").replace(/[&<>"']/g,ch=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[ch]));
 const fmtDate=v=>v?new Intl.DateTimeFormat("pt-BR",{timeZone:"America/Sao_Paulo",day:"2-digit",month:"2-digit",year:"numeric",hour:"2-digit",minute:"2-digit"}).format(new Date(v)):"—";
 const statusLabel=s=>s==="CONCLUIDA"?"Concluído":s==="PARADA"?"Parado":s==="EM_ANDAMENTO"?"Em andamento":"Sem serviço";
 const statusClass=s=>s?String(s).toLowerCase():"sem_servico";
-function toastMsg(m){toast.textContent=m;toast.classList.add("show");setTimeout(()=>toast.classList.remove("show"),2200)}
+function toastMsg(m){$("toast").textContent=m;$("toast").classList.add("show");setTimeout(()=>$("toast").classList.remove("show"),2200)}
 async function api(url,opt={}){const r=await fetch(url,opt);const d=await r.json().catch(()=>({}));if(!r.ok)throw new Error(d.error||"Erro");return d}
 function floors(){const a=[];for(let f=30;f>=4;f--)a.push(f);return a}
 function unitNumbers(t,f){const n=f===30?(t==="DUBAI"?2:3):(t==="DUBAI"?5:10);return Array.from({length:n},(_,i)=>String(f)+String(i+1).padStart(2,"0"))}
 function towerName(t){return t==="DUBAI"?"Dubai":"Istambul"}
-function renderFloors(){floorList.innerHTML=floors().map(f=>{const n=f===30?(tower==="DUBAI"?2:3):(tower==="DUBAI"?5:10);return '<button class="floor-btn '+(f===floor?'active':'')+'" data-floor="'+f+'"><b>'+(f===30?'30 - Cobertura':String(f).padStart(2,"0"))+'</b><small>'+n+' unidades</small></button>'}).join("");floorList.querySelectorAll(".floor-btn").forEach(b=>b.onclick=()=>{floor=Number(b.dataset.floor);selectedApartment=unitNumbers(tower,floor)[0];syncForm();renderAll()})}
-function latestForUnit(t,f,a){return tasks.filter(x=>x.tower===t&&Number(x.floor)===Number(f)&&String(x.apartment)===String(a)).sort((a,b)=>Number(b.id)-Number(a.id))[0]||null}
-function renderUnits(){const nums=unitNumbers(tower,floor);units.className="units "+(tower==="DUBAI"?"dubai":"istanbul");visualTitle.textContent="Torre "+towerName(tower)+" - Pavimento "+String(floor).padStart(2,"0");unitCount.textContent=nums.length+" unidades";units.innerHTML=nums.map(a=>{const x=latestForUnit(tower,floor,a),st=x?x.status:"SEM_SERVICO",ico=st==="CONCLUIDA"?"✓":st==="PARADA"?"!":st==="EM_ANDAMENTO"?"▰":"–",detail=x?(esc(x.employee_name||"")+'<br>'+esc(x.service||"")):"";return '<button class="unit '+statusClass(st)+' '+(a===selectedApartment?'selected':'')+'" data-apartment="'+a+'"><div class="apt-label">Apartamento</div><div class="apt">'+a+'</div><div class="ico">'+ico+'</div><div class="status">'+statusLabel(st)+'</div><div class="detail">'+detail+'</div></button>'}).join("");units.querySelectorAll(".unit").forEach(b=>b.onclick=()=>{selectedApartment=b.dataset.apartment;syncForm();renderUnits();renderDetail()})}
-function renderDetail(){const list=tasks.filter(x=>x.tower===tower&&Number(x.floor)===Number(floor)&&String(x.apartment)===String(selectedApartment)).sort((a,b)=>Number(b.id)-Number(a.id));detailTitle.textContent="Serviços do apartamento "+selectedApartment;detailCount.textContent=list.length+" registro"+(list.length===1?"":"s");taskRows.innerHTML=list.length?list.map(x=>{let action="";if(x.status!=="CONCLUIDA"){action='<button class="b-green" onclick="setStatus('+x.id+',\\'CONCLUIDA\\')">Concluir</button> <button class="b-yellow" onclick="setStatus('+x.id+',\\'EM_ANDAMENTO\\')">Andamento</button> <button class="b-red" onclick="setStatus('+x.id+',\\'PARADA\\')">Parar</button>'}else action='<span style="color:#588f2d;font-weight:800">Fechado</span>';return '<tr><td><b>'+esc(x.service)+'</b></td><td>'+esc(x.employee_name)+'</td><td>'+esc(x.responsible_name)+'</td><td>'+fmtDate(x.started_at)+'</td><td>'+fmtDate(x.finished_at)+'</td><td>'+statusLabel(x.status)+'</td><td>'+esc(x.observations||"")+'</td><td style="white-space:nowrap">'+action+'</td></tr>'}).join(""):'<tr><td colspan="8">Nenhum serviço lançado nesta unidade.</td></tr>'}
-function renderBuilding(t,el){let html="";for(let f=30;f>=4;f--){const nums=unitNumbers(t,f);html+='<div class="b-row"><span class="fl">'+(f===30?'30':String(f).padStart(2,"0"))+'</span>';for(let i=0;i<10;i++){if(i>=nums.length){html+='<span class="mini blank"></span>';continue}const x=latestForUnit(t,f,nums[i]),st=x?x.status:"SEM_SERVICO";html+='<button title="'+nums[i]+' - '+statusLabel(st)+'" class="mini '+statusClass(st)+'" onclick="jumpUnit(\\''+t+'\\','+f+',\\''+nums[i]+'\\')"></button>'}html+='</div>'}el.innerHTML=html}
-function renderBuildingAll(){renderBuilding("DUBAI",buildingDubai);renderBuilding("ISTAMBUL",buildingIstambul)}
+
+function renderFloors(){
+  $("floorList").innerHTML=floors().map(f=>{
+    const n=f===30?(tower==="DUBAI"?2:3):(tower==="DUBAI"?5:10);
+    return '<button class="floor-btn '+(f===floor?'active':'')+'" data-floor="'+f+'"><b>'+(f===30?'30 - Cobertura':String(f).padStart(2,"0"))+'</b><small>'+n+' unidades</small></button>';
+  }).join("");
+  $("floorList").querySelectorAll(".floor-btn").forEach(b=>b.onclick=()=>{floor=Number(b.dataset.floor);selectedApartment=unitNumbers(tower,floor)[0];syncForm();renderAll()});
+}
+
+function latestForUnit(t,f,a){
+  return tasks.filter(x=>x.tower===t&&Number(x.floor)===Number(f)&&String(x.apartment)===String(a)).sort((a,b)=>Number(b.id)-Number(a.id))[0]||null;
+}
+
+function renderUnits(){
+  const nums=unitNumbers(tower,floor);
+  $("units").className="units "+(tower==="DUBAI"?"dubai":"istanbul");
+  $("visualTitle").textContent="Torre "+towerName(tower)+" - Pavimento "+String(floor).padStart(2,"0");
+  $("unitCount").textContent=nums.length+" unidades";
+  $("units").innerHTML=nums.map(a=>{
+    const x=latestForUnit(tower,floor,a);
+    const st=x?x.status:"SEM_SERVICO";
+    const ico=st==="CONCLUIDA"?"✓":st==="PARADA"?"!":st==="EM_ANDAMENTO"?"▰":"–";
+    const detail=x?(esc(x.employee_name||"")+'<br>'+esc(x.service||"")):"";
+    return '<button class="unit '+statusClass(st)+' '+(a===selectedApartment?'selected':'')+'" data-apartment="'+a+'"><div class="apt-label">Apartamento</div><div class="apt">'+a+'</div><div class="ico">'+ico+'</div><div class="status">'+statusLabel(st)+'</div><div class="detail">'+detail+'</div></button>';
+  }).join("");
+  $("units").querySelectorAll(".unit").forEach(b=>b.onclick=()=>{selectedApartment=b.dataset.apartment;syncForm();renderUnits();renderDetail()});
+}
+
+function renderDetail(){
+  const list=tasks.filter(x=>x.tower===tower&&Number(x.floor)===Number(floor)&&String(x.apartment)===String(selectedApartment)).sort((a,b)=>Number(b.id)-Number(a.id));
+  $("detailTitle").textContent="Serviços do apartamento "+selectedApartment;
+  $("detailCount").textContent=list.length+" registro"+(list.length===1?"":"s");
+  $("taskRows").innerHTML=list.length?list.map(x=>{
+    let action="";
+    if(x.status!=="CONCLUIDA"){
+      action='<button class="b-green" data-action="CONCLUIDA" data-id="'+x.id+'">Concluir</button> ';
+      action+='<button class="b-yellow" data-action="EM_ANDAMENTO" data-id="'+x.id+'">Andamento</button> ';
+      action+='<button class="b-red" data-action="PARADA" data-id="'+x.id+'">Parar</button>';
+    }else{
+      action='<span style="color:#588f2d;font-weight:800">Fechado</span>';
+    }
+    return '<tr><td><b>'+esc(x.service)+'</b></td><td>'+esc(x.employee_name)+'</td><td>'+esc(x.employee_role||"")+'</td><td>'+esc(x.responsible_name)+'</td><td>'+fmtDate(x.started_at)+'</td><td>'+fmtDate(x.finished_at)+'</td><td>'+statusLabel(x.status)+'</td><td>'+esc(x.observations||"")+'</td><td style="white-space:nowrap">'+action+'</td></tr>';
+  }).join(""):'<tr><td colspan="9">Nenhum serviço lançado nesta unidade.</td></tr>';
+
+  $("taskRows").querySelectorAll("button[data-action]").forEach(btn=>{
+    btn.onclick=()=>setStatus(Number(btn.dataset.id),btn.dataset.action);
+  });
+}
+
+function renderBuilding(t,el){
+  let html="";
+  for(let f=30;f>=4;f--){
+    const nums=unitNumbers(t,f);
+    html+='<div class="b-row"><span class="fl">'+(f===30?'30':String(f).padStart(2,"0"))+'</span>';
+    for(let i=0;i<10;i++){
+      if(i>=nums.length){html+='<span class="mini blank"></span>';continue}
+      const x=latestForUnit(t,f,nums[i]),st=x?x.status:"SEM_SERVICO";
+      html+='<button title="'+nums[i]+' - '+statusLabel(st)+'" class="mini '+statusClass(st)+'" data-tower="'+t+'" data-floor="'+f+'" data-apartment="'+nums[i]+'"></button>';
+    }
+    html+='</div>';
+  }
+  el.innerHTML=html;
+  el.querySelectorAll("button.mini").forEach(btn=>{
+    btn.onclick=()=>jumpUnit(btn.dataset.tower,Number(btn.dataset.floor),btn.dataset.apartment);
+  });
+}
+
+function renderBuildingAll(){renderBuilding("DUBAI",$("buildingDubai"));renderBuilding("ISTAMBUL",$("buildingIstambul"))}
 function jumpUnit(t,f,a){tower=t;floor=f;selectedApartment=a;document.querySelectorAll(".tower-btn").forEach(b=>b.classList.toggle("active",b.dataset.tower===tower));syncForm();renderAll();window.scrollTo({top:70,behavior:"smooth"})}
-function fillFloorSelect(){formFloor.innerHTML=floors().map(f=>'<option value="'+f+'">'+(f===30?'30 - Cobertura':String(f).padStart(2,"0"))+'</option>').join("")}
-function fillApartmentSelect(){const t=formTower.value,f=Number(formFloor.value);formApartment.innerHTML=unitNumbers(t,f).map(a=>'<option value="'+a+'">'+a+'</option>').join("")}
-function syncForm(){formTower.value=tower;fillFloorSelect();formFloor.value=String(floor);fillApartmentSelect();formApartment.value=selectedApartment}
+function fillFloorSelect(){$("formFloor").innerHTML=floors().map(f=>'<option value="'+f+'">'+(f===30?'30 - Cobertura':String(f).padStart(2,"0"))+'</option>').join("")}
+function fillApartmentSelect(){const t=$("formTower").value,f=Number($("formFloor").value);$("formApartment").innerHTML=unitNumbers(t,f).map(a=>'<option value="'+a+'">'+a+'</option>').join("")}
+function syncForm(){$("formTower").value=tower;fillFloorSelect();$("formFloor").value=String(floor);fillApartmentSelect();$("formApartment").value=selectedApartment}
 function renderAll(){renderFloors();renderUnits();renderDetail();renderBuildingAll()}
-async function load(){const md=await api("/api/me");me=md.user||{};const display=me.name||me.username||"Usuário";loggedName.textContent=display;loggedRole.textContent=me.role==="admin"?"Administrador":"Acesso comum";responsible.value=display;const ed=await api("/api/employees");employees=Array.isArray(ed)?ed:(ed.items||[]);employee.innerHTML='<option value="">Selecione</option>'+employees.map(e=>'<option value="'+e.id+'">'+esc(e.name)+' — '+esc(e.role)+'</option>').join("");fillFloorSelect();syncForm();await reloadTasks()}
-async function reloadTasks(){const d=await api("/api/operational/tasks?project="+encodeURIComponent(PROJECT));tasks=d.items||[];renderAll()}
-async function setStatus(id,status){try{await api("/api/operational/tasks/"+id,{method:"PATCH",headers:{"content-type":"application/json"},body:JSON.stringify({status})});await reloadTasks();toastMsg(status==="CONCLUIDA"?"Serviço concluído. Data de término registrada automaticamente.":"Status atualizado.")}catch(e){alert(e.message)}}
-window.setStatus=setStatus;window.jumpUnit=jumpUnit;
-document.querySelectorAll(".tower-btn").forEach(b=>b.onclick=()=>{tower=b.dataset.tower;floor=6;selectedApartment=unitNumbers(tower,floor)[0];document.querySelectorAll(".tower-btn").forEach(x=>x.classList.toggle("active",x===b));syncForm();renderAll()});
-formTower.onchange=()=>{tower=formTower.value;floor=6;selectedApartment=unitNumbers(tower,floor)[0];document.querySelectorAll(".tower-btn").forEach(b=>b.classList.toggle("active",b.dataset.tower===tower));syncForm();renderAll()};
-formFloor.onchange=()=>{floor=Number(formFloor.value);selectedApartment=unitNumbers(tower,floor)[0];fillApartmentSelect();formApartment.value=selectedApartment;renderAll()};
-formApartment.onchange=()=>{selectedApartment=formApartment.value;renderUnits();renderDetail()};scrollListBtn.onclick=()=>detailPanel.scrollIntoView({behavior:"smooth",block:"start"});
-saveTask.onclick=async()=>{const body={project_slug:PROJECT,employee_id:Number(employee.value||0),tower:formTower.value,floor:Number(formFloor.value),apartment:formApartment.value,service:service.value.trim(),status:status.value,observations:observations.value.trim()};if(!body.employee_id||!body.service){alert("Selecione o funcionário e informe o serviço.");return}saveTask.disabled=true;saveTask.textContent="Salvando...";try{await api("/api/operational/tasks",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify(body)});observations.value="";service.value="";tower=body.tower;floor=body.floor;selectedApartment=body.apartment;await reloadTasks();toastMsg("Serviço lançado. Data e hora de início registradas automaticamente.")}catch(e){alert(e.message)}finally{saveTask.disabled=false;saveTask.textContent="Salvar serviço"}};
-load().catch(e=>alert(e.message));
-</script></body></html>`;
+
+async function load(){
+  /* Funcionários vêm por rota própria para o operacional */
+  const ed=await api("/api/operational/employees");
+  employees=ed.items||[];
+  $("employee").innerHTML='<option value="">Selecione o funcionário</option>'+employees.map(e=>'<option value="'+e.id+'">'+esc(e.name)+' — '+esc(e.role)+'</option>').join("");
+  fillFloorSelect();
+  syncForm();
+  await reloadTasks();
+}
+
+async function reloadTasks(){
+  const d=await api("/api/operational/tasks?project="+encodeURIComponent(PROJECT));
+  tasks=d.items||[];
+  renderAll();
+}
+
+async function setStatus(id,status){
+  try{
+    await api("/api/operational/tasks/"+id,{method:"PATCH",headers:{"content-type":"application/json"},body:JSON.stringify({status})});
+    await reloadTasks();
+    toastMsg(status==="CONCLUIDA"?"Serviço concluído. Data de término registrada automaticamente.":"Status atualizado.");
+  }catch(e){alert(e.message)}
+}
+
+document.querySelectorAll(".tower-btn").forEach(b=>b.onclick=()=>{
+  tower=b.dataset.tower;floor=6;selectedApartment=unitNumbers(tower,floor)[0];
+  document.querySelectorAll(".tower-btn").forEach(x=>x.classList.toggle("active",x===b));
+  syncForm();renderAll();
+});
+
+$("employee").onchange=()=>{
+  const e=employees.find(x=>Number(x.id)===Number($("employee").value));
+  $("employeeRole").value=e?e.role:"";
+};
+
+$("formTower").onchange=()=>{
+  tower=$("formTower").value;floor=6;selectedApartment=unitNumbers(tower,floor)[0];
+  document.querySelectorAll(".tower-btn").forEach(b=>b.classList.toggle("active",b.dataset.tower===tower));
+  syncForm();renderAll();
+};
+
+$("formFloor").onchange=()=>{
+  floor=Number($("formFloor").value);
+  selectedApartment=unitNumbers(tower,floor)[0];
+  fillApartmentSelect();
+  $("formApartment").value=selectedApartment;
+  renderAll();
+};
+
+$("formApartment").onchange=()=>{selectedApartment=$("formApartment").value;renderUnits();renderDetail()};
+$("scrollListBtn").onclick=()=>$("detailPanel").scrollIntoView({behavior:"smooth",block:"start"});
+
+$("saveTask").onclick=async()=>{
+  const body={
+    project_slug:PROJECT,
+    employee_id:Number($("employee").value||0),
+    tower:$("formTower").value,
+    floor:Number($("formFloor").value),
+    apartment:$("formApartment").value,
+    service:$("service").value.trim(),
+    status:$("status").value,
+    observations:$("observations").value.trim()
+  };
+  if(!body.employee_id||!body.service){alert("Selecione o funcionário e informe o serviço.");return}
+  $("saveTask").disabled=true;$("saveTask").textContent="Salvando...";
+  try{
+    await api("/api/operational/tasks",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify(body)});
+    $("observations").value="";$("service").value="";
+    tower=body.tower;floor=body.floor;selectedApartment=body.apartment;
+    await reloadTasks();
+    toastMsg("Serviço lançado. Data e hora de início registradas automaticamente.");
+  }catch(e){alert(e.message)}
+  finally{$("saveTask").disabled=false;$("saveTask").textContent="Salvar serviço"}
+};
+
+load().catch(e=>{
+  console.error(e);
+  $("employee").innerHTML='<option value="">Erro ao carregar funcionários</option>';
+  alert("Erro ao carregar o operacional: "+e.message);
+});
+</script>
+</body></html>`;
 }
 
 function projectPlaceholderPage(projectName){
@@ -785,7 +1003,14 @@ export default {
     if(path==="/tarefas" && request.method==="GET"){
       if(!(await hasProjectAccess(env,auth,"emirates-parque-flamboyant")))return new Response("Acesso negado.",{status:403});
       await ensureOperationalSchema(env);
-      return new Response(operationalPage(),{headers:{"content-type":"text/html; charset=UTF-8"}});
+      return new Response(operationalPage(auth),{headers:{"content-type":"text/html; charset=UTF-8"}});
+    }
+
+    if(path==="/api/operational/employees" && request.method==="GET"){
+      if(!(await hasProjectAccess(env,auth,"emirates-parque-flamboyant")))return json({error:"Acesso negado."},403);
+      const visibility=auth.role==="admin"?"":" AND admin_only=0";
+      const r=await env.DB.prepare(`SELECT id,name,role FROM employees WHERE status='ATIVO'${visibility} ORDER BY name COLLATE NOCASE`).all();
+      return json({items:r.results||[]});
     }
 
     if(path==="/api/operational/tasks" && request.method==="GET"){
