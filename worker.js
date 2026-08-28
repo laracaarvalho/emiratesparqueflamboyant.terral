@@ -548,334 +548,298 @@ return String.raw`<!doctype html>
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>TERRAL | OPERACIONAL EMIRATES</title>
+<title>TERRAL | CONTROLE OPERACIONAL — EMIRATES</title>
 <link rel="icon" type="image/svg+xml" href="/favicon-terral-t.svg">
 <style>
 :root{
-  --wine:#781126;--wine2:#991a34;--cream:#faf6f0;--card:#fffdf9;--text:#26211d;
-  --muted:#786f67;--line:#e7ddd2;--soft:#f3eee8;--green:#78b943;--yellow:#ffc928;
-  --red:#ef5b5b;--gray:#efefef;--shadow:0 8px 22px rgba(61,37,28,.07)
+ --wine:#781126;--wine2:#95172f;--wine3:#5f0d1d;--cream:#faf7f2;--card:#fffdfa;
+ --text:#28231f;--muted:#756d66;--line:#e6ddd4;--green:#7abb47;--yellow:#ffc72e;
+ --red:#ef6060;--gray:#eeeeee;--shadow:0 7px 20px rgba(58,34,25,.07)
 }
-*{box-sizing:border-box}
-html,body{margin:0;min-height:100%;font-family:Arial,Helvetica,sans-serif;background:var(--cream);color:var(--text)}
-button,a,select,input,textarea{font:inherit}
-button,a,select{cursor:pointer!important}
-body{overflow-x:hidden}
-.topbar{height:72px;background:linear-gradient(90deg,#7a1328,#8c1731);color:#fff;display:flex;align-items:center;justify-content:space-between;padding:0 28px;border-bottom:1px solid rgba(255,255,255,.14)}
-.brandline{display:flex;align-items:center;gap:20px}.brandline img{width:135px;height:auto;display:block}.vline{width:1px;height:34px;background:rgba(255,255,255,.28)}
-.title h1{margin:0;font-size:20px}.title p{margin:4px 0 0;font-size:11px;color:#f3dfe4}
-.user{display:flex;align-items:center;gap:10px}.user-icon{font-size:19px}.user b{display:block;font-size:12px}.user small{display:block;font-size:10px;color:#f0dce1;margin-top:2px}
-.wrap{padding:18px 22px 26px}
-.tabs{display:flex;gap:28px;border-bottom:1px solid var(--line);margin-bottom:14px}
-.tab{border:0;background:transparent;padding:10px 3px;font-size:11px;font-weight:800;color:#5d5752;border-bottom:2px solid transparent}
+*{box-sizing:border-box} html,body{margin:0;min-height:100%;font-family:Arial,Helvetica,sans-serif;background:var(--cream);color:var(--text)}
+button,a,select,input,textarea{font:inherit} button,a,select{cursor:pointer} .hidden{display:none!important}
+.shell{display:grid;grid-template-columns:150px minmax(0,1fr);min-height:100vh}
+.sidebar{background:linear-gradient(180deg,var(--wine),var(--wine3));color:#fff;display:flex;flex-direction:column;position:sticky;top:0;height:100vh}
+.brand{height:72px;display:flex;align-items:center;justify-content:center;border-bottom:1px solid rgba(255,255,255,.12);padding:11px}
+.brand img{width:118px;height:auto}.nav{padding:17px 11px;display:flex;flex-direction:column;gap:8px;flex:1}
+.nav a{color:#fff;text-decoration:none;border-radius:7px;padding:11px 10px;font-size:10px;font-weight:700;display:flex;align-items:center;gap:9px}
+.nav a:hover,.nav a.active{background:rgba(255,255,255,.16)}.nav .spacer{flex:1}
+.content{min-width:0}
+.topbar{height:72px;background:#fff;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:0 24px}
+.title h1{margin:0;font-size:21px}.title p{margin:4px 0 0;color:var(--muted);font-size:10px}
+.user{display:flex;align-items:center;gap:9px}.user b{display:block;font-size:10px}.user small{display:block;font-size:8px;color:var(--muted);margin-top:2px}
+.main{padding:14px 18px 24px}
+.tabs{display:flex;gap:30px;border-bottom:1px solid var(--line);margin-bottom:12px}
+.tab{border:0;background:transparent;padding:9px 2px;font-size:9px;font-weight:800;color:#69615b;border-bottom:2px solid transparent}
 .tab.active{color:var(--wine);border-color:var(--wine)}
-.card{background:var(--card);border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow)}
-.map-card{padding:16px 18px 18px}
-.section-title{display:flex;align-items:center;justify-content:center;gap:28px;margin-bottom:16px}
-.section-title:before,.section-title:after{content:"";height:1px;background:#d6cbc1;flex:1;max-width:205px}
-.section-title h2{margin:0;font-size:15px;letter-spacing:.2px}
-.tower-grid-wrap{display:grid;grid-template-columns:1fr 1fr;gap:26px}
-.tower-box{min-width:0}.tower-head{text-align:center;font-size:13px;font-weight:800;margin-bottom:12px}
-.tower-head span{margin-right:7px;color:var(--wine)}
-.building{position:relative}
-.header-row{display:grid;grid-template-columns:54px repeat(10,34px);gap:5px;align-items:center;margin-bottom:4px}
-.header-row .apt-h{font-size:8px;text-align:center;color:#6d655f}
-.b-row{display:grid;grid-template-columns:54px repeat(10,34px);gap:5px;align-items:center;margin-bottom:5px}
-.fl{font-size:9px;text-align:right;padding-right:8px;color:#5a534d}
-.fl.active{color:var(--wine);font-weight:800}
-.mini{width:34px;height:24px;border:1px solid #dedede;border-radius:4px;background:var(--gray);position:relative;transition:.12s}
-.mini:hover{transform:translateY(-1px);box-shadow:0 4px 10px #0001;z-index:5}
-.mini.em_andamento{background:var(--yellow);border-color:#e9b914}
-.mini.parada{background:var(--red);border-color:#dd4646}
-.mini.concluida{background:var(--green);border-color:#67a636}
-.mini.blank{visibility:hidden}
-.tooltip{position:fixed;display:none;z-index:100;background:#fff;border:1px solid #ddd1c7;border-radius:7px;padding:9px 11px;box-shadow:0 10px 25px #0002;min-width:145px;font-size:10px;pointer-events:none}
-.tooltip.show{display:block}.tooltip b{display:block;font-size:11px;margin-bottom:4px}.tooltip .svc{color:#5a534e}.tooltip .st{margin-top:5px;font-weight:700}
-.legend{display:flex;gap:22px;justify-content:center;flex-wrap:wrap;margin-top:14px;font-size:9px;color:#6a625c}
-.dot{width:11px;height:11px;border-radius:3px;display:inline-block;margin-right:5px;vertical-align:-2px}
-.form-card{margin-top:14px;padding:14px 16px}
-.form-title{font-size:13px;font-weight:800;margin-bottom:12px}
-.form-grid{display:grid;grid-template-columns:1.15fr 1.35fr 1fr 1.1fr 1.1fr 1.1fr;gap:10px}
-.form-grid.second{grid-template-columns:1.15fr 1.2fr 1.15fr .8fr 1.4fr 1fr;margin-top:10px}
-.field label{display:block;font-size:9px;font-weight:800;margin:0 0 5px}
-.field input,.field select,.field textarea{width:100%;height:35px;border:1px solid #dbd2ca;border-radius:6px;background:#fff;padding:7px 9px;font-size:10px}
-.field input[readonly]{background:#f3eee9;color:#5b554f;font-weight:700;cursor:not-allowed}
-.field textarea{height:35px;min-height:35px;resize:vertical}
-.save{height:35px;border:0;border-radius:6px;background:linear-gradient(90deg,var(--wine),var(--wine2));color:#fff;font-weight:800;font-size:10px}
-.recent{margin-top:14px;padding:12px 14px}
-.recent h3{font-size:13px;margin:0 0 10px}
-.table-wrap{overflow:auto;border:1px solid var(--line);border-radius:7px}
-table{width:100%;border-collapse:collapse;font-size:9px;min-width:930px}
-th,td{padding:8px 7px;border-bottom:1px solid var(--line);text-align:center;white-space:nowrap}
-th{background:#f5efe8;color:#5e5751}
-td.obs{text-align:left;max-width:240px;white-space:normal}
-.status-pill{display:inline-block;padding:4px 7px;border-radius:5px;font-weight:800}
-.status-pill.em_andamento{background:#fff0a6;color:#966300}.status-pill.parada{background:#ffd6d4;color:#b51e1c}.status-pill.concluida{background:#dff2cd;color:#397b12}
-.action-btn{border:1px solid #d8cec5;background:#fff;border-radius:5px;padding:4px 7px;font-size:9px}
-.toast{position:fixed;right:20px;bottom:20px;background:#222;color:#fff;border-radius:7px;padding:10px 13px;font-size:10px;opacity:0;transform:translateY(10px);pointer-events:none;transition:.2s;z-index:120}.toast.show{opacity:1;transform:none}
-@media(max-width:1180px){.tower-grid-wrap{grid-template-columns:1fr}.form-grid,.form-grid.second{grid-template-columns:repeat(3,1fr)}}
-@media(max-width:760px){.topbar{height:auto;padding:12px 15px}.brandline img{width:100px}.vline{display:none}.title h1{font-size:16px}.wrap{padding:12px}.form-grid,.form-grid.second{grid-template-columns:1fr 1fr}.header-row,.b-row{grid-template-columns:45px repeat(10,28px)}.mini{width:28px;height:22px}}
+.top-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:-47px;margin-bottom:13px}
+.btn{border:1px solid #dbd1c8;background:#fff;border-radius:6px;padding:8px 11px;font-size:9px;font-weight:700}
+.btn.primary{background:linear-gradient(90deg,var(--wine),var(--wine2));color:#fff;border-color:transparent}
+
+.kpis{display:grid;grid-template-columns:repeat(4,1fr) 1.2fr;gap:9px;margin-bottom:10px}
+.kpi{background:var(--card);border:1px solid var(--line);border-radius:9px;box-shadow:var(--shadow);padding:11px 12px;min-height:80px}
+.kpi small{font-size:8px;color:#5c5550}.kpi b{display:block;font-size:21px;margin:7px 0 2px}.kpi em{font-style:normal;font-size:7px;color:var(--muted)}
+.period{display:flex;flex-direction:column;justify-content:center}.period input{margin-top:7px;border:1px solid var(--line);border-radius:6px;padding:7px;font-size:8px;background:#fff}
+
+.groups{display:grid;grid-template-columns:1fr 1fr 1fr 210px;gap:9px;margin-bottom:10px}
+.group{border:1px solid var(--line);background:var(--card);border-radius:8px;padding:10px 12px;text-align:left;font-size:9px;font-weight:800}
+.group small{display:block;font-size:7px;font-weight:400;color:var(--muted);margin-top:3px}
+.group.active{background:linear-gradient(90deg,var(--wine),var(--wine2));color:#fff}.group.active small{color:#f0dce1}
+.selector{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:7px 9px}.selector label{display:block;font-size:7px;color:var(--muted);margin-bottom:4px}.selector select{width:100%;border:0;background:#f3ede7;border-radius:5px;padding:6px 7px;font-size:8px}
+
+.map-card{background:var(--card);border:1px solid var(--line);border-radius:10px;box-shadow:var(--shadow);padding:12px}
+.map-title{text-align:center;font-size:11px;font-weight:800;margin-bottom:10px}
+.map-grid{display:grid;grid-template-columns:270px 1fr 1.35fr;gap:12px;align-items:start}
+.panel{border:1px solid var(--line);border-radius:8px;background:#fffefa;padding:9px;min-width:0}
+.panel-title{text-align:center;font-size:9px;font-weight:800;margin-bottom:9px}
+.area-list{display:grid;gap:5px}.area-row{border:1px solid #e8dfd7;border-radius:6px;background:#fff;padding:7px 8px;display:flex;align-items:center;justify-content:space-between;gap:8px}
+.area-row b{font-size:8px}.area-row span{font-size:6.5px;color:#857b73;background:#f4eee8;border-radius:999px;padding:4px 6px}
+.area-note{margin-top:7px;background:#f5efe9;border-radius:6px;padding:7px;font-size:6.5px;color:#766e67;line-height:1.4}
+.header-row{display:grid;grid-template-columns:43px repeat(10,20px);gap:3px;align-items:center;margin-bottom:3px}.apt-h{font-size:6.5px;text-align:center;color:#6d655f}
+.b-row{display:grid;grid-template-columns:43px repeat(10,20px);gap:3px;align-items:center;margin-bottom:3px}.fl{font-size:6.5px;text-align:right;padding-right:5px;color:#5b544e;white-space:nowrap}
+.mini{width:20px;height:16px;border:1px solid #dedede;border-radius:3px;background:var(--gray);transition:.12s}.mini:hover{transform:translateY(-1px);box-shadow:0 3px 8px #0001}
+.mini.em_andamento{background:var(--yellow);border-color:#eab91c}.mini.parada{background:var(--red);border-color:#dd5050}.mini.concluida{background:var(--green);border-color:#67a539}.mini.blank{visibility:hidden}
+.legend{display:flex;justify-content:center;gap:10px;flex-wrap:wrap;margin-top:8px;font-size:6.5px;color:#675f59}.dot{width:7px;height:7px;border-radius:2px;display:inline-block;margin-right:3px;vertical-align:-1px}
+.map-footer{margin-top:9px}.collapse{border:1px solid #dbd1c7;background:#fff;border-radius:5px;padding:6px 8px;font-size:7px}
+
+.lower{display:grid;grid-template-columns:300px minmax(0,1fr);gap:10px;margin-top:11px}.card{background:var(--card);border:1px solid var(--line);border-radius:9px;box-shadow:var(--shadow);padding:10px}
+.card h3{font-size:9px;margin:0 0 8px}.svc-row{display:grid;grid-template-columns:105px 1fr 30px;gap:6px;align-items:center;margin-bottom:6px;font-size:7px}.svc-bar{height:8px;background:#eee;border-radius:999px;overflow:hidden;display:flex}.svc-bar i{display:block}.svc-bar .g{background:var(--green)}.svc-bar .y{background:var(--yellow)}.svc-bar .r{background:var(--red)}.svc-pct{text-align:right;font-weight:800}
+.table-wrap{overflow:auto;border:1px solid var(--line);border-radius:6px} table{width:100%;border-collapse:collapse;font-size:7px;min-width:760px} th,td{padding:6px 5px;border-bottom:1px solid var(--line);text-align:center;white-space:nowrap} th{background:#f5efe8;color:#5f5751}.obs{text-align:left;white-space:normal;max-width:180px}
+.pill{display:inline-block;border-radius:4px;padding:3px 5px;font-weight:800}.pill.em_andamento{background:#fff0a6;color:#986400}.pill.parada{background:#ffd6d4;color:#b51e1c}.pill.concluida{background:#dff2cd;color:#397b12}
+.small-btn{border:1px solid #d7cdc4;background:#fff;border-radius:4px;padding:3px 5px;font-size:6.5px}
+
+.tooltip{position:fixed;display:none;z-index:100;background:#fff;border:1px solid #ddd1c7;border-radius:6px;padding:7px 9px;box-shadow:0 9px 22px #0002;min-width:125px;font-size:8px;pointer-events:none}.tooltip.show{display:block}.tooltip b{display:block;margin-bottom:3px}.tooltip .st{font-weight:800;margin-top:4px}
+
+.modal-back{position:fixed;inset:0;background:rgba(42,29,25,.4);display:none;align-items:center;justify-content:center;padding:18px;z-index:200}.modal-back.show{display:flex}.modal{width:min(850px,96vw);background:var(--card);border:1px solid var(--line);border-radius:10px;box-shadow:0 25px 60px #0003;padding:14px}.modal-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:11px}.modal-head h3{margin:0;font-size:12px}.close{border:0;background:transparent;font-size:18px}
+.form-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}.field label{display:block;font-size:7px;font-weight:800;margin-bottom:4px}.field input,.field select,.field textarea{width:100%;border:1px solid #d9d0c8;border-radius:6px;padding:8px;font-size:8px;background:#fff}.field input[readonly]{background:#f3eee9;font-weight:700}.field textarea{min-height:58px;resize:vertical}.modal-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:10px}
+.toast{position:fixed;right:18px;bottom:18px;background:#222;color:#fff;border-radius:6px;padding:9px 11px;font-size:8px;opacity:0;transform:translateY(8px);pointer-events:none;transition:.2s;z-index:240}.toast.show{opacity:1;transform:none}
+
+.report-view{display:none}.report-view.show{display:block}.report-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.report-box{background:var(--card);border:1px solid var(--line);border-radius:9px;box-shadow:var(--shadow);padding:11px;min-height:190px}.report-box h3{font-size:10px;margin:0 0 9px}.status-summary{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.status-mini{border:1px solid var(--line);border-radius:7px;padding:12px;text-align:center}.status-mini b{display:block;font-size:22px}.status-mini small{font-size:7px;color:var(--muted)}.top-list{display:grid;gap:7px;font-size:8px}.top-item{display:flex;justify-content:space-between;border-bottom:1px solid #eee;padding-bottom:6px}
+@media(max-width:1250px){.shell{grid-template-columns:125px minmax(0,1fr)}.kpis{grid-template-columns:repeat(3,1fr)}.groups{grid-template-columns:1fr 1fr}.map-grid{grid-template-columns:1fr}.lower{grid-template-columns:1fr}}
+@media(max-width:760px){.shell{display:block}.sidebar{display:none}.main{padding:12px}.top-actions{margin:0 0 10px}.kpis{grid-template-columns:1fr 1fr}.groups{grid-template-columns:1fr}.form-grid{grid-template-columns:1fr}.report-grid{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
+<div class="shell">
+<aside class="sidebar">
+ <div class="brand"><img src="/terral_logo_transparente.png" onerror="this.onerror=null;this.src='/terral_logo.png'" alt="Terral"></div>
+ <nav class="nav">
+   <a href="/obra/emirates-parque-flamboyant">⌂ &nbsp; Início</a>
+   <a href="/">▥ &nbsp; Obras</a>
+   <a class="active" href="/tarefas">☑ &nbsp; Tarefas</a>
+   <a href="/tarefas" data-jump-report="1">▥ &nbsp; Relatórios</a>
+   <a href="/funcionarios">♙ &nbsp; Funcionários</a>
+   <div class="spacer"></div>
+   <a href="/obra/emirates-parque-flamboyant">← &nbsp; Voltar</a>
+ </nav>
+</aside>
+
+<div class="content">
 <header class="topbar">
-  <div class="brandline">
-    <img src="/terral_logo_transparente.png" onerror="this.onerror=null;this.src='/terral_logo.png'" alt="Terral">
-    <div class="vline"></div>
-    <div class="title"><h1>Controle Operacional</h1><p>Emirates Parque Flamboyant</p></div>
-  </div>
-  <div class="user"><div class="user-icon">♙</div><div><b>${loggedName}</b><small>${loggedRole}</small></div></div>
+ <div class="title"><h1>Controle Operacional</h1><p>Emirates Parque Flamboyant</p></div>
+ <div class="user"><span>♙</span><div><b>${loggedName}</b><small>${loggedRole}</small></div></div>
 </header>
 
-<main class="wrap">
-  <div class="tabs"><button class="tab active">VISUALIZAÇÃO DA OBRA</button><button class="tab" id="scrollListBtn">LISTAGEM DE SERVIÇOS</button></div>
+<main class="main">
+ <div class="tabs">
+  <button class="tab active" data-view="visual">VISUALIZAÇÃO DA OBRA</button>
+  <button class="tab" data-view="list">LISTAGEM DE SERVIÇOS</button>
+  <button class="tab" data-view="report">RELATÓRIOS</button>
+ </div>
+ <div class="top-actions"><button class="btn" id="toggleMapBtn">◉ &nbsp; Ocultar mapa</button><button class="btn primary" id="newTaskBtn">＋ &nbsp; Novo serviço</button></div>
 
-  <section class="card map-card">
-    <div class="section-title"><h2>MAPA GERAL DAS TORRES</h2></div>
+ <section id="visualView">
+  <div class="kpis">
+   <div class="kpi"><small>Total de serviços</small><b id="kpiTotal">0</b><em>Registros da obra</em></div>
+   <div class="kpi"><small>Em andamento</small><b id="kpiProgress">0</b><em>Serviços abertos</em></div>
+   <div class="kpi"><small>Concluídos</small><b id="kpiDone">0</b><em>Serviços finalizados</em></div>
+   <div class="kpi"><small>Parados</small><b id="kpiStopped">0</b><em>Requer atenção</em></div>
+   <div class="kpi period"><small>Período</small><input id="period" type="text" value="Todo o período" readonly></div>
+  </div>
 
-    <div class="tower-grid-wrap">
-      <div class="tower-box">
-        <div class="tower-head"><span>▥</span>TORRE DUBAI</div>
-        <div id="buildingDubai" class="building"></div>
-        <div class="legend">
-          <span><i class="dot" style="background:#78b943"></i>Concluído</span>
-          <span><i class="dot" style="background:#ffc928"></i>Em andamento</span>
-          <span><i class="dot" style="background:#ef5b5b"></i>Parado</span>
-          <span><i class="dot" style="background:#efefef;border:1px solid #ddd"></i>Sem serviço</span>
-        </div>
-      </div>
+  <div class="groups">
+   <button class="group active"><b>EMBASAMENTO / ÁREAS GERAIS</b><small>Subsolos, garagens, térreo, lazer e lounge</small></button>
+   <button class="group"><b>TORRE DUBAI</b><small>04º ao 30º pavimento</small></button>
+   <button class="group"><b>TORRE ISTAMBUL</b><small>04º ao 30º pavimento</small></button>
+   <div class="selector"><label>Visualizar mapa por serviço</label><select id="serviceFilter"></select></div>
+  </div>
 
-      <div class="tower-box">
-        <div class="tower-head"><span>▥</span>TORRE ISTAMBUL</div>
-        <div id="buildingIstambul" class="building"></div>
-        <div class="legend">
-          <span><i class="dot" style="background:#78b943"></i>Concluído</span>
-          <span><i class="dot" style="background:#ffc928"></i>Em andamento</span>
-          <span><i class="dot" style="background:#ef5b5b"></i>Parado</span>
-          <span><i class="dot" style="background:#efefef;border:1px solid #ddd"></i>Sem serviço</span>
-        </div>
-      </div>
+  <section class="map-card" id="mapCard">
+   <div class="map-title">MAPA GERAL DA OBRA</div>
+   <div class="map-grid" id="mapGrid">
+    <div class="panel">
+     <div class="panel-title">EMBASAMENTO / ÁREAS GERAIS</div>
+     <div class="area-list">
+      <div class="area-row"><b>Subsolo 2</b><span>Aguardando planta</span></div>
+      <div class="area-row"><b>Subsolo 1</b><span>Aguardando planta</span></div>
+      <div class="area-row"><b>Garagem 2</b><span>Aguardando planta</span></div>
+      <div class="area-row"><b>Garagem 1</b><span>Aguardando planta</span></div>
+      <div class="area-row"><b>Térreo</b><span>Aguardando planta</span></div>
+      <div class="area-row"><b>3º Pav. — Lazer</b><span>Aguardando planta</span></div>
+      <div class="area-row"><b>30º Istambul — Lounge</b><span>Aguardando planta</span></div>
+     </div>
+     <div class="area-note">Nenhuma planta fictícia foi criada. Quando você enviar as plantas reais, elas entram aqui e passam a funcionar com a mesma lógica visual de status.</div>
     </div>
+
+    <div class="panel">
+     <div class="panel-title">TORRE DUBAI</div>
+     <div id="buildingDubai"></div>
+     <div class="legend"><span><i class="dot" style="background:var(--green)"></i>Concluído</span><span><i class="dot" style="background:var(--yellow)"></i>Em andamento</span><span><i class="dot" style="background:var(--red)"></i>Parado</span><span><i class="dot" style="background:var(--gray);border:1px solid #ddd"></i>Sem serviço</span></div>
+    </div>
+
+    <div class="panel">
+     <div class="panel-title">TORRE ISTAMBUL</div>
+     <div id="buildingIstambul"></div>
+     <div class="legend"><span><i class="dot" style="background:var(--green)"></i>Concluído</span><span><i class="dot" style="background:var(--yellow)"></i>Em andamento</span><span><i class="dot" style="background:var(--red)"></i>Parado</span><span><i class="dot" style="background:var(--gray);border:1px solid #ddd"></i>Sem serviço</span></div>
+    </div>
+   </div>
   </section>
 
-  <section class="card form-card">
-    <div class="form-title">▣ &nbsp; LANÇAR NOVO SERVIÇO</div>
+  <div class="lower">
+   <section class="card"><h3>ANDAMENTO POR SERVIÇO</h3><div id="serviceProgress"></div></section>
+   <section class="card"><h3>SERVIÇOS RECENTES</h3><div class="table-wrap"><table><thead><tr><th>Data/Hora</th><th>Funcionário</th><th>Função</th><th>Serviço</th><th>Torre</th><th>Pav.</th><th>Apto</th><th>Status</th><th>Observações</th><th>Ação</th></tr></thead><tbody id="recentRows"></tbody></table></div></section>
+  </div>
+ </section>
 
-    <div class="form-grid">
-      <div class="field"><label>Responsável</label><input id="responsible" value="${loggedName}" readonly></div>
-      <div class="field"><label>Funcionário</label><select id="employee"><option value="">Carregando funcionários...</option></select></div>
-      <div class="field"><label>Função</label><input id="employeeRole" readonly></div>
-      <div class="field"><label>Torre</label><select id="formTower"><option value="DUBAI">Torre Dubai</option><option value="ISTAMBUL">Torre Istambul</option></select></div>
-      <div class="field"><label>Pavimento</label><select id="formFloor"></select></div>
-      <div class="field"><label>Apartamento</label><select id="formApartment"></select></div>
-    </div>
-
-    <div class="form-grid second">
-      <div class="field"><label>Serviço</label><input id="service" list="serviceList" placeholder="Selecione ou digite o serviço"><datalist id="serviceList"><option>Checklist Pintura</option><option>Checklist Elétrica</option><option>Checklist Hidráulica</option><option>Correção de Pintura</option><option>Limpeza</option><option>Rejunte</option><option>Acabamento</option></datalist></div>
-      <div class="field"><label>Data de início</label><input value="Automática ao salvar" readonly></div>
-      <div class="field"><label>Data de término</label><input value="Automática ao concluir" readonly></div>
-      <div class="field"><label>Status inicial</label><select id="status"><option value="EM_ANDAMENTO">Em andamento</option><option value="PARADA">Parada</option></select></div>
-      <div class="field"><label>Observações</label><textarea id="observations" placeholder="Digite observações (opcional)"></textarea></div>
-      <button id="saveTask" class="save">Salvar serviço</button>
-    </div>
+ <section id="listView" class="hidden">
+  <section class="card">
+   <h3>LISTAGEM DE SERVIÇOS</h3>
+   <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:9px">
+    <select id="listServiceFilter" style="border:1px solid var(--line);border-radius:6px;padding:7px;font-size:8px"></select>
+    <select id="listTowerFilter" style="border:1px solid var(--line);border-radius:6px;padding:7px;font-size:8px"><option value="">Todas as torres</option><option value="DUBAI">Dubai</option><option value="ISTAMBUL">Istambul</option></select>
+    <select id="listStatusFilter" style="border:1px solid var(--line);border-radius:6px;padding:7px;font-size:8px"><option value="">Todos os status</option><option value="EM_ANDAMENTO">Em andamento</option><option value="PARADA">Parado</option><option value="CONCLUIDA">Concluído</option></select>
+    <input id="listSearch" placeholder="Buscar funcionário" style="border:1px solid var(--line);border-radius:6px;padding:7px;font-size:8px">
+   </div>
+   <div class="table-wrap"><table><thead><tr><th>Funcionário</th><th>Função</th><th>Torre</th><th>Pav.</th><th>Apto</th><th>Serviço</th><th>Início</th><th>Término</th><th>Status</th><th>Observações</th><th>Ações</th></tr></thead><tbody id="listRows"></tbody></table></div>
   </section>
+ </section>
 
-  <section id="detailPanel" class="card recent">
-    <h3>SERVIÇOS RECENTES</h3>
-    <div class="table-wrap">
-      <table>
-        <thead><tr><th>Funcionário</th><th>Função</th><th>Torre</th><th>Pav.</th><th>Apartamento</th><th>Serviço</th><th>Início</th><th>Término</th><th>Status</th><th>Observações</th><th>Ações</th></tr></thead>
-        <tbody id="taskRows"><tr><td colspan="11">Nenhum serviço lançado.</td></tr></tbody>
-      </table>
-    </div>
-  </section>
+ <section id="reportView" class="report-view">
+  <div class="report-grid">
+   <section class="report-box"><h3>AVANÇO POR SERVIÇO</h3><div id="reportProgress"></div></section>
+   <section class="report-box"><h3>RESUMO DOS STATUS</h3><div class="status-summary"><div class="status-mini"><small>Concluídos</small><b id="reportDone">0</b></div><div class="status-mini"><small>Em andamento</small><b id="reportProgressCount">0</b></div><div class="status-mini"><small>Parados</small><b id="reportStopped">0</b></div></div></section>
+   <section class="report-box"><h3>TOP FUNCIONÁRIOS — CONCLUÍDOS</h3><div id="topEmployees" class="top-list"></div></section>
+   <section class="report-box"><h3>FLUXO DAS TORRES — EMIRATES</h3><div style="font-size:8px;line-height:1.9;color:#5c5550">1. Checklist Pintura<br>2. Checklist Instaladora<br>3. Rejunte<br>4. Limpeza<br>5. Vistoria Qualidade<br>6. Vistoria Cliente<br>7. Revistoria<br>8. Entrega Cliente</div></section>
+  </div>
+ </section>
 </main>
+</div>
+</div>
 
-<div id="tooltip" class="tooltip"></div>
-<div id="toast" class="toast"></div>
+<div class="tooltip" id="tooltip"></div><div class="toast" id="toast"></div>
+
+<div class="modal-back" id="taskModal">
+ <div class="modal">
+  <div class="modal-head"><h3>Novo serviço</h3><button class="close" id="closeModal">×</button></div>
+  <div class="form-grid">
+   <div class="field"><label>Responsável</label><input value="${loggedName}" readonly></div>
+   <div class="field"><label>Funcionário</label><select id="employee"></select></div>
+   <div class="field"><label>Função</label><input id="employeeRole" readonly></div>
+   <div class="field"><label>Torre</label><select id="formTower"><option value="DUBAI">Torre Dubai</option><option value="ISTAMBUL">Torre Istambul</option></select></div>
+   <div class="field"><label>Pavimento</label><select id="formFloor"></select></div>
+   <div class="field"><label>Apartamento</label><select id="formApartment"></select></div>
+   <div class="field"><label>Serviço</label><select id="service"></select></div>
+   <div class="field"><label>Status inicial</label><select id="status"><option value="EM_ANDAMENTO">Em andamento</option><option value="PARADA">Parada</option></select></div>
+   <div class="field"><label>Data de início</label><input value="Automática ao salvar" readonly></div>
+   <div class="field" style="grid-column:1/-1"><label>Observações</label><textarea id="observations" placeholder="Digite observações (opcional)"></textarea></div>
+  </div>
+  <div class="modal-actions"><button class="btn" id="cancelModal">Cancelar</button><button class="btn primary" id="saveTask">Salvar serviço</button></div>
+ </div>
+</div>
 
 <script>
 const PROJECT="emirates-parque-flamboyant";
-let employees=[],tasks=[],tower="DUBAI",floor=6,selectedApartment="601";
-
+const SERVICES=["Checklist Pintura","Checklist Instaladora","Rejunte","Limpeza","Vistoria Qualidade","Vistoria Cliente","Revistoria","Entrega Cliente"];
+let employees=[],tasks=[],tower="DUBAI",floor=6,selectedApartment="601",selectedService="GERAL";
 const $=id=>document.getElementById(id);
 const esc=s=>String(s??"").replace(/[&<>"']/g,ch=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[ch]));
-const fmtDate=v=>v?new Intl.DateTimeFormat("pt-BR",{timeZone:"America/Sao_Paulo",day:"2-digit",month:"2-digit",year:"numeric",hour:"2-digit",minute:"2-digit"}).format(new Date(v)):"—";
-const statusLabel=s=>s==="CONCLUIDA"?"Concluído":s==="PARADA"?"Parado":s==="EM_ANDAMENTO"?"Em andamento":"Sem serviço";
-const statusClass=s=>s?String(s).toLowerCase():"sem_servico";
-function toastMsg(m){$("toast").textContent=m;$("toast").classList.add("show");setTimeout(()=>$("toast").classList.remove("show"),2200)}
+const fmt=v=>v?new Intl.DateTimeFormat("pt-BR",{timeZone:"America/Sao_Paulo",day:"2-digit",month:"2-digit",year:"numeric",hour:"2-digit",minute:"2-digit"}).format(new Date(v)):"—";
+const sl=s=>s==="CONCLUIDA"?"Concluído":s==="PARADA"?"Parado":s==="EM_ANDAMENTO"?"Em andamento":"Sem serviço";
+const sc=s=>s?String(s).toLowerCase():"sem_servico";
 async function api(url,opt={}){const r=await fetch(url,opt);const d=await r.json().catch(()=>({}));if(!r.ok)throw new Error(d.error||"Erro");return d}
+function toast(m){$("toast").textContent=m;$("toast").classList.add("show");setTimeout(()=>$("toast").classList.remove("show"),2200)}
 function floors(){const a=[];for(let f=30;f>=4;f--)a.push(f);return a}
-function unitNumbers(t,f){
-  const count=f===30?(t==="DUBAI"?2:3):(t==="DUBAI"?5:10);
-  return Array.from({length:count},(_,i)=>String(f)+String(i+1).padStart(2,"0"));
+function units(t,f){const n=f===30?(t==="DUBAI"?2:3):(t==="DUBAI"?5:10);return Array.from({length:n},(_,i)=>String(f)+String(i+1).padStart(2,"0"))}
+function visibleTasks(){return selectedService==="GERAL"?tasks:tasks.filter(x=>x.service===selectedService)}
+function latest(t,f,a){return visibleTasks().filter(x=>x.tower===t&&Number(x.floor)===Number(f)&&String(x.apartment)===String(a)).sort((a,b)=>Number(b.id)-Number(a.id))[0]||null}
+
+function fillSelectors(){
+ const opts=SERVICES.map(s=>'<option value="'+esc(s)+'">'+esc(s)+'</option>').join("");
+ $("service").innerHTML=opts;
+ $("serviceFilter").innerHTML='<option value="GERAL">Visão geral</option>'+opts;
+ $("listServiceFilter").innerHTML='<option value="">Todos os serviços</option>'+opts;
 }
-function latestForUnit(t,f,a){
-  return tasks.filter(x=>x.tower===t&&Number(x.floor)===Number(f)&&String(x.apartment)===String(a)).sort((a,b)=>Number(b.id)-Number(a.id))[0]||null;
-}
+function fillFloors(){$("formFloor").innerHTML=floors().map(f=>'<option value="'+f+'">'+(f===30?'30 - Cobertura':String(f).padStart(2,"0"))+'</option>').join("")}
+function fillApts(){$("formApartment").innerHTML=units($("formTower").value,Number($("formFloor").value)).map(a=>'<option value="'+a+'">'+a+'</option>').join("")}
+function syncForm(){$("formTower").value=tower;fillFloors();$("formFloor").value=String(floor);fillApts();$("formApartment").value=selectedApartment}
+
 function renderBuilding(t,el){
-  let html='<div class="header-row"><span></span>';
-  for(let i=1;i<=10;i++)html+='<span class="apt-h">'+String(i).padStart(2,"0")+'</span>';
-  html+='</div>';
-
-  for(let f=30;f>=4;f--){
-    const nums=unitNumbers(t,f);
-    html+='<div class="b-row"><span class="fl '+(f===floor&&t===tower?'active':'')+'">'+(f===30?'30 (Cobertura)':String(f).padStart(2,"0"))+'</span>';
-    for(let i=0;i<10;i++){
-      if(i>=nums.length){html+='<span class="mini blank"></span>';continue}
-      const x=latestForUnit(t,f,nums[i]);
-      const st=x?x.status:"SEM_SERVICO";
-      html+='<button class="mini '+statusClass(st)+'" data-tower="'+t+'" data-floor="'+f+'" data-apartment="'+nums[i]+'" data-employee="'+esc(x?.employee_name||"")+'" data-service="'+esc(x?.service||"")+'" data-status="'+statusLabel(st)+'"></button>';
-    }
-    html+='</div>';
+ let h='<div class="header-row"><span></span>';for(let i=1;i<=10;i++)h+='<span class="apt-h">'+String(i).padStart(2,"0")+'</span>';h+='</div>';
+ for(let f=30;f>=4;f--){
+  const us=units(t,f);h+='<div class="b-row"><span class="fl">'+(f===30?'30 (Cob.)':String(f).padStart(2,"0"))+'</span>';
+  for(let i=0;i<10;i++){
+   if(i>=us.length){h+='<span class="mini blank"></span>';continue}
+   const x=latest(t,f,us[i]),st=x?x.status:"SEM_SERVICO";
+   h+='<button class="mini '+sc(st)+'" data-tower="'+t+'" data-floor="'+f+'" data-apt="'+us[i]+'" data-employee="'+esc(x?.employee_name||"")+'" data-service="'+esc(x?.service||"")+'" data-status="'+sl(st)+'"></button>';
   }
-  el.innerHTML=html;
-
-  el.querySelectorAll("button.mini").forEach(btn=>{
-    btn.onclick=()=>{
-      tower=btn.dataset.tower;floor=Number(btn.dataset.floor);selectedApartment=btn.dataset.apartment;
-      syncForm();renderBuildingAll();
-    };
-    btn.onmouseenter=e=>{
-      const employee=e.currentTarget.dataset.employee;
-      if(!employee)return;
-      const service=e.currentTarget.dataset.service||"";
-      const st=e.currentTarget.dataset.status||"";
-      $("tooltip").innerHTML='<b>'+esc(employee)+'</b><div class="svc">'+esc(service)+'</div><div class="st">'+esc(st)+'</div>';
-      $("tooltip").classList.add("show");
-    };
-    btn.onmousemove=e=>{
-      $("tooltip").style.left=(e.clientX+12)+"px";
-      $("tooltip").style.top=(e.clientY+12)+"px";
-    };
-    btn.onmouseleave=()=>$("tooltip").classList.remove("show");
-  });
+  h+='</div>';
+ }
+ el.innerHTML=h;
+ el.querySelectorAll(".mini").forEach(b=>{
+  b.onclick=()=>{tower=b.dataset.tower;floor=Number(b.dataset.floor);selectedApartment=b.dataset.apt;syncForm();$("taskModal").classList.add("show")};
+  b.onmouseenter=e=>{if(!e.currentTarget.dataset.employee)return;$("tooltip").innerHTML='<b>'+esc(e.currentTarget.dataset.employee)+'</b><div>'+esc(e.currentTarget.dataset.service)+'</div><div class="st">'+esc(e.currentTarget.dataset.status)+'</div>';$("tooltip").classList.add("show")};
+  b.onmousemove=e=>{$("tooltip").style.left=(e.clientX+10)+"px";$("tooltip").style.top=(e.clientY+10)+"px"};
+  b.onmouseleave=()=>$("tooltip").classList.remove("show");
+ });
 }
-
-function renderBuildingAll(){renderBuilding("DUBAI",$("buildingDubai"));renderBuilding("ISTAMBUL",$("buildingIstambul"))}
-
-function fillFloorSelect(){
-  $("formFloor").innerHTML=floors().map(f=>'<option value="'+f+'">'+(f===30?'30 - Cobertura':String(f).padStart(2,"0"))+'</option>').join("");
+function renderBuildings(){renderBuilding("DUBAI",$("buildingDubai"));renderBuilding("ISTAMBUL",$("buildingIstambul"))}
+function stat(service){const r=tasks.filter(x=>x.service===service),total=r.length,done=r.filter(x=>x.status==="CONCLUIDA").length,prog=r.filter(x=>x.status==="EM_ANDAMENTO").length,stop=r.filter(x=>x.status==="PARADA").length;return{total,done,prog,stop,pct:total?Math.round(done/total*100):0}}
+function progressHTML(){return SERVICES.map(s=>{const v=stat(s),g=v.total?v.done/v.total*100:0,y=v.total?v.prog/v.total*100:0,r=v.total?v.stop/v.total*100:0;return '<div class="svc-row"><span>'+esc(s)+'</span><div class="svc-bar"><i class="g" style="width:'+g+'%"></i><i class="y" style="width:'+y+'%"></i><i class="r" style="width:'+r+'%"></i></div><span class="svc-pct">'+v.pct+'%</span></div>'}).join("")}
+function renderSummary(){
+ $("kpiTotal").textContent=tasks.length;$("kpiProgress").textContent=tasks.filter(x=>x.status==="EM_ANDAMENTO").length;$("kpiDone").textContent=tasks.filter(x=>x.status==="CONCLUIDA").length;$("kpiStopped").textContent=tasks.filter(x=>x.status==="PARADA").length;
+ $("serviceProgress").innerHTML=progressHTML();$("reportProgress").innerHTML=progressHTML();
+ $("reportDone").textContent=tasks.filter(x=>x.status==="CONCLUIDA").length;$("reportProgressCount").textContent=tasks.filter(x=>x.status==="EM_ANDAMENTO").length;$("reportStopped").textContent=tasks.filter(x=>x.status==="PARADA").length;
+ const c={};tasks.filter(x=>x.status==="CONCLUIDA").forEach(x=>c[x.employee_name]=(c[x.employee_name]||0)+1);const top=Object.entries(c).sort((a,b)=>b[1]-a[1]).slice(0,5);
+ $("topEmployees").innerHTML=top.length?top.map((x,i)=>'<div class="top-item"><span>'+(i+1)+'. '+esc(x[0])+'</span><b>'+x[1]+'</b></div>').join(""):'Nenhum serviço concluído.';
 }
-function fillApartmentSelect(){
-  const t=$("formTower").value,f=Number($("formFloor").value);
-  $("formApartment").innerHTML=unitNumbers(t,f).map(a=>'<option value="'+a+'">'+a+'</option>').join("");
-}
-function syncForm(){
-  $("formTower").value=tower;
-  fillFloorSelect();
-  $("formFloor").value=String(floor);
-  fillApartmentSelect();
-  $("formApartment").value=selectedApartment;
-}
-
+function rowActions(x){return x.status==="CONCLUIDA"?'<span style="color:#4f8d25;font-weight:800">Fechado</span>':'<button class="small-btn" data-id="'+x.id+'" data-action="CONCLUIDA">Concluir</button> <button class="small-btn" data-id="'+x.id+'" data-action="PARADA">Parar</button>'}
+function bindActions(root){root.querySelectorAll("button[data-action]").forEach(b=>b.onclick=()=>setStatus(Number(b.dataset.id),b.dataset.action))}
 function renderRecent(){
-  const list=[...tasks].sort((a,b)=>Number(b.id)-Number(a.id)).slice(0,30);
-  $("taskRows").innerHTML=list.length?list.map(x=>{
-    let action="";
-    if(x.status!=="CONCLUIDA"){
-      action='<button class="action-btn" data-action="CONCLUIDA" data-id="'+x.id+'">Concluir</button> ';
-      action+='<button class="action-btn" data-action="PARADA" data-id="'+x.id+'">Parar</button>';
-    }else{
-      action='<span style="color:#4f8d25;font-weight:800">Fechado</span>';
-    }
-    return '<tr>'+
-      '<td>'+esc(x.employee_name)+'</td>'+
-      '<td>'+esc(x.employee_role||"")+'</td>'+
-      '<td>'+esc(x.tower==="DUBAI"?"Torre Dubai":"Torre Istambul")+'</td>'+
-      '<td>'+String(x.floor).padStart(2,"0")+'</td>'+
-      '<td>'+esc(x.apartment)+'</td>'+
-      '<td>'+esc(x.service)+'</td>'+
-      '<td>'+fmtDate(x.started_at)+'</td>'+
-      '<td>'+fmtDate(x.finished_at)+'</td>'+
-      '<td><span class="status-pill '+statusClass(x.status)+'">'+statusLabel(x.status)+'</span></td>'+
-      '<td class="obs">'+esc(x.observations||"")+'</td>'+
-      '<td>'+action+'</td>'+
-    '</tr>';
-  }).join(""):'<tr><td colspan="11">Nenhum serviço lançado.</td></tr>';
-
-  $("taskRows").querySelectorAll("button[data-action]").forEach(btn=>{
-    btn.onclick=()=>setStatus(Number(btn.dataset.id),btn.dataset.action);
-  });
+ const r=[...tasks].sort((a,b)=>Number(b.id)-Number(a.id)).slice(0,18);
+ $("recentRows").innerHTML=r.length?r.map(x=>'<tr><td>'+fmt(x.started_at)+'</td><td>'+esc(x.employee_name)+'</td><td>'+esc(x.employee_role||"")+'</td><td>'+esc(x.service)+'</td><td>'+(x.tower==="DUBAI"?"Dubai":"Istambul")+'</td><td>'+String(x.floor).padStart(2,"0")+'</td><td>'+esc(x.apartment)+'</td><td><span class="pill '+sc(x.status)+'">'+sl(x.status)+'</span></td><td class="obs">'+esc(x.observations||"")+'</td><td>'+rowActions(x)+'</td></tr>').join(""):'<tr><td colspan="10">Nenhum serviço lançado.</td></tr>';
+ bindActions($("recentRows"));
 }
-
-async function reloadTasks(){
-  const d=await api("/api/operational/tasks?project="+encodeURIComponent(PROJECT));
-  tasks=d.items||[];
-  renderBuildingAll();
-  renderRecent();
+function renderList(){
+ const sf=$("listServiceFilter").value,tf=$("listTowerFilter").value,st=$("listStatusFilter").value,q=$("listSearch").value.trim().toLowerCase();
+ const r=tasks.filter(x=>(!sf||x.service===sf)&&(!tf||x.tower===tf)&&(!st||x.status===st)&&(!q||String(x.employee_name||"").toLowerCase().includes(q)));
+ $("listRows").innerHTML=r.length?r.map(x=>'<tr><td>'+esc(x.employee_name)+'</td><td>'+esc(x.employee_role||"")+'</td><td>'+(x.tower==="DUBAI"?"Dubai":"Istambul")+'</td><td>'+String(x.floor).padStart(2,"0")+'</td><td>'+esc(x.apartment)+'</td><td>'+esc(x.service)+'</td><td>'+fmt(x.started_at)+'</td><td>'+fmt(x.finished_at)+'</td><td><span class="pill '+sc(x.status)+'">'+sl(x.status)+'</span></td><td class="obs">'+esc(x.observations||"")+'</td><td>'+rowActions(x)+'</td></tr>').join(""):'<tr><td colspan="11">Nenhum resultado.</td></tr>';
+ bindActions($("listRows"));
 }
-
-async function setStatus(id,status){
-  try{
-    await api("/api/operational/tasks/"+id,{method:"PATCH",headers:{"content-type":"application/json"},body:JSON.stringify({status})});
-    await reloadTasks();
-    toastMsg(status==="CONCLUIDA"?"Serviço concluído. Data de término registrada automaticamente.":"Status atualizado.");
-  }catch(e){alert(e.message)}
+async function reload(){
+ const d=await api("/api/operational/tasks?project="+encodeURIComponent(PROJECT));tasks=d.items||[];renderBuildings();renderSummary();renderRecent();renderList();
 }
-
+async function setStatus(id,status){try{await api("/api/operational/tasks/"+id,{method:"PATCH",headers:{"content-type":"application/json"},body:JSON.stringify({status})});await reload();toast(status==="CONCLUIDA"?"Serviço concluído. Término registrado automaticamente.":"Status atualizado.")}catch(e){alert(e.message)}}
 async function load(){
-  const ed=await api("/api/operational/employees");
-  employees=ed.items||[];
-  $("employee").innerHTML='<option value="">Selecione o funcionário</option>'+employees.map(e=>'<option value="'+e.id+'">'+esc(e.name)+' — '+esc(e.role)+'</option>').join("");
-  fillFloorSelect();
-  syncForm();
-  await reloadTasks();
+ const d=await api("/api/operational/employees");employees=d.items||[];$("employee").innerHTML='<option value="">Selecione o funcionário</option>'+employees.map(e=>'<option value="'+e.id+'">'+esc(e.name)+' — '+esc(e.role)+'</option>').join("");
+ fillSelectors();fillFloors();syncForm();await reload();
 }
-
-$("employee").onchange=()=>{
-  const e=employees.find(x=>Number(x.id)===Number($("employee").value));
-  $("employeeRole").value=e?e.role:"";
-};
-
-$("formTower").onchange=()=>{
-  tower=$("formTower").value;
-  floor=6;
-  selectedApartment=unitNumbers(tower,floor)[0];
-  syncForm();
-  renderBuildingAll();
-};
-
-$("formFloor").onchange=()=>{
-  floor=Number($("formFloor").value);
-  selectedApartment=unitNumbers(tower,floor)[0];
-  fillApartmentSelect();
-  $("formApartment").value=selectedApartment;
-  renderBuildingAll();
-};
-
-$("formApartment").onchange=()=>{selectedApartment=$("formApartment").value;renderBuildingAll()};
-
-$("scrollListBtn").onclick=()=>$("detailPanel").scrollIntoView({behavior:"smooth",block:"start"});
-
+$("employee").onchange=()=>{const e=employees.find(x=>Number(x.id)===Number($("employee").value));$("employeeRole").value=e?e.role:""};
+$("formTower").onchange=()=>{tower=$("formTower").value;floor=6;selectedApartment=units(tower,floor)[0];syncForm()};
+$("formFloor").onchange=()=>{floor=Number($("formFloor").value);selectedApartment=units(tower,floor)[0];fillApts();$("formApartment").value=selectedApartment};
+$("formApartment").onchange=()=>selectedApartment=$("formApartment").value;
+$("serviceFilter").onchange=()=>{selectedService=$("serviceFilter").value;renderBuildings()};
+$("listServiceFilter").onchange=renderList;$("listTowerFilter").onchange=renderList;$("listStatusFilter").onchange=renderList;$("listSearch").oninput=renderList;
+$("newTaskBtn").onclick=()=>{syncForm();$("taskModal").classList.add("show")};$("closeModal").onclick=()=>$("taskModal").classList.remove("show");$("cancelModal").onclick=()=>$("taskModal").classList.remove("show");$("taskModal").onclick=e=>{if(e.target===$("taskModal"))$("taskModal").classList.remove("show")};
+$("toggleMapBtn").onclick=()=>{const h=$("mapGrid").classList.toggle("hidden");$("toggleMapBtn").textContent=h?"◉  Mostrar mapa":"◉  Ocultar mapa"};
+document.querySelectorAll(".tab").forEach(b=>b.onclick=()=>{document.querySelectorAll(".tab").forEach(x=>x.classList.toggle("active",x===b));const v=b.dataset.view;$("visualView").classList.toggle("hidden",v!=="visual");$("listView").classList.toggle("hidden",v!=="list");$("reportView").classList.toggle("show",v==="report")});
+document.querySelectorAll("[data-jump-report]").forEach(a=>a.onclick=e=>{e.preventDefault();document.querySelector('.tab[data-view="report"]').click()});
 $("saveTask").onclick=async()=>{
-  const body={
-    project_slug:PROJECT,
-    employee_id:Number($("employee").value||0),
-    tower:$("formTower").value,
-    floor:Number($("formFloor").value),
-    apartment:$("formApartment").value,
-    service:$("service").value.trim(),
-    status:$("status").value,
-    observations:$("observations").value.trim()
-  };
-  if(!body.employee_id||!body.service){alert("Selecione o funcionário e informe o serviço.");return}
-  $("saveTask").disabled=true;$("saveTask").textContent="Salvando...";
-  try{
-    await api("/api/operational/tasks",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify(body)});
-    $("observations").value="";$("service").value="";
-    tower=body.tower;floor=body.floor;selectedApartment=body.apartment;
-    await reloadTasks();
-    toastMsg("Serviço lançado com data e hora automáticas.");
-  }catch(e){alert(e.message)}
-  finally{$("saveTask").disabled=false;$("saveTask").textContent="Salvar serviço"}
+ const body={project_slug:PROJECT,employee_id:Number($("employee").value||0),tower:$("formTower").value,floor:Number($("formFloor").value),apartment:$("formApartment").value,service:$("service").value,status:$("status").value,observations:$("observations").value.trim()};
+ if(!body.employee_id||!body.service){alert("Selecione funcionário e serviço.");return}
+ $("saveTask").disabled=true;$("saveTask").textContent="Salvando...";
+ try{await api("/api/operational/tasks",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify(body)});$("observations").value="";$("taskModal").classList.remove("show");await reload();toast("Serviço lançado com data e hora automáticas.")}catch(e){alert(e.message)}finally{$("saveTask").disabled=false;$("saveTask").textContent="Salvar serviço"}
 };
-
-load().catch(e=>{
-  console.error(e);
-  $("employee").innerHTML='<option value="">Erro ao carregar funcionários</option>';
-  alert("Erro ao carregar o operacional: "+e.message);
-});
+load().catch(e=>alert("Erro ao carregar o operacional: "+e.message));
 </script>
 </body></html>`;
 }
