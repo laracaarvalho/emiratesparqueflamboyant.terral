@@ -564,6 +564,39 @@ return String.raw`<!doctype html>
 .tooltip{position:fixed;display:none;z-index:100;background:#fff;border:1px solid #ddd1c7;border-radius:6px;padding:7px 9px;box-shadow:0 9px 22px #0002;min-width:125px;font-size:8px;pointer-events:none}.tooltip.show{display:block}.tooltip b{display:block;margin-bottom:3px}.tooltip .st{font-weight:800;margin-top:4px}
 .modal-back{position:fixed;inset:0;background:rgba(42,29,25,.4);display:none;align-items:center;justify-content:center;padding:18px;z-index:200}.modal-back.show{display:flex}.modal{width:min(850px,96vw);background:var(--card);border:1px solid var(--line);border-radius:10px;box-shadow:0 25px 60px #0003;padding:14px}.modal-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:11px}.modal-head h3{margin:0;font-size:12px}.close{border:0;background:transparent;font-size:18px}.form-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}.field label{display:block;font-size:7px;font-weight:800;margin-bottom:4px}.field input,.field select,.field textarea{width:100%;border:1px solid #d9d0c8;border-radius:6px;padding:8px;font-size:8px;background:#fff}.field input[readonly]{background:#f3eee9;font-weight:700}.field textarea{min-height:58px;resize:vertical}.modal-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:10px}.toast{position:fixed;right:18px;bottom:18px;background:#222;color:#fff;border-radius:6px;padding:9px 11px;font-size:8px;opacity:0;transform:translateY(8px);pointer-events:none;transition:.2s;z-index:240}.toast.show{opacity:1;transform:none}
 @media(max-width:1100px){.shell{grid-template-columns:125px minmax(0,1fr)}.operation-grid{grid-template-columns:1fr}.area-list{grid-template-columns:1fr 1fr}.map-grid{grid-template-columns:1fr}.dashboard-grid{grid-template-columns:1fr}.trace-controls{grid-template-columns:1fr 1fr}}@media(max-width:720px){.shell{display:block}.sidebar{display:none}.main{padding:12px}.top-actions{margin:0 0 10px}.area-list{grid-template-columns:1fr}.trace-controls{grid-template-columns:1fr}.kpis{grid-template-columns:1fr 1fr}.form-grid{grid-template-columns:1fr}}
+
+/* V26 — Dashboard por setor + exportação PDF */
+.dashboard-toolbar{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:11px;flex-wrap:wrap}
+.dashboard-switch{display:flex;gap:6px;flex-wrap:wrap}
+.dash-filter{border:1px solid var(--line);background:#fff;border-radius:7px;padding:8px 12px;font-size:8px;font-weight:800;color:#5f5751}
+.dash-filter.active{background:linear-gradient(90deg,var(--wine),var(--wine2));color:#fff;border-color:transparent}
+.pdf-btn{border:1px solid var(--wine);background:#fff;color:var(--wine);border-radius:7px;padding:8px 12px;font-size:8px;font-weight:800}
+.pdf-btn:hover{background:#f8ecef}
+.dashboard-context{font-size:8px;color:var(--muted);margin:-3px 0 10px}
+.pdf-only{display:none}
+.empty-dashboard{border:1px dashed #d7ccc3;border-radius:8px;padding:18px;text-align:center;color:var(--muted);font-size:8px;background:#fff}
+@media print{
+  @page{size:A4 landscape;margin:10mm}
+  body{background:#fff!important}
+  .sidebar,.topbar,.tabs,.top-actions,.dashboard-toolbar,.no-print{display:none!important}
+  .shell{display:block!important}
+  .content{width:100%!important}
+  .main{padding:0!important}
+  #dubaiView,#istambulView,#comumView,#traceView{display:none!important}
+  #dashboardView{display:block!important}
+  .pdf-only{display:block!important}
+  .dashboard-context{margin-bottom:8px!important}
+  .kpis{grid-template-columns:repeat(4,1fr)!important;gap:6px!important}
+  .kpi,.report-box{box-shadow:none!important;break-inside:avoid;border-color:#cfcfcf!important}
+  .dashboard-grid{grid-template-columns:1fr 1fr!important;gap:8px!important}
+  .report-box{min-height:0!important}
+  .view-head{display:none!important}
+  .pdf-header{border-bottom:2px solid #781126;padding-bottom:8px;margin-bottom:10px}
+  .pdf-header h1{font-size:18px;margin:0;color:#781126}
+  .pdf-header p{font-size:9px;margin:3px 0 0;color:#555}
+  .pdf-footer{font-size:7px;color:#777;margin-top:8px;text-align:right}
+}
+
 </style></head>
 <body><div class="shell">
 <aside class="sidebar"><div class="brand"><img src="/terral_logo_transparente.png" onerror="this.onerror=null;this.src='/terral_logo.png'" alt="Terral"></div><nav class="nav"><a href="/obra/emirates-parque-flamboyant">⌂ &nbsp; Início</a><a href="/">▥ &nbsp; Obras</a><a class="active" href="/tarefas">☑ &nbsp; Tarefas</a><a href="/funcionarios">♙ &nbsp; Funcionários</a><div class="spacer"></div><a href="/obra/emirates-parque-flamboyant">← &nbsp; Voltar</a></nav></aside>
@@ -580,21 +613,164 @@ return String.raw`<!doctype html>
 
 <section id="traceView" class="hidden"><div class="view-head"><div><h2>Rastreabilidade Visual</h2><p>Visualização gráfica dos serviços por unidade e status.</p></div></div><div class="trace-controls"><button class="group active" data-trace="DUBAI"><b>TORRE DUBAI</b><small>Mapa de unidades da Dubai</small></button><button class="group" data-trace="ISTAMBUL"><b>TORRE ISTAMBUL</b><small>Mapa de unidades da Istambul</small></button><div class="selector"><label>Visualizar por serviço</label><select id="serviceFilter"></select></div></div><section class="map-card"><div class="map-title">RASTREABILIDADE DOS SERVIÇOS</div><div class="map-grid"><div class="panel" id="dubaiMapPanel"><div class="panel-title">TORRE DUBAI</div><div id="buildingDubai"></div><div class="legend"><span><i class="dot" style="background:var(--green)"></i>Concluído</span><span><i class="dot" style="background:var(--yellow)"></i>Em andamento</span><span><i class="dot" style="background:var(--red)"></i>Parado</span><span><i class="dot" style="background:var(--gray);border:1px solid #ddd"></i>Sem serviço</span></div></div><div class="panel hidden" id="istMapPanel"><div class="panel-title">TORRE ISTAMBUL</div><div id="buildingIstambul"></div><div class="legend"><span><i class="dot" style="background:var(--green)"></i>Concluído</span><span><i class="dot" style="background:var(--yellow)"></i>Em andamento</span><span><i class="dot" style="background:var(--red)"></i>Parado</span><span><i class="dot" style="background:var(--gray);border:1px solid #ddd"></i>Sem serviço</span></div></div></div></section></section>
 
-<section id="dashboardView" class="hidden"><div class="view-head"><div><h2>Dashboard</h2><p>Visão executiva do avanço operacional do Emirates.</p></div></div><div class="kpis"><div class="kpi"><small>Total de serviços</small><b id="kpiTotal">0</b><em>Registros da obra</em></div><div class="kpi"><small>Em andamento</small><b id="kpiProgress">0</b><em>Serviços abertos</em></div><div class="kpi"><small>Concluídos</small><b id="kpiDone">0</b><em>Serviços finalizados</em></div><div class="kpi"><small>Parados</small><b id="kpiStopped">0</b><em>Requer atenção</em></div></div><div class="dashboard-grid"><section class="report-box"><h3>AVANÇO POR SERVIÇO</h3><div id="reportProgress"></div></section><section class="report-box"><h3>RESUMO DOS STATUS</h3><div class="status-summary"><div class="status-mini"><small>Concluídos</small><b id="reportDone">0</b></div><div class="status-mini"><small>Em andamento</small><b id="reportProgressCount">0</b></div><div class="status-mini"><small>Parados</small><b id="reportStopped">0</b></div></div></section><section class="report-box"><h3>TOP FUNCIONÁRIOS — CONCLUÍDOS</h3><div id="topEmployees" class="top-list"></div></section><section class="report-box"><h3>FLUXO DAS TORRES — EMIRATES</h3><div style="font-size:8px;line-height:1.9;color:#5c5550">1. Checklist Pintura<br>2. Checklist Instaladora<br>3. Rejunte<br>4. Limpeza<br>5. Vistoria Qualidade<br>6. Vistoria Cliente<br>7. Revistoria<br>8. Entrega Cliente</div></section></div></section>
+<section id="dashboardView" class="hidden">
+  <div class="pdf-only pdf-header">
+    <h1>Relatório Operacional — Emirates Parque Flamboyant</h1>
+    <p id="pdfSubtitle">Dashboard Geral</p>
+  </div>
+
+  <div class="view-head">
+    <div><h2>Dashboard</h2><p>Visão executiva do avanço operacional do Emirates.</p></div>
+  </div>
+
+  <div class="dashboard-toolbar">
+    <div class="dashboard-switch">
+      <button class="dash-filter active" data-dashboard="GERAL">GERAL</button>
+      <button class="dash-filter" data-dashboard="DUBAI">DUBAI</button>
+      <button class="dash-filter" data-dashboard="ISTAMBUL">ISTAMBUL</button>
+      <button class="dash-filter" data-dashboard="COMUM">ÁREA COMUM</button>
+    </div>
+    <button class="pdf-btn" id="exportPdfBtn">⇩ &nbsp; Exportar relatório PDF</button>
+  </div>
+
+  <div class="dashboard-context" id="dashboardContext">Exibindo dados gerais do Emirates.</div>
+
+  <div class="kpis">
+    <div class="kpi"><small>Total de serviços</small><b id="kpiTotal">0</b><em>Registros da seleção</em></div>
+    <div class="kpi"><small>Em andamento</small><b id="kpiProgress">0</b><em>Serviços abertos</em></div>
+    <div class="kpi"><small>Concluídos</small><b id="kpiDone">0</b><em>Serviços finalizados</em></div>
+    <div class="kpi"><small>Parados</small><b id="kpiStopped">0</b><em>Requer atenção</em></div>
+  </div>
+
+  <div id="dashboardEmpty" class="empty-dashboard hidden">
+    Ainda não existem lançamentos operacionais para esta área. O Dashboard da Área Comum ficará ativo assim que os ambientes e serviços forem cadastrados.
+  </div>
+
+  <div class="dashboard-grid" id="dashboardGrid">
+    <section class="report-box"><h3>AVANÇO POR SERVIÇO</h3><div id="reportProgress"></div></section>
+    <section class="report-box"><h3>RESUMO DOS STATUS</h3>
+      <div class="status-summary">
+        <div class="status-mini"><small>Concluídos</small><b id="reportDone">0</b></div>
+        <div class="status-mini"><small>Em andamento</small><b id="reportProgressCount">0</b></div>
+        <div class="status-mini"><small>Parados</small><b id="reportStopped">0</b></div>
+      </div>
+    </section>
+    <section class="report-box"><h3>TOP FUNCIONÁRIOS — CONCLUÍDOS</h3><div id="topEmployees" class="top-list"></div></section>
+    <section class="report-box"><h3 id="dashboardFlowTitle">FLUXO DAS TORRES — EMIRATES</h3>
+      <div style="font-size:8px;line-height:1.9;color:#5c5550" id="dashboardFlow">
+        1. Checklist Pintura<br>
+        2. Checklist Instaladora<br>
+        3. Rejunte<br>
+        4. Limpeza<br>
+        5. Vistoria Qualidade<br>
+        6. Vistoria Cliente<br>
+        7. Revistoria<br>
+        8. Entrega Cliente
+      </div>
+    </section>
+  </div>
+
+  <div class="pdf-only pdf-footer" id="pdfFooter"></div>
+</section>
 </main></div></div>
 <div class="tooltip" id="tooltip"></div><div class="toast" id="toast"></div>
 <div class="modal-back" id="taskModal"><div class="modal"><div class="modal-head"><h3>Novo serviço</h3><button class="close" id="closeModal">×</button></div><div class="form-grid"><div class="field"><label>Responsável</label><input value="${loggedName}" readonly></div><div class="field"><label>Funcionário</label><select id="employee"></select></div><div class="field"><label>Função</label><input id="employeeRole" readonly></div><div class="field"><label>Torre</label><select id="formTower"><option value="DUBAI">Torre Dubai</option><option value="ISTAMBUL">Torre Istambul</option></select></div><div class="field"><label>Pavimento</label><select id="formFloor"></select></div><div class="field"><label>Apartamento</label><select id="formApartment"></select></div><div class="field"><label>Serviço</label><select id="service"></select></div><div class="field"><label>Status inicial</label><select id="status"><option value="EM_ANDAMENTO">Em andamento</option><option value="PARADA">Parada</option></select></div><div class="field"><label>Data de início</label><input value="Automática ao salvar" readonly></div><div class="field" style="grid-column:1/-1"><label>Observações</label><textarea id="observations"></textarea></div></div><div class="modal-actions"><button class="btn" id="cancelModal">Cancelar</button><button class="btn primary" id="saveTask">Salvar serviço</button></div></div></div>
 <script>
-const PROJECT="emirates-parque-flamboyant";const SERVICES=["Checklist Pintura","Checklist Instaladora","Rejunte","Limpeza","Vistoria Qualidade","Vistoria Cliente","Revistoria","Entrega Cliente"];let employees=[],tasks=[],tower="DUBAI",floor=6,selectedApartment="601",selectedService="GERAL";
+const PROJECT="emirates-parque-flamboyant";const SERVICES=["Checklist Pintura","Checklist Instaladora","Rejunte","Limpeza","Vistoria Qualidade","Vistoria Cliente","Revistoria","Entrega Cliente"];let employees=[],tasks=[],tower="DUBAI",floor=6,selectedApartment="601",selectedService="GERAL",dashboardScope="GERAL";
 const $=id=>document.getElementById(id),esc=s=>String(s??"").replace(/[&<>"']/g,ch=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[ch])),fmt=v=>v?new Intl.DateTimeFormat("pt-BR",{timeZone:"America/Sao_Paulo",day:"2-digit",month:"2-digit",year:"numeric",hour:"2-digit",minute:"2-digit"}).format(new Date(v)):"—",sl=s=>s==="CONCLUIDA"?"Concluído":s==="PARADA"?"Parado":s==="EM_ANDAMENTO"?"Em andamento":"Sem serviço",sc=s=>s?String(s).toLowerCase():"sem_servico";
 async function api(url,opt={}){const r=await fetch(url,opt),d=await r.json().catch(()=>({}));if(!r.ok)throw new Error(d.error||"Erro");return d}function toast(m){$("toast").textContent=m;$("toast").classList.add("show");setTimeout(()=>$("toast").classList.remove("show"),2200)}function floors(){const a=[];for(let f=30;f>=4;f--)a.push(f);return a}function units(t,f){const n=f===30?(t==="DUBAI"?2:3):(t==="DUBAI"?5:10);return Array.from({length:n},(_,i)=>String(f)+String(i+1).padStart(2,"0"))}function visibleTasks(){return selectedService==="GERAL"?tasks:tasks.filter(x=>x.service===selectedService)}function latest(t,f,a){return visibleTasks().filter(x=>x.tower===t&&Number(x.floor)===Number(f)&&String(x.apartment)===String(a)).sort((a,b)=>Number(b.id)-Number(a.id))[0]||null}
 function fillSelectors(){const opts=SERVICES.map(s=>'<option value="'+esc(s)+'">'+esc(s)+'</option>').join("");$("service").innerHTML=opts;$("serviceFilter").innerHTML='<option value="GERAL">Visão geral</option>'+opts;$("dubaiServiceFilter").innerHTML='<option value="">Todos os serviços</option>'+opts;$("istServiceFilter").innerHTML='<option value="">Todos os serviços</option>'+opts;const fo='<option value="">Todos os pavimentos</option>'+floors().map(f=>'<option value="'+f+'">'+(f===30?'30 - Cobertura':String(f).padStart(2,"0"))+'</option>').join("");$("dubaiFloorFilter").innerHTML=fo;$("istFloorFilter").innerHTML=fo}function fillFloors(){$("formFloor").innerHTML=floors().map(f=>'<option value="'+f+'">'+(f===30?'30 - Cobertura':String(f).padStart(2,"0"))+'</option>').join("")}function fillApts(){$("formApartment").innerHTML=units($("formTower").value,Number($("formFloor").value)).map(a=>'<option value="'+a+'">'+a+'</option>').join("")}function syncForm(){$("formTower").value=tower;fillFloors();$("formFloor").value=String(floor);fillApts();$("formApartment").value=selectedApartment}
 function renderBuilding(t,el){let h='<div class="header-row"><span></span>';for(let i=1;i<=10;i++)h+='<span class="apt-h">'+String(i).padStart(2,"0")+'</span>';h+='</div>';for(let f=30;f>=4;f--){const us=units(t,f);h+='<div class="b-row"><span class="fl">'+(f===30?'30 (Cob.)':String(f).padStart(2,"0"))+'</span>';for(let i=0;i<10;i++){if(i>=us.length){h+='<span class="mini blank"></span>';continue}const x=latest(t,f,us[i]),st=x?x.status:"SEM_SERVICO";h+='<button class="mini '+sc(st)+'" data-tower="'+t+'" data-floor="'+f+'" data-apt="'+us[i]+'" data-employee="'+esc(x?.employee_name||"")+'" data-service="'+esc(x?.service||"")+'" data-status="'+sl(st)+'"></button>'}h+='</div>'}el.innerHTML=h;el.querySelectorAll(".mini").forEach(b=>{b.onclick=()=>{tower=b.dataset.tower;floor=Number(b.dataset.floor);selectedApartment=b.dataset.apt;syncForm();$("taskModal").classList.add("show")};b.onmouseenter=e=>{if(!e.currentTarget.dataset.employee)return;$("tooltip").innerHTML='<b>'+esc(e.currentTarget.dataset.employee)+'</b><div>'+esc(e.currentTarget.dataset.service)+'</div><div class="st">'+esc(e.currentTarget.dataset.status)+'</div>';$("tooltip").classList.add("show")};b.onmousemove=e=>{$("tooltip").style.left=(e.clientX+10)+"px";$("tooltip").style.top=(e.clientY+10)+"px"};b.onmouseleave=()=>$("tooltip").classList.remove("show")})}function renderBuildings(){renderBuilding("DUBAI",$("buildingDubai"));renderBuilding("ISTAMBUL",$("buildingIstambul"))}
-function stat(service){const r=tasks.filter(x=>x.service===service),total=r.length,done=r.filter(x=>x.status==="CONCLUIDA").length,prog=r.filter(x=>x.status==="EM_ANDAMENTO").length,stop=r.filter(x=>x.status==="PARADA").length;return{total,done,prog,stop,pct:total?Math.round(done/total*100):0}}function progressHTML(){return SERVICES.map(s=>{const v=stat(s),g=v.total?v.done/v.total*100:0,y=v.total?v.prog/v.total*100:0,r=v.total?v.stop/v.total*100:0;return '<div class="svc-row"><span>'+esc(s)+'</span><div class="svc-bar"><i class="g" style="width:'+g+'%"></i><i class="y" style="width:'+y+'%"></i><i class="r" style="width:'+r+'%"></i></div><span class="svc-pct">'+v.pct+'%</span></div>'}).join("")}function renderDashboard(){$("kpiTotal").textContent=tasks.length;$("kpiProgress").textContent=tasks.filter(x=>x.status==="EM_ANDAMENTO").length;$("kpiDone").textContent=tasks.filter(x=>x.status==="CONCLUIDA").length;$("kpiStopped").textContent=tasks.filter(x=>x.status==="PARADA").length;$("reportProgress").innerHTML=progressHTML();$("reportDone").textContent=tasks.filter(x=>x.status==="CONCLUIDA").length;$("reportProgressCount").textContent=tasks.filter(x=>x.status==="EM_ANDAMENTO").length;$("reportStopped").textContent=tasks.filter(x=>x.status==="PARADA").length;const c={};tasks.filter(x=>x.status==="CONCLUIDA").forEach(x=>c[x.employee_name]=(c[x.employee_name]||0)+1);const top=Object.entries(c).sort((a,b)=>b[1]-a[1]).slice(0,5);$("topEmployees").innerHTML=top.length?top.map((x,i)=>'<div class="top-item"><span>'+(i+1)+'. '+esc(x[0])+'</span><b>'+x[1]+'</b></div>').join(""):'Nenhum serviço concluído.'}
+function dashboardTasks(){
+  if(dashboardScope==="DUBAI")return tasks.filter(x=>x.tower==="DUBAI");
+  if(dashboardScope==="ISTAMBUL")return tasks.filter(x=>x.tower==="ISTAMBUL");
+  if(dashboardScope==="COMUM"){
+    return tasks.filter(x=>["COMUM","AREA_COMUM","ÁREA COMUM","AREA COMUM","EMBASAMENTO"].includes(String(x.tower||"").toUpperCase()));
+  }
+  return tasks;
+}
+function stat(service,rows=dashboardTasks()){
+  const r=rows.filter(x=>x.service===service),total=r.length,
+        done=r.filter(x=>x.status==="CONCLUIDA").length,
+        prog=r.filter(x=>x.status==="EM_ANDAMENTO").length,
+        stop=r.filter(x=>x.status==="PARADA").length;
+  return {total,done,prog,stop,pct:total?Math.round(done/total*100):0};
+}
+function progressHTML(rows=dashboardTasks()){
+  return SERVICES.map(s=>{
+    const v=stat(s,rows),
+          g=v.total?v.done/v.total*100:0,
+          y=v.total?v.prog/v.total*100:0,
+          r=v.total?v.stop/v.total*100:0;
+    return '<div class="svc-row"><span>'+esc(s)+'</span><div class="svc-bar"><i class="g" style="width:'+g+'%"></i><i class="y" style="width:'+y+'%"></i><i class="r" style="width:'+r+'%"></i></div><span class="svc-pct">'+v.pct+'%</span></div>'
+  }).join("");
+}
+function dashboardLabel(){
+  return dashboardScope==="DUBAI"?"Torre Dubai":
+         dashboardScope==="ISTAMBUL"?"Torre Istambul":
+         dashboardScope==="COMUM"?"Área Comum":"Geral";
+}
+function renderDashboard(){
+  const rows=dashboardTasks();
+  const done=rows.filter(x=>x.status==="CONCLUIDA").length;
+  const prog=rows.filter(x=>x.status==="EM_ANDAMENTO").length;
+  const stop=rows.filter(x=>x.status==="PARADA").length;
+
+  $("kpiTotal").textContent=rows.length;
+  $("kpiProgress").textContent=prog;
+  $("kpiDone").textContent=done;
+  $("kpiStopped").textContent=stop;
+
+  $("reportProgress").innerHTML=progressHTML(rows);
+  $("reportDone").textContent=done;
+  $("reportProgressCount").textContent=prog;
+  $("reportStopped").textContent=stop;
+
+  const count={};
+  rows.filter(x=>x.status==="CONCLUIDA").forEach(x=>count[x.employee_name]=(count[x.employee_name]||0)+1);
+  const top=Object.entries(count).sort((a,b)=>b[1]-a[1]).slice(0,5);
+  $("topEmployees").innerHTML=top.length
+    ?top.map((x,i)=>'<div class="top-item"><span>'+(i+1)+'. '+esc(x[0])+'</span><b>'+x[1]+'</b></div>').join("")
+    :'Nenhum serviço concluído.';
+
+  const label=dashboardLabel();
+  $("dashboardContext").textContent="Exibindo: "+label+" — "+rows.length+" serviço(s) registrado(s).";
+  $("pdfSubtitle").textContent="Dashboard — "+label;
+  $("pdfFooter").textContent="Emirates Parque Flamboyant • "+label+" • Gerado em "+new Intl.DateTimeFormat("pt-BR",{dateStyle:"short",timeStyle:"short",timeZone:"America/Sao_Paulo"}).format(new Date());
+
+  const empty=dashboardScope==="COMUM"&&rows.length===0;
+  $("dashboardEmpty").classList.toggle("hidden",!empty);
+  $("dashboardGrid").classList.toggle("hidden",empty);
+
+  if(dashboardScope==="COMUM"){
+    $("dashboardFlowTitle").textContent="ÁREA COMUM — ESTRUTURA";
+    $("dashboardFlow").innerHTML="Subsolo 2<br>Subsolo 1<br>Garagem 2<br>Garagem 1<br>Térreo<br>3º Pavimento — Lazer<br>30º Istambul — Lounge";
+  }else{
+    $("dashboardFlowTitle").textContent=dashboardScope==="GERAL"?"FLUXO DAS TORRES — EMIRATES":"FLUXO OPERACIONAL — "+label.toUpperCase();
+    $("dashboardFlow").innerHTML="1. Checklist Pintura<br>2. Checklist Instaladora<br>3. Rejunte<br>4. Limpeza<br>5. Vistoria Qualidade<br>6. Vistoria Cliente<br>7. Revistoria<br>8. Entrega Cliente";
+  }
+}
 function rowActions(x){return x.status==="CONCLUIDA"?'<span style="color:#4f8d25;font-weight:800">Fechado</span>':'<button class="small-btn" data-id="'+x.id+'" data-action="CONCLUIDA">Concluir</button> <button class="small-btn" data-id="'+x.id+'" data-action="PARADA">Parar</button>'}function bindActions(root){root.querySelectorAll("button[data-action]").forEach(b=>b.onclick=()=>setStatus(Number(b.dataset.id),b.dataset.action))}function renderTowerTable(towerName,tbodyId,floorFilterId,serviceFilterId,statusFilterId){const ff=$(floorFilterId).value,sf=$(serviceFilterId).value,st=$(statusFilterId).value,r=tasks.filter(x=>x.tower===towerName&&(!ff||Number(x.floor)===Number(ff))&&(!sf||x.service===sf)&&(!st||x.status===st)),el=$(tbodyId);el.innerHTML=r.length?r.map(x=>'<tr><td>'+esc(x.employee_name)+'</td><td>'+esc(x.employee_role||"")+'</td><td>'+String(x.floor).padStart(2,"0")+'</td><td>'+esc(x.apartment)+'</td><td>'+esc(x.service)+'</td><td>'+fmt(x.started_at)+'</td><td>'+fmt(x.finished_at)+'</td><td><span class="pill '+sc(x.status)+'">'+sl(x.status)+'</span></td><td class="obs">'+esc(x.observations||"")+'</td><td>'+rowActions(x)+'</td></tr>').join(""):'<tr><td colspan="10">Nenhum resultado.</td></tr>';bindActions(el)}function renderTables(){renderTowerTable("DUBAI","dubaiRows","dubaiFloorFilter","dubaiServiceFilter","dubaiStatusFilter");renderTowerTable("ISTAMBUL","istRows","istFloorFilter","istServiceFilter","istStatusFilter")}
 async function reload(){const d=await api("/api/operational/tasks?project="+encodeURIComponent(PROJECT));tasks=d.items||[];renderBuildings();renderDashboard();renderTables()}async function setStatus(id,status){try{await api("/api/operational/tasks/"+id,{method:"PATCH",headers:{"content-type":"application/json"},body:JSON.stringify({status})});await reload();toast(status==="CONCLUIDA"?"Serviço concluído. Término registrado automaticamente.":"Status atualizado.")}catch(e){alert(e.message)}}async function load(){const d=await api("/api/operational/employees");employees=d.items||[];$("employee").innerHTML='<option value="">Selecione o funcionário</option>'+employees.map(e=>'<option value="'+e.id+'">'+esc(e.name)+' — '+esc(e.role)+'</option>').join("");fillSelectors();fillFloors();syncForm();await reload()}
 $("employee").onchange=()=>{const e=employees.find(x=>Number(x.id)===Number($("employee").value));$("employeeRole").value=e?e.role:""};$("formTower").onchange=()=>{tower=$("formTower").value;floor=6;selectedApartment=units(tower,floor)[0];syncForm()};$("formFloor").onchange=()=>{floor=Number($("formFloor").value);selectedApartment=units(tower,floor)[0];fillApts();$("formApartment").value=selectedApartment};$("formApartment").onchange=()=>selectedApartment=$("formApartment").value;$("serviceFilter").onchange=()=>{selectedService=$("serviceFilter").value;renderBuildings()};["dubaiFloorFilter","dubaiServiceFilter","dubaiStatusFilter","istFloorFilter","istServiceFilter","istStatusFilter"].forEach(id=>$(id).onchange=renderTables);
 document.querySelectorAll(".tab").forEach(b=>b.onclick=()=>{document.querySelectorAll(".tab").forEach(x=>x.classList.toggle("active",x===b));const v=b.dataset.view;["dubai","istambul","comum","trace","dashboard"].forEach(name=>$(name+"View").classList.toggle("hidden",name!==v))});document.querySelectorAll("[data-trace]").forEach(b=>b.onclick=()=>{document.querySelectorAll("[data-trace]").forEach(x=>x.classList.toggle("active",x===b));const t=b.dataset.trace;$("dubaiMapPanel").classList.toggle("hidden",t!=="DUBAI");$("istMapPanel").classList.toggle("hidden",t!=="ISTAMBUL")});
+
+document.querySelectorAll(".dash-filter").forEach(b=>b.onclick=()=>{
+  dashboardScope=b.dataset.dashboard;
+  document.querySelectorAll(".dash-filter").forEach(x=>x.classList.toggle("active",x===b));
+  renderDashboard();
+});
+
+$("exportPdfBtn").onclick=()=>{
+  renderDashboard();
+  const originalTitle=document.title;
+  document.title="Relatorio_Emirates_"+dashboardLabel().replace(/\s+/g,"_");
+  setTimeout(()=>{
+    window.print();
+    setTimeout(()=>{document.title=originalTitle},300);
+  },80);
+};
+
 $("newTaskBtn").onclick=()=>{syncForm();$("taskModal").classList.add("show")};$("closeModal").onclick=()=>$("taskModal").classList.remove("show");$("cancelModal").onclick=()=>$("taskModal").classList.remove("show");$("taskModal").onclick=e=>{if(e.target===$("taskModal"))$("taskModal").classList.remove("show")};$("saveTask").onclick=async()=>{const body={project_slug:PROJECT,employee_id:Number($("employee").value||0),tower:$("formTower").value,floor:Number($("formFloor").value),apartment:$("formApartment").value,service:$("service").value,status:$("status").value,observations:$("observations").value.trim()};if(!body.employee_id||!body.service){alert("Selecione funcionário e serviço.");return}$("saveTask").disabled=true;$("saveTask").textContent="Salvando...";try{await api("/api/operational/tasks",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify(body)});$("observations").value="";$("taskModal").classList.remove("show");await reload();toast("Serviço lançado com data e hora automáticas.")}catch(e){alert(e.message)}finally{$("saveTask").disabled=false;$("saveTask").textContent="Salvar serviço"}};load().catch(e=>alert("Erro ao carregar o operacional: "+e.message));
 </script></body></html>`;
 }
