@@ -971,10 +971,10 @@ main{max-width:1260px;margin:auto;padding:22px}.toolbar{display:flex;justify-con
   <div class="field"><label>Nome da Empresa</label><input id="companyName"></div>
   <div class="field"><label>NÚMERO DE CONTRATO</label><input id="contractNumber" placeholder="Ex.: CT-2026-0145"></div>
   <div class="field"><label>Valor de contrato (R$)</label><input id="contractValue" type="number" min="0" step="0.01"></div>
-  <div class="field"><label>Saldo de contrato (R$)</label><input id="contractBalance" type="number" min="0" step="0.01"></div>
+  <div class="field"><label>Saldo de contrato (R$)</label><input id="contractBalance" type="number" readonly title="Calculado automaticamente pelas medições"></div>
   <div class="field"><label>Saldo de serviço</label><input id="serviceBalance" placeholder="Ex.: 35 aptos / 42%"></div>
   <div class="field"><label>Contato</label><input id="contactName"></div>
-  <div class="field"><label>Telefone</label><input id="phone"></div>
+  <div class="field"><label>Telefone</label><input id="phone" inputmode="numeric" maxlength="15" placeholder="(62) 98340.4022"></div>
 
   <div class="field wide">
     <label>SERVIÇOS CONTRATADOS</label>
@@ -1007,6 +1007,21 @@ const $=id=>document.getElementById(id);
 const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const money=n=>Number(n||0).toLocaleString("pt-BR",{style:"currency",currency:"BRL"});
 const dateBR=v=>v?new Date(v+"T12:00:00").toLocaleDateString("pt-BR"):"—";
+function phoneMask(v){
+ const d=String(v||"").replace(/\D/g,"").slice(0,11);
+ if(!d)return "";
+ const ddd=d.slice(0,2),p1=d.slice(2,7),p2=d.slice(7,11);
+ let out="("+ddd;
+ if(d.length>=2)out+=") ";
+ if(d.length>2)out+=p1;
+ if(d.length>7)out+="."+p2;
+ return out;
+}
+function recalcBalance(){
+ const value=Math.max(0,Number($("contractValue").value||0));
+ const measured=editingId ? Number(items.find(x=>Number(x.id)===Number(editingId))?.measured_total||0) : 0;
+ $("contractBalance").value=Math.max(0,value-measured).toFixed(2);
+}
 function pct(c){return Number(c.contract_value)>0?Math.max(0,Math.min(100,Number(c.contract_balance||0)/Number(c.contract_value)*100)):0}
 function cls(p){return p>=70?"green":p>=40?"blue":p>=10?"yellow":"red"}
 async function api(url,opt={}){const r=await fetch(url,{headers:{"content-type":"application/json",...(opt.headers||{})},...opt}),d=await r.json().catch(()=>({}));if(!r.ok)throw new Error(d.error||"Erro");return d}
@@ -1038,7 +1053,7 @@ function render(){
 
 function openModal(item=null){
  editingId=item?.id||null;$("modalTitle").textContent=item?"Editar empresa":"Nova empresa";
- $("companyName").value=item?.company_name||"";$("contractNumber").value=item?.contract_number||"";$("contractValue").value=item?.contract_value||"";$("contractBalance").value=item?.contract_balance||"";$("serviceBalance").value=item?.service_balance||"";$("contactName").value=item?.contact_name||"";$("phone").value=item?.phone||"";
+ $("companyName").value=item?.company_name||"";$("contractNumber").value=item?.contract_number||"";$("contractValue").value=item?.contract_value||"";$("contractBalance").value=Math.max(0,Number(item?.contract_value||0)-Number(item?.measured_total||0)).toFixed(2);$("serviceBalance").value=item?.service_balance||"";$("contactName").value=item?.contact_name||"";$("phone").value=phoneMask(item?.phone||"");
  $("serviceRows").innerHTML="";
  const list=item?.contracted_services||[];
  if(list.length)list.forEach(addService);else addService();
@@ -1048,7 +1063,7 @@ function editItem(id){openModal(items.find(x=>Number(x.id)===Number(id)))}
 async function removeItem(id){if(!confirm("Excluir esta empresa terceirizada?"))return;try{await api("/api/contractors/"+id,{method:"DELETE"});await load()}catch(e){alert(e.message)}}
 
 async function save(){
- const body={company_name:$("companyName").value.trim(),contract_number:$("contractNumber").value.trim(),contract_value:Number($("contractValue").value||0),contract_balance:Number($("contractBalance").value||0),service_balance:$("serviceBalance").value.trim(),contact_name:$("contactName").value.trim(),phone:$("phone").value.trim(),contracted_services:getServices()};
+ const body={company_name:$("companyName").value.trim(),contract_number:$("contractNumber").value.trim(),contract_value:Number($("contractValue").value||0),service_balance:$("serviceBalance").value.trim(),contact_name:$("contactName").value.trim(),phone:phoneMask($("phone").value),contracted_services:getServices()};
  if(!body.company_name)return alert("Informe o nome da empresa.");
  if(!body.contract_number)return alert("Informe o número do contrato.");
  if(!body.contracted_services.length)return alert("Cadastre ao menos um serviço contratado.");
@@ -1074,6 +1089,8 @@ async function addMeasurement(){
 async function deleteMeasurement(id){if(!confirm("Excluir esta medição?"))return;try{await api("/api/contractor-measurements/"+id,{method:"DELETE"});await loadMeasurements();await load()}catch(e){alert(e.message)}}
 async function load(){const d=await api("/api/contractors");items=d.items||[];render()}
 
+$("phone").addEventListener("input",e=>{e.target.value=phoneMask(e.target.value)});
+$("contractValue").addEventListener("input",recalcBalance);
 if(IS_ADMIN){$("newBtn").onclick=()=>openModal();$("saveBtn").onclick=save;$("addServiceBtn").onclick=()=>addService();$("addMeasurementBtn").onclick=addMeasurement}
 $("closeBtn").onclick=$("cancelBtn").onclick=()=>$("modal").classList.remove("show");
 $("closeMeasureBtn").onclick=()=>$("measureModal").classList.remove("show");
@@ -1276,9 +1293,10 @@ export default {
       await ensureOperationalSchema(env);
       const rows=(await env.DB.prepare(`SELECT c.*,
         (SELECT COUNT(*) FROM contractor_measurements m WHERE m.contractor_id=c.id) AS measurement_count,
-        COALESCE((SELECT SUM(m.amount) FROM contractor_measurements m WHERE m.contractor_id=c.id),0) AS measured_total
+        COALESCE((SELECT SUM(m.amount) FROM contractor_measurements m WHERE m.contractor_id=c.id),0) AS measured_total,
+        MAX(0,c.contract_value-COALESCE((SELECT SUM(m.amount) FROM contractor_measurements m WHERE m.contractor_id=c.id),0)) AS calculated_contract_balance
         FROM contractors c WHERE c.project_slug='emirates-parque-flamboyant' AND c.active=1 ORDER BY c.company_name COLLATE NOCASE`).all()).results||[];
-      for(const c of rows){
+      for(const c of rows){c.contract_balance=Number(c.calculated_contract_balance||0);
         const sr=(await env.DB.prepare("SELECT description,macro_service FROM contractor_services WHERE contractor_id=? ORDER BY rowid").bind(c.id).all()).results||[];
         c.contracted_services=sr.map(x=>({description:x.description,macro_service:x.macro_service}));
         c.services=[...new Set(sr.map(x=>x.macro_service).filter(Boolean))];
@@ -1298,7 +1316,7 @@ export default {
       const now=new Date().toISOString();
       const ir=await env.DB.prepare(`INSERT INTO contractors(project_slug,company_name,contract_number,contract_value,contract_balance,service_balance,contact_name,phone,active,created_at,updated_at)
         VALUES('emirates-parque-flamboyant',?,?,?,?,?,?,?,?,?,?)`)
-        .bind(name,contractNumber,Math.max(0,Number(b.contract_value||0)),Math.max(0,Number(b.contract_balance||0)),String(b.service_balance||"").trim(),String(b.contact_name||"").trim(),String(b.phone||"").trim(),1,now,now).run();
+        .bind(name,contractNumber,Math.max(0,Number(b.contract_value||0)),Math.max(0,Number(b.contract_value||0)),String(b.service_balance||"").trim(),String(b.contact_name||"").trim(),String(b.phone||"").trim(),1,now,now).run();
       const id=Number(ir.meta?.last_row_id||0);
       if(services.length)await env.DB.batch(services.map((s,i)=>env.DB.prepare("INSERT OR REPLACE INTO contractor_services(contractor_id,service,description,macro_service) VALUES(?,?,?,?)").bind(id,s.description+" #"+(i+1),s.description,s.macro_service)));
       return json({ok:true,id},201);
@@ -1315,8 +1333,8 @@ export default {
       const services=Array.isArray(b.contracted_services)?b.contracted_services.map(x=>({description:String(x?.description||"").trim(),macro_service:String(x?.macro_service||"").trim()})).filter(x=>x.description&&validMacros.includes(x.macro_service)):[];
       if(!services.length)return json({error:"Cadastre ao menos um serviço contratado e seu macroserviço."},400);
       const now=new Date().toISOString();
-      await env.DB.prepare("UPDATE contractors SET company_name=?,contract_number=?,contract_value=?,contract_balance=?,service_balance=?,contact_name=?,phone=?,updated_at=? WHERE id=?")
-        .bind(name,contractNumber,Math.max(0,Number(b.contract_value||0)),Math.max(0,Number(b.contract_balance||0)),String(b.service_balance||"").trim(),String(b.contact_name||"").trim(),String(b.phone||"").trim(),now,id).run();
+      const measuredRow=await env.DB.prepare("SELECT COALESCE(SUM(amount),0) total FROM contractor_measurements WHERE contractor_id=?").bind(id).first();const measuredTotal=Number(measuredRow?.total||0);await env.DB.prepare("UPDATE contractors SET company_name=?,contract_number=?,contract_value=?,contract_balance=?,service_balance=?,contact_name=?,phone=?,updated_at=? WHERE id=?")
+        .bind(name,contractNumber,Math.max(0,Number(b.contract_value||0)),Math.max(0,Math.max(0,Number(b.contract_value||0))-measuredTotal),String(b.service_balance||"").trim(),String(b.contact_name||"").trim(),String(b.phone||"").trim(),now,id).run();
       await env.DB.prepare("DELETE FROM contractor_services WHERE contractor_id=?").bind(id).run();
       if(services.length)await env.DB.batch(services.map((s,i)=>env.DB.prepare("INSERT INTO contractor_services(contractor_id,service,description,macro_service) VALUES(?,?,?,?)").bind(id,s.description+" #"+(i+1),s.description,s.macro_service)));
       return json({ok:true});
@@ -1353,6 +1371,9 @@ export default {
       const now=new Date().toISOString();
       const ir=await env.DB.prepare("INSERT INTO contractor_measurements(contractor_id,measurement_number,measurement_date,amount,notes,created_by,created_by_name,created_at) VALUES(?,?,?,?,?,?,?,?)")
         .bind(contractorId,number,date,amount,notes,auth.id,String(auth.name||auth.username||""),now).run();
+      const sums=await env.DB.prepare("SELECT COALESCE(SUM(amount),0) total FROM contractor_measurements WHERE contractor_id=?").bind(contractorId).first();
+      const ctr=await env.DB.prepare("SELECT contract_value FROM contractors WHERE id=?").bind(contractorId).first();
+      await env.DB.prepare("UPDATE contractors SET contract_balance=?,updated_at=? WHERE id=?").bind(Math.max(0,Number(ctr?.contract_value||0)-Number(sums?.total||0)),now,contractorId).run();
       return json({ok:true,id:Number(ir.meta?.last_row_id||0)},201);
     }
 
@@ -1360,7 +1381,13 @@ export default {
     if(measurementDelete&&request.method==="DELETE"){
       if(auth.role!=="admin")return json({error:"Somente o Administrador pode excluir medições."},403);
       await ensureOperationalSchema(env);
-      await env.DB.prepare("DELETE FROM contractor_measurements WHERE id=?").bind(Number(measurementDelete[1])).run();
+      const measurementId=Number(measurementDelete[1]);
+      const mr=await env.DB.prepare("SELECT contractor_id FROM contractor_measurements WHERE id=?").bind(measurementId).first();
+      await env.DB.prepare("DELETE FROM contractor_measurements WHERE id=?").bind(measurementId).run();
+      if(mr?.contractor_id){
+        const cid=Number(mr.contractor_id),sumr=await env.DB.prepare("SELECT COALESCE(SUM(amount),0) total FROM contractor_measurements WHERE contractor_id=?").bind(cid).first(),ctr=await env.DB.prepare("SELECT contract_value FROM contractors WHERE id=?").bind(cid).first();
+        await env.DB.prepare("UPDATE contractors SET contract_balance=?,updated_at=? WHERE id=?").bind(Math.max(0,Number(ctr?.contract_value||0)-Number(sumr?.total||0)),new Date().toISOString(),cid).run();
+      }
       return json({ok:true});
     }
 
