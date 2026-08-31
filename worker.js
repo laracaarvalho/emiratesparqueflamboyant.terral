@@ -612,11 +612,33 @@ async function ensureOperationalSchema(env){
     created_at TEXT NOT NULL,
     updated_at TEXT NOT NULL
   )`).run();
+
   await env.DB.prepare(`CREATE TABLE IF NOT EXISTS contractor_services (
     contractor_id INTEGER NOT NULL,
     service TEXT NOT NULL,
+    description TEXT NOT NULL DEFAULT '',
+    macro_service TEXT NOT NULL DEFAULT '',
     PRIMARY KEY(contractor_id,service)
   )`).run();
+
+  const csCols=(await env.DB.prepare("PRAGMA table_info(contractor_services)").all()).results||[];
+  if(!csCols.some(c=>c.name==="description"))await env.DB.prepare("ALTER TABLE contractor_services ADD COLUMN description TEXT NOT NULL DEFAULT ''").run();
+  if(!csCols.some(c=>c.name==="macro_service"))await env.DB.prepare("ALTER TABLE contractor_services ADD COLUMN macro_service TEXT NOT NULL DEFAULT ''").run();
+  await env.DB.prepare("UPDATE contractor_services SET description=service WHERE description='' OR description IS NULL").run();
+  await env.DB.prepare("UPDATE contractor_services SET macro_service=service WHERE macro_service='' OR macro_service IS NULL").run();
+
+  await env.DB.prepare(`CREATE TABLE IF NOT EXISTS contractor_measurements (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    contractor_id INTEGER NOT NULL,
+    measurement_number TEXT NOT NULL DEFAULT '',
+    measurement_date TEXT NOT NULL,
+    amount REAL NOT NULL DEFAULT 0,
+    notes TEXT NOT NULL DEFAULT '',
+    created_by INTEGER,
+    created_by_name TEXT NOT NULL DEFAULT '',
+    created_at TEXT NOT NULL
+  )`).run();
+
   await env.DB.prepare(`CREATE TABLE IF NOT EXISTS operational_tasks (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     project_slug TEXT NOT NULL,
@@ -635,13 +657,16 @@ async function ensureOperationalSchema(env){
     created_at TEXT NOT NULL,
     updated_at TEXT NOT NULL
   )`).run();
+
   const cols=(await env.DB.prepare("PRAGMA table_info(operational_tasks)").all()).results||[];
   if(!cols.some(c=>c.name==="contractor_id"))await env.DB.prepare("ALTER TABLE operational_tasks ADD COLUMN contractor_id INTEGER").run();
+
   await env.DB.prepare("CREATE INDEX IF NOT EXISTS idx_operational_tasks_project ON operational_tasks(project_slug)").run();
   await env.DB.prepare("CREATE INDEX IF NOT EXISTS idx_operational_tasks_unit ON operational_tasks(project_slug,tower,floor,apartment)").run();
   await env.DB.prepare("CREATE INDEX IF NOT EXISTS idx_operational_tasks_employee ON operational_tasks(employee_id)").run();
   await env.DB.prepare("CREATE INDEX IF NOT EXISTS idx_operational_tasks_contractor ON operational_tasks(contractor_id)").run();
   await env.DB.prepare("CREATE INDEX IF NOT EXISTS idx_contractors_project ON contractors(project_slug)").run();
+  await env.DB.prepare("CREATE INDEX IF NOT EXISTS idx_contractor_measurements_contractor ON contractor_measurements(contractor_id)").run();
 }
 
 function operationalPage(auth){
@@ -904,10 +929,159 @@ load().catch(e=>alert("Erro ao carregar o operacional: "+e.message));
 
 function contractorsPage(auth){
   const admin=auth?.role==="admin";
-  return `<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>TERRAL | TERCEIRIZADOS</title><style>
-:root{--wine:#690020;--wine2:#8a1237;--bg:#f5f3f0;--card:#fff;--line:#e4ddd6;--text:#29231f;--muted:#756d66;--green:#28a745;--blue:#2775ca;--yellow:#f2b51d;--red:#dc3545}*{box-sizing:border-box}body{margin:0;font-family:Arial;background:var(--bg);color:var(--text)}header{background:linear-gradient(90deg,var(--wine),var(--wine2));color:#fff;padding:18px 26px;display:flex;justify-content:space-between;align-items:center}header h1{margin:0;font-size:20px}header small{display:block;margin-top:4px;opacity:.85}header a{color:#fff;text-decoration:none;font-size:12px}main{max-width:1220px;margin:auto;padding:22px}.toolbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}.toolbar h2{margin:0}.btn{border:1px solid #d9cec6;background:#fff;border-radius:7px;padding:9px 12px;font-weight:700;font-size:11px;cursor:pointer}.btn.primary{background:var(--wine);color:#fff}.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.contractor{background:#fff;border:1px solid var(--line);border-radius:11px;padding:14px}.head{display:flex;justify-content:space-between;gap:10px}.head h3{margin:0;font-size:14px}.contract{font-size:9px;color:var(--muted);margin-top:4px}.balance{border-radius:8px;color:#fff;padding:8px 10px;text-align:right;min-width:90px}.balance b{display:block;font-size:15px}.balance small{font-size:7px}.green{background:var(--green)}.blue{background:var(--blue)}.yellow{background:var(--yellow);color:#332b16}.red{background:var(--red)}.money{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:12px 0}.money div{background:#f8f5f2;border-radius:7px;padding:8px}.money small{font-size:7px;color:var(--muted)}.money b{display:block;font-size:10px;margin-top:3px}.label{font-size:7px;color:var(--muted);font-weight:800;margin-bottom:5px}.tags{display:flex;gap:5px;flex-wrap:wrap}.tag{background:#f1e9ec;color:var(--wine);border-radius:999px;padding:4px 6px;font-size:7px;font-weight:700}.info{margin-top:10px;border-top:1px solid var(--line);padding-top:9px;font-size:8px;line-height:1.7}.actions{display:flex;gap:6px;margin-top:9px}.empty{background:#fff;border:1px dashed #d5cbc2;border-radius:10px;padding:28px;text-align:center;color:var(--muted)}.modal-back{position:fixed;inset:0;background:#0006;display:none;align-items:center;justify-content:center;padding:18px}.modal-back.show{display:flex}.modal{background:#fff;border-radius:11px;width:min(780px,96vw);padding:15px}.modal-head{display:flex;justify-content:space-between}.close{border:0;background:transparent;font-size:20px}.form{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:12px}.field label{display:block;font-size:8px;font-weight:800;margin-bottom:4px}.field input{width:100%;border:1px solid #d8d0c8;border-radius:6px;padding:8px}.services{grid-column:1/-1}.checks{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;border:1px solid #ddd4cc;border-radius:7px;padding:9px}.checks label{font-weight:400;display:flex;gap:5px}.modal-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:12px}@media(max-width:900px){.grid{grid-template-columns:1fr 1fr}}@media(max-width:650px){.grid,.form{grid-template-columns:1fr}.checks{grid-template-columns:1fr}}
-</style></head><body><header><div><h1>Terceirizados</h1><small>Emirates Parque Flamboyant</small></div><a href="/obra/emirates-parque-flamboyant">← Voltar à obra</a></header><main><div class="toolbar"><div><h2>Empresas terceirizadas</h2><div style="font-size:9px;color:var(--muted);margin-top:4px">Contratos, saldos e serviços vinculados às frentes.</div></div>${admin?'<button class="btn primary" id="newBtn">＋ Nova empresa</button>':''}</div><div id="grid" class="grid"></div></main><div class="modal-back" id="modal"><div class="modal"><div class="modal-head"><h3 id="modalTitle">Nova empresa</h3><button class="close" id="closeBtn">×</button></div><div class="form"><div class="field"><label>Nome da Empresa</label><input id="companyName"></div><div class="field"><label>Número de contrato</label><input id="contractNumber"></div><div class="field"><label>Valor de contrato (R$)</label><input id="contractValue" type="number" min="0" step="0.01"></div><div class="field"><label>Saldo de contrato (R$)</label><input id="contractBalance" type="number" min="0" step="0.01"></div><div class="field"><label>Saldo de serviço</label><input id="serviceBalance" placeholder="Ex.: 35 aptos / 42%"></div><div class="field"><label>Contato</label><input id="contactName"></div><div class="field"><label>Telefone</label><input id="phone"></div><div class="field services"><label>Serviços</label><div class="checks" id="serviceChecks"></div></div></div><div class="modal-actions"><button class="btn" id="cancelBtn">Cancelar</button><button class="btn primary" id="saveBtn">Salvar</button></div></div></div><script>
-const IS_ADMIN=${admin?'true':'false'};const SERVICES=${JSON.stringify(["Checklist - Instaladora","Checklist - Pedreiro","Checklist - Rejunte","Checklist - Pintura","Limpeza","Vistoria - Qualidade","Vistoria - Cliente","Revistoria - Cliente","Unidade aprovada","Checklist Pintura","Checklist Instaladora","Rejunte","Vistoria Qualidade","Vistoria Cliente","Revistoria","Entrega Cliente"])};let items=[],editingId=null;const $=id=>document.getElementById(id),esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])),money=n=>Number(n||0).toLocaleString("pt-BR",{style:"currency",currency:"BRL"});function pct(c){return Number(c.contract_value)>0?Math.max(0,Math.min(100,Number(c.contract_balance||0)/Number(c.contract_value)*100)):0}function cls(p){return p>=70?"green":p>=40?"blue":p>=10?"yellow":"red"}async function api(url,opt={}){const r=await fetch(url,{headers:{"content-type":"application/json",...(opt.headers||{})},...opt}),d=await r.json().catch(()=>({}));if(!r.ok)throw new Error(d.error||"Erro");return d}function render(){grid.innerHTML=items.length?items.map(c=>{const p=pct(c);return '<article class="contractor"><div class="head"><div><h3>'+esc(c.company_name)+'</h3><div class="contract">Contrato: '+esc(c.contract_number||"—")+'</div></div><div class="balance '+cls(p)+'"><small>Saldo</small><b>'+p.toFixed(0)+'%</b></div></div><div class="money"><div><small>Valor do contrato</small><b>'+money(c.contract_value)+'</b></div><div><small>Saldo do contrato</small><b>'+money(c.contract_balance)+'</b></div></div><div class="label">SERVIÇOS</div><div class="tags">'+(c.services||[]).map(s=>'<span class="tag">'+esc(s)+'</span>').join("")+'</div><div class="info"><b>Saldo de serviço:</b> '+esc(c.service_balance||"—")+'<br><b>Contato:</b> '+esc(c.contact_name||"—")+'<br><b>Telefone:</b> '+esc(c.phone||"—")+'</div>'+(IS_ADMIN?'<div class="actions"><button class="btn" onclick="editItem('+c.id+')">Editar</button><button class="btn" onclick="removeItem('+c.id+')">Excluir</button></div>':'')+'</article>'}).join(""):'<div class="empty">Nenhuma empresa terceirizada cadastrada.</div>'}function openModal(item=null){editingId=item?.id||null;modalTitle.textContent=item?"Editar empresa":"Nova empresa";companyName.value=item?.company_name||"";contractNumber.value=item?.contract_number||"";contractValue.value=item?.contract_value||"";contractBalance.value=item?.contract_balance||"";serviceBalance.value=item?.service_balance||"";contactName.value=item?.contact_name||"";phone.value=item?.phone||"";const selected=new Set(item?.services||[]);serviceChecks.innerHTML=SERVICES.map(s=>'<label><input type="checkbox" value="'+esc(s)+'" '+(selected.has(s)?"checked":"")+'>'+esc(s)+'</label>').join("");modal.classList.add("show")}function editItem(id){openModal(items.find(x=>Number(x.id)===Number(id)))}async function removeItem(id){if(!confirm("Excluir esta empresa terceirizada?"))return;try{await api("/api/contractors/"+id,{method:"DELETE"});await load()}catch(e){alert(e.message)}}async function save(){const body={company_name:companyName.value.trim(),contract_number:contractNumber.value.trim(),contract_value:Number(contractValue.value||0),contract_balance:Number(contractBalance.value||0),service_balance:serviceBalance.value.trim(),contact_name:contactName.value.trim(),phone:phone.value.trim(),services:[...serviceChecks.querySelectorAll("input:checked")].map(x=>x.value)};if(!body.company_name)return alert("Informe o nome da empresa.");try{await api(editingId?"/api/contractors/"+editingId:"/api/contractors",{method:editingId?"PATCH":"POST",body:JSON.stringify(body)});modal.classList.remove("show");await load()}catch(e){alert(e.message)}}async function load(){const d=await api("/api/contractors");items=d.items||[];render()}if(IS_ADMIN){newBtn.onclick=()=>openModal();saveBtn.onclick=save}closeBtn.onclick=cancelBtn.onclick=()=>modal.classList.remove("show");modal.onclick=e=>{if(e.target===modal)modal.classList.remove("show")};load().catch(e=>alert(e.message));</script></body></html>`;
+  return `<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>TERRAL | TERCEIRIZADOS</title>
+<style>
+:root{--wine:#690020;--wine2:#8a1237;--bg:#f5f3f0;--card:#fff;--line:#e4ddd6;--text:#29231f;--muted:#756d66;--green:#28a745;--blue:#2775ca;--yellow:#f2b51d;--red:#dc3545}
+*{box-sizing:border-box}body{margin:0;font-family:Arial,Helvetica,sans-serif;background:var(--bg);color:var(--text)}
+header{background:linear-gradient(90deg,var(--wine),var(--wine2));color:#fff;padding:18px 26px;display:flex;justify-content:space-between;align-items:center}
+header h1{margin:0;font-size:20px}header small{display:block;margin-top:4px;opacity:.85}header a{color:#fff;text-decoration:none;font-size:12px}
+main{max-width:1260px;margin:auto;padding:22px}.toolbar{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:14px}.toolbar h2{margin:0;font-size:20px}
+.btn{border:1px solid #d9cec6;background:#fff;border-radius:7px;padding:9px 12px;font-weight:700;font-size:11px;cursor:pointer}.btn.primary{background:var(--wine);color:#fff;border-color:var(--wine)}.btn.small{padding:6px 8px;font-size:9px}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.contractor{background:#fff;border:1px solid var(--line);border-radius:12px;padding:15px;box-shadow:0 7px 20px #0000000b}
+.head{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}.head h3{margin:0;font-size:15px}.contract-number{display:inline-block;margin-top:6px;background:#f4ecef;color:var(--wine);border:1px solid #ead9df;border-radius:6px;padding:5px 7px;font-size:8px;font-weight:800}
+.balance{border-radius:8px;color:#fff;padding:8px 10px;text-align:right;min-width:90px}.balance b{display:block;font-size:15px}.balance small{font-size:7px}.green{background:var(--green)}.blue{background:var(--blue)}.yellow{background:var(--yellow);color:#332b16}.red{background:var(--red)}
+.money{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:12px 0}.money div{background:#f8f5f2;border-radius:7px;padding:8px}.money small{display:block;font-size:7px;color:var(--muted)}.money b{display:block;font-size:10px;margin-top:3px}
+.section-title{font-size:7px;color:var(--muted);font-weight:800;margin:11px 0 6px}.service-list{display:grid;gap:6px}.service-item{border:1px solid #eee4dd;border-radius:7px;padding:7px;background:#fffdfa}.service-item b{display:block;font-size:8px}.macro{display:inline-block;margin-top:4px;background:#f1e9ec;color:var(--wine);border-radius:999px;padding:3px 6px;font-size:6.5px;font-weight:700}
+.measure-summary{display:grid;grid-template-columns:1fr 1fr;gap:6px}.measure-summary div{border:1px solid #eee4dd;border-radius:7px;padding:7px}.measure-summary small{display:block;font-size:6.5px;color:var(--muted)}.measure-summary b{font-size:9px}
+.info{margin-top:10px;border-top:1px solid var(--line);padding-top:9px;font-size:8px;line-height:1.7}.actions{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}.empty{background:#fff;border:1px dashed #d5cbc2;border-radius:10px;padding:28px;text-align:center;color:var(--muted)}
+.modal-back{position:fixed;inset:0;background:#0006;display:none;align-items:center;justify-content:center;padding:18px;z-index:50}.modal-back.show{display:flex}.modal{background:#fff;border-radius:12px;width:min(900px,96vw);max-height:92vh;overflow:auto;padding:17px}.modal.measure{width:min(760px,96vw)}
+.modal-head{display:flex;justify-content:space-between;align-items:center}.modal-head h3{margin:0}.close{border:0;background:transparent;font-size:20px;cursor:pointer}
+.form{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:12px}.field label{display:block;font-size:8px;font-weight:800;margin-bottom:4px}.field input,.field select,.field textarea{width:100%;border:1px solid #d8d0c8;border-radius:6px;padding:8px;background:#fff}.field textarea{min-height:60px}.wide{grid-column:1/-1}
+.services-editor{border:1px solid #ddd4cc;border-radius:8px;padding:10px;background:#fdfbf9}.service-row{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(180px,.8fr) 34px;gap:7px;align-items:end;margin-bottom:7px}.service-row:last-child{margin-bottom:0}.remove-service{height:34px;border:1px solid #e3c9c9;background:#fff5f5;color:#a32121;border-radius:6px;cursor:pointer}
+.help{font-size:7px;color:var(--muted);margin:5px 0 8px}.modal-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:12px}
+.measure-form{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;background:#f8f5f2;border-radius:8px;padding:10px;margin:12px 0}.measure-form .notes{grid-column:1/-1}
+.measure-table{width:100%;border-collapse:collapse;font-size:8px}.measure-table th,.measure-table td{padding:7px;border-bottom:1px solid #eee4dd;text-align:left}.measure-table th{background:#f7f2ed}.measure-total{display:flex;justify-content:flex-end;gap:20px;margin:10px 0;font-size:9px}
+@media(max-width:1000px){.grid{grid-template-columns:1fr 1fr}}@media(max-width:700px){.grid,.form,.measure-form{grid-template-columns:1fr}.service-row{grid-template-columns:1fr}.wide,.measure-form .notes{grid-column:auto}}
+</style>
+</head>
+<body>
+<header><div><h1>Terceirizados</h1><small>Emirates Parque Flamboyant</small></div><a href="/obra/emirates-parque-flamboyant">← Voltar à obra</a></header>
+<main>
+ <div class="toolbar"><div><h2>Empresas terceirizadas</h2><div style="font-size:9px;color:var(--muted);margin-top:4px">Contratos, serviços vinculados às frentes e histórico de medições.</div></div>${admin?'<button class="btn primary" id="newBtn">＋ Nova empresa</button>':''}</div>
+ <div id="grid" class="grid"></div>
+</main>
+
+<div class="modal-back" id="modal"><div class="modal">
+ <div class="modal-head"><h3 id="modalTitle">Nova empresa</h3><button class="close" id="closeBtn">×</button></div>
+ <div class="form">
+  <div class="field"><label>Nome da Empresa</label><input id="companyName"></div>
+  <div class="field"><label>NÚMERO DE CONTRATO</label><input id="contractNumber" placeholder="Ex.: CT-2026-0145"></div>
+  <div class="field"><label>Valor de contrato (R$)</label><input id="contractValue" type="number" min="0" step="0.01"></div>
+  <div class="field"><label>Saldo de contrato (R$)</label><input id="contractBalance" type="number" min="0" step="0.01"></div>
+  <div class="field"><label>Saldo de serviço</label><input id="serviceBalance" placeholder="Ex.: 35 aptos / 42%"></div>
+  <div class="field"><label>Contato</label><input id="contactName"></div>
+  <div class="field"><label>Telefone</label><input id="phone"></div>
+
+  <div class="field wide">
+    <label>SERVIÇOS CONTRATADOS</label>
+    <div class="help">Descreva exatamente o objeto contratado e, ao lado, classifique em qual macroserviço do fluxo operacional ele se encaixa.</div>
+    <div class="services-editor" id="serviceRows"></div>
+    <button class="btn small" type="button" id="addServiceBtn" style="margin-top:8px">＋ Adicionar serviço</button>
+  </div>
+ </div>
+ <div class="modal-actions"><button class="btn" id="cancelBtn">Cancelar</button><button class="btn primary" id="saveBtn">Salvar empresa</button></div>
+</div></div>
+
+<div class="modal-back" id="measureModal"><div class="modal measure">
+ <div class="modal-head"><div><h3>Medições realizadas</h3><div id="measureCompany" style="font-size:8px;color:var(--muted);margin-top:3px"></div></div><button class="close" id="closeMeasureBtn">×</button></div>
+ ${admin?`<div class="measure-form">
+   <div class="field"><label>Nº da medição</label><input id="measurementNumber" placeholder="Ex.: 05"></div>
+   <div class="field"><label>Data</label><input id="measurementDate" type="date"></div>
+   <div class="field"><label>Valor medido (R$)</label><input id="measurementAmount" type="number" min="0" step="0.01"></div>
+   <div class="field notes"><label>Observação</label><input id="measurementNotes" placeholder="Ex.: Medição referente aos serviços executados em agosto"></div>
+   <div style="grid-column:1/-1;text-align:right"><button class="btn primary small" id="addMeasurementBtn">＋ Registrar medição</button></div>
+ </div>`:''}
+ <div class="measure-total"><span>Quantidade: <b id="measurementCount">0</b></span><span>Total registrado: <b id="measurementTotal">R$ 0,00</b></span></div>
+ <div style="overflow:auto"><table class="measure-table"><thead><tr><th>Medição</th><th>Data</th><th>Valor</th><th>Observação</th>${admin?'<th></th>':''}</tr></thead><tbody id="measurementRows"></tbody></table></div>
+</div></div>
+
+<script>
+const IS_ADMIN=${admin?'true':'false'};
+const MACROS=${JSON.stringify(["Checklist - Instaladora","Checklist - Pedreiro","Checklist - Rejunte","Checklist - Pintura","Limpeza","Vistoria - Qualidade","Vistoria - Cliente","Revistoria - Cliente","Unidade aprovada"])};
+let items=[],editingId=null,measurementContractorId=null;
+const $=id=>document.getElementById(id);
+const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const money=n=>Number(n||0).toLocaleString("pt-BR",{style:"currency",currency:"BRL"});
+const dateBR=v=>v?new Date(v+"T12:00:00").toLocaleDateString("pt-BR"):"—";
+function pct(c){return Number(c.contract_value)>0?Math.max(0,Math.min(100,Number(c.contract_balance||0)/Number(c.contract_value)*100)):0}
+function cls(p){return p>=70?"green":p>=40?"blue":p>=10?"yellow":"red"}
+async function api(url,opt={}){const r=await fetch(url,{headers:{"content-type":"application/json",...(opt.headers||{})},...opt}),d=await r.json().catch(()=>({}));if(!r.ok)throw new Error(d.error||"Erro");return d}
+
+function serviceRow(data={}){
+ const wrap=document.createElement("div");wrap.className="service-row";
+ wrap.innerHTML='<div class="field"><label>Descrição do serviço contratado</label><input class="svc-description" placeholder="Ex.: Execução de rejunte epóxi nos apartamentos" value="'+esc(data.description||"")+'"></div>'+
+ '<div class="field"><label>Macroserviço / Macrofluxo</label><select class="svc-macro">'+MACROS.map(m=>'<option value="'+esc(m)+'" '+(data.macro_service===m?'selected':'')+'>'+esc(m)+'</option>').join("")+'</select></div>'+
+ '<button type="button" class="remove-service" title="Remover">×</button>';
+ wrap.querySelector(".remove-service").onclick=()=>wrap.remove();
+ return wrap;
+}
+function addService(data={}){$("serviceRows").appendChild(serviceRow(data))}
+function getServices(){return [...document.querySelectorAll(".service-row")].map(r=>({description:r.querySelector(".svc-description").value.trim(),macro_service:r.querySelector(".svc-macro").value})).filter(x=>x.description)}
+
+function render(){
+ $("grid").innerHTML=items.length?items.map(c=>{
+  const p=pct(c),sv=c.contracted_services||[];
+  return '<article class="contractor">'+
+   '<div class="head"><div><h3>'+esc(c.company_name)+'</h3><div class="contract-number">CONTRATO Nº '+esc(c.contract_number||"NÃO INFORMADO")+'</div></div><div class="balance '+cls(p)+'"><small>Saldo</small><b>'+p.toFixed(0)+'%</b></div></div>'+
+   '<div class="money"><div><small>Valor do contrato</small><b>'+money(c.contract_value)+'</b></div><div><small>Saldo do contrato</small><b>'+money(c.contract_balance)+'</b></div></div>'+
+   '<div class="section-title">SERVIÇOS CONTRATADOS</div><div class="service-list">'+(sv.length?sv.map(s=>'<div class="service-item"><b>'+esc(s.description)+'</b><span class="macro">'+esc(s.macro_service)+'</span></div>').join(""):'<div style="font-size:8px;color:var(--muted)">Nenhum serviço descrito.</div>')+'</div>'+
+   '<div class="section-title">MEDIÇÕES</div><div class="measure-summary"><div><small>Medições registradas</small><b>'+Number(c.measurement_count||0)+'</b></div><div><small>Total registrado</small><b>'+money(c.measured_total||0)+'</b></div></div>'+
+   '<div class="info"><b>Saldo de serviço:</b> '+esc(c.service_balance||"—")+'<br><b>Contato:</b> '+esc(c.contact_name||"—")+'<br><b>Telefone:</b> '+esc(c.phone||"—")+'</div>'+
+   '<div class="actions"><button class="btn small" onclick="openMeasurements('+c.id+')">Medições</button>'+(IS_ADMIN?'<button class="btn small" onclick="editItem('+c.id+')">Editar</button><button class="btn small" onclick="removeItem('+c.id+')">Excluir</button>':'')+'</div>'+
+  '</article>'
+ }).join(""):'<div class="empty">Nenhuma empresa terceirizada cadastrada.</div>';
+}
+
+function openModal(item=null){
+ editingId=item?.id||null;$("modalTitle").textContent=item?"Editar empresa":"Nova empresa";
+ $("companyName").value=item?.company_name||"";$("contractNumber").value=item?.contract_number||"";$("contractValue").value=item?.contract_value||"";$("contractBalance").value=item?.contract_balance||"";$("serviceBalance").value=item?.service_balance||"";$("contactName").value=item?.contact_name||"";$("phone").value=item?.phone||"";
+ $("serviceRows").innerHTML="";
+ const list=item?.contracted_services||[];
+ if(list.length)list.forEach(addService);else addService();
+ $("modal").classList.add("show");
+}
+function editItem(id){openModal(items.find(x=>Number(x.id)===Number(id)))}
+async function removeItem(id){if(!confirm("Excluir esta empresa terceirizada?"))return;try{await api("/api/contractors/"+id,{method:"DELETE"});await load()}catch(e){alert(e.message)}}
+
+async function save(){
+ const body={company_name:$("companyName").value.trim(),contract_number:$("contractNumber").value.trim(),contract_value:Number($("contractValue").value||0),contract_balance:Number($("contractBalance").value||0),service_balance:$("serviceBalance").value.trim(),contact_name:$("contactName").value.trim(),phone:$("phone").value.trim(),contracted_services:getServices()};
+ if(!body.company_name)return alert("Informe o nome da empresa.");
+ if(!body.contract_number)return alert("Informe o número do contrato.");
+ if(!body.contracted_services.length)return alert("Cadastre ao menos um serviço contratado.");
+ try{await api(editingId?"/api/contractors/"+editingId:"/api/contractors",{method:editingId?"PATCH":"POST",body:JSON.stringify(body)});$("modal").classList.remove("show");await load()}catch(e){alert(e.message)}
+}
+
+async function openMeasurements(id){
+ measurementContractorId=id;
+ const c=items.find(x=>Number(x.id)===Number(id));$("measureCompany").textContent=(c?.company_name||"")+" • Contrato nº "+(c?.contract_number||"—");
+ if(IS_ADMIN){$("measurementNumber").value="";$("measurementDate").value=new Date().toISOString().slice(0,10);$("measurementAmount").value="";$("measurementNotes").value=""}
+ $("measureModal").classList.add("show");await loadMeasurements();
+}
+async function loadMeasurements(){
+ const d=await api("/api/contractors/"+measurementContractorId+"/measurements"),rows=d.items||[];
+ $("measurementCount").textContent=rows.length;$("measurementTotal").textContent=money(rows.reduce((a,b)=>a+Number(b.amount||0),0));
+ $("measurementRows").innerHTML=rows.length?rows.map(x=>'<tr><td>'+esc(x.measurement_number||"—")+'</td><td>'+dateBR(x.measurement_date)+'</td><td>'+money(x.amount)+'</td><td>'+esc(x.notes||"")+'</td>'+(IS_ADMIN?'<td><button class="btn small" onclick="deleteMeasurement('+x.id+')">Excluir</button></td>':'')+'</tr>').join(""):'<tr><td colspan="'+(IS_ADMIN?5:4)+'">Nenhuma medição registrada.</td></tr>';
+}
+async function addMeasurement(){
+ const body={measurement_number:$("measurementNumber").value.trim(),measurement_date:$("measurementDate").value,amount:Number($("measurementAmount").value||0),notes:$("measurementNotes").value.trim()};
+ if(!body.measurement_number||!body.measurement_date||body.amount<=0)return alert("Preencha número, data e valor da medição.");
+ try{await api("/api/contractors/"+measurementContractorId+"/measurements",{method:"POST",body:JSON.stringify(body)});await loadMeasurements();await load();$("measurementNumber").value="";$("measurementAmount").value="";$("measurementNotes").value=""}catch(e){alert(e.message)}
+}
+async function deleteMeasurement(id){if(!confirm("Excluir esta medição?"))return;try{await api("/api/contractor-measurements/"+id,{method:"DELETE"});await loadMeasurements();await load()}catch(e){alert(e.message)}}
+async function load(){const d=await api("/api/contractors");items=d.items||[];render()}
+
+if(IS_ADMIN){$("newBtn").onclick=()=>openModal();$("saveBtn").onclick=save;$("addServiceBtn").onclick=()=>addService();$("addMeasurementBtn").onclick=addMeasurement}
+$("closeBtn").onclick=$("cancelBtn").onclick=()=>$("modal").classList.remove("show");
+$("closeMeasureBtn").onclick=()=>$("measureModal").classList.remove("show");
+$("modal").onclick=e=>{if(e.target===$("modal"))$("modal").classList.remove("show")};
+$("measureModal").onclick=e=>{if(e.target===$("measureModal"))$("measureModal").classList.remove("show")};
+load().catch(e=>alert(e.message));
+</script>
+</body></html>`;
 }
 
 
@@ -1097,13 +1271,100 @@ export default {
     }
 
         if(path==="/terceirizados" && request.method==="GET"){if(!(await hasProjectAccess(env,auth,"emirates-parque-flamboyant")))return new Response("Acesso negado.",{status:403});await ensureOperationalSchema(env);return new Response(contractorsPage(auth),{headers:{"content-type":"text/html; charset=UTF-8"}});}
-    if(path==="/api/contractors" && request.method==="GET"){if(!(await hasProjectAccess(env,auth,"emirates-parque-flamboyant")))return json({error:"Acesso negado."},403);await ensureOperationalSchema(env);const rows=(await env.DB.prepare("SELECT * FROM contractors WHERE project_slug='emirates-parque-flamboyant' AND active=1 ORDER BY company_name COLLATE NOCASE").all()).results||[];for(const c of rows){const sr=(await env.DB.prepare("SELECT service FROM contractor_services WHERE contractor_id=? ORDER BY service COLLATE NOCASE").bind(c.id).all()).results||[];c.services=sr.map(x=>x.service)}return json({items:rows});}
-    if(path==="/api/contractors" && request.method==="POST"){if(auth.role!=="admin")return json({error:"Somente o Administrador pode cadastrar terceirizados."},403);await ensureOperationalSchema(env);const b=await request.json().catch(()=>({})),name=String(b.company_name||"").trim();if(!name)return json({error:"Informe o nome da empresa."},400);const now=new Date().toISOString(),services=Array.isArray(b.services)?[...new Set(b.services.map(x=>String(x).trim()).filter(Boolean))]:[];const ir=await env.DB.prepare("INSERT INTO contractors(project_slug,company_name,contract_number,contract_value,contract_balance,service_balance,contact_name,phone,active,created_at,updated_at) VALUES('emirates-parque-flamboyant',?,?,?,?,?,?,?,?,?,?)").bind(name,String(b.contract_number||"").trim(),Math.max(0,Number(b.contract_value||0)),Math.max(0,Number(b.contract_balance||0)),String(b.service_balance||"").trim(),String(b.contact_name||"").trim(),String(b.phone||"").trim(),1,now,now).run();const id=Number(ir.meta?.last_row_id||0);if(services.length)await env.DB.batch(services.map(s=>env.DB.prepare("INSERT OR IGNORE INTO contractor_services(contractor_id,service) VALUES(?,?)").bind(id,s)));return json({ok:true,id},201);}
-    const contractorMatch=path.match(/^\/api\/contractors\/(\d+)$/);
-    if(contractorMatch&&request.method==="PATCH"){if(auth.role!=="admin")return json({error:"Somente o Administrador pode editar terceirizados."},403);await ensureOperationalSchema(env);const id=Number(contractorMatch[1]),b=await request.json().catch(()=>({})),name=String(b.company_name||"").trim();if(!name)return json({error:"Informe o nome da empresa."},400);const now=new Date().toISOString(),services=Array.isArray(b.services)?[...new Set(b.services.map(x=>String(x).trim()).filter(Boolean))]:[];await env.DB.prepare("UPDATE contractors SET company_name=?,contract_number=?,contract_value=?,contract_balance=?,service_balance=?,contact_name=?,phone=?,updated_at=? WHERE id=?").bind(name,String(b.contract_number||"").trim(),Math.max(0,Number(b.contract_value||0)),Math.max(0,Number(b.contract_balance||0)),String(b.service_balance||"").trim(),String(b.contact_name||"").trim(),String(b.phone||"").trim(),now,id).run();await env.DB.prepare("DELETE FROM contractor_services WHERE contractor_id=?").bind(id).run();if(services.length)await env.DB.batch(services.map(s=>env.DB.prepare("INSERT OR IGNORE INTO contractor_services(contractor_id,service) VALUES(?,?)").bind(id,s)));return json({ok:true});}
-    if(contractorMatch&&request.method==="DELETE"){if(auth.role!=="admin")return json({error:"Somente o Administrador pode excluir terceirizados."},403);await ensureOperationalSchema(env);const id=Number(contractorMatch[1]);await env.DB.prepare("UPDATE operational_tasks SET contractor_id=NULL WHERE contractor_id=?").bind(id).run();await env.DB.prepare("DELETE FROM contractor_services WHERE contractor_id=?").bind(id).run();await env.DB.prepare("UPDATE contractors SET active=0,updated_at=? WHERE id=?").bind(new Date().toISOString(),id).run();return json({ok:true});}
+    if(path==="/api/contractors" && request.method==="GET"){
+      if(!(await hasProjectAccess(env,auth,"emirates-parque-flamboyant")))return json({error:"Acesso negado."},403);
+      await ensureOperationalSchema(env);
+      const rows=(await env.DB.prepare(`SELECT c.*,
+        (SELECT COUNT(*) FROM contractor_measurements m WHERE m.contractor_id=c.id) AS measurement_count,
+        COALESCE((SELECT SUM(m.amount) FROM contractor_measurements m WHERE m.contractor_id=c.id),0) AS measured_total
+        FROM contractors c WHERE c.project_slug='emirates-parque-flamboyant' AND c.active=1 ORDER BY c.company_name COLLATE NOCASE`).all()).results||[];
+      for(const c of rows){
+        const sr=(await env.DB.prepare("SELECT description,macro_service FROM contractor_services WHERE contractor_id=? ORDER BY rowid").bind(c.id).all()).results||[];
+        c.contracted_services=sr.map(x=>({description:x.description,macro_service:x.macro_service}));
+        c.services=[...new Set(sr.map(x=>x.macro_service).filter(Boolean))];
+      }
+      return json({items:rows});
+    }
 
-if(path==="/tarefas" && request.method==="GET"){
+    if(path==="/api/contractors" && request.method==="POST"){
+      if(auth.role!=="admin")return json({error:"Somente o Administrador pode cadastrar terceirizados."},403);
+      await ensureOperationalSchema(env);
+      const b=await request.json().catch(()=>({})),name=String(b.company_name||"").trim(),contractNumber=String(b.contract_number||"").trim();
+      if(!name)return json({error:"Informe o nome da empresa."},400);
+      if(!contractNumber)return json({error:"Informe o número do contrato."},400);
+      const validMacros=["Checklist - Instaladora","Checklist - Pedreiro","Checklist - Rejunte","Checklist - Pintura","Limpeza","Vistoria - Qualidade","Vistoria - Cliente","Revistoria - Cliente","Unidade aprovada"];
+      const services=Array.isArray(b.contracted_services)?b.contracted_services.map(x=>({description:String(x?.description||"").trim(),macro_service:String(x?.macro_service||"").trim()})).filter(x=>x.description&&validMacros.includes(x.macro_service)):[];
+      if(!services.length)return json({error:"Cadastre ao menos um serviço contratado e seu macroserviço."},400);
+      const now=new Date().toISOString();
+      const ir=await env.DB.prepare(`INSERT INTO contractors(project_slug,company_name,contract_number,contract_value,contract_balance,service_balance,contact_name,phone,active,created_at,updated_at)
+        VALUES('emirates-parque-flamboyant',?,?,?,?,?,?,?,?,?,?)`)
+        .bind(name,contractNumber,Math.max(0,Number(b.contract_value||0)),Math.max(0,Number(b.contract_balance||0)),String(b.service_balance||"").trim(),String(b.contact_name||"").trim(),String(b.phone||"").trim(),1,now,now).run();
+      const id=Number(ir.meta?.last_row_id||0);
+      if(services.length)await env.DB.batch(services.map((s,i)=>env.DB.prepare("INSERT OR REPLACE INTO contractor_services(contractor_id,service,description,macro_service) VALUES(?,?,?,?)").bind(id,s.description+" #"+(i+1),s.description,s.macro_service)));
+      return json({ok:true,id},201);
+    }
+
+    const contractorMatch=path.match(/^\/api\/contractors\/(\d+)$/);
+    if(contractorMatch&&request.method==="PATCH"){
+      if(auth.role!=="admin")return json({error:"Somente o Administrador pode editar terceirizados."},403);
+      await ensureOperationalSchema(env);
+      const id=Number(contractorMatch[1]),b=await request.json().catch(()=>({})),name=String(b.company_name||"").trim(),contractNumber=String(b.contract_number||"").trim();
+      if(!name)return json({error:"Informe o nome da empresa."},400);
+      if(!contractNumber)return json({error:"Informe o número do contrato."},400);
+      const validMacros=["Checklist - Instaladora","Checklist - Pedreiro","Checklist - Rejunte","Checklist - Pintura","Limpeza","Vistoria - Qualidade","Vistoria - Cliente","Revistoria - Cliente","Unidade aprovada"];
+      const services=Array.isArray(b.contracted_services)?b.contracted_services.map(x=>({description:String(x?.description||"").trim(),macro_service:String(x?.macro_service||"").trim()})).filter(x=>x.description&&validMacros.includes(x.macro_service)):[];
+      if(!services.length)return json({error:"Cadastre ao menos um serviço contratado e seu macroserviço."},400);
+      const now=new Date().toISOString();
+      await env.DB.prepare("UPDATE contractors SET company_name=?,contract_number=?,contract_value=?,contract_balance=?,service_balance=?,contact_name=?,phone=?,updated_at=? WHERE id=?")
+        .bind(name,contractNumber,Math.max(0,Number(b.contract_value||0)),Math.max(0,Number(b.contract_balance||0)),String(b.service_balance||"").trim(),String(b.contact_name||"").trim(),String(b.phone||"").trim(),now,id).run();
+      await env.DB.prepare("DELETE FROM contractor_services WHERE contractor_id=?").bind(id).run();
+      if(services.length)await env.DB.batch(services.map((s,i)=>env.DB.prepare("INSERT INTO contractor_services(contractor_id,service,description,macro_service) VALUES(?,?,?,?)").bind(id,s.description+" #"+(i+1),s.description,s.macro_service)));
+      return json({ok:true});
+    }
+
+    if(contractorMatch&&request.method==="DELETE"){
+      if(auth.role!=="admin")return json({error:"Somente o Administrador pode excluir terceirizados."},403);
+      await ensureOperationalSchema(env);
+      const id=Number(contractorMatch[1]);
+      await env.DB.prepare("UPDATE operational_tasks SET contractor_id=NULL WHERE contractor_id=?").bind(id).run();
+      await env.DB.prepare("DELETE FROM contractor_services WHERE contractor_id=?").bind(id).run();
+      await env.DB.prepare("DELETE FROM contractor_measurements WHERE contractor_id=?").bind(id).run();
+      await env.DB.prepare("UPDATE contractors SET active=0,updated_at=? WHERE id=?").bind(new Date().toISOString(),id).run();
+      return json({ok:true});
+    }
+
+    const measurementMatch=path.match(/^\/api\/contractors\/(\d+)\/measurements$/);
+    if(measurementMatch&&request.method==="GET"){
+      if(!(await hasProjectAccess(env,auth,"emirates-parque-flamboyant")))return json({error:"Acesso negado."},403);
+      await ensureOperationalSchema(env);
+      const id=Number(measurementMatch[1]);
+      const items=(await env.DB.prepare("SELECT * FROM contractor_measurements WHERE contractor_id=? ORDER BY measurement_date DESC,id DESC").bind(id).all()).results||[];
+      return json({items});
+    }
+
+    if(measurementMatch&&request.method==="POST"){
+      if(auth.role!=="admin")return json({error:"Somente o Administrador pode registrar medições."},403);
+      await ensureOperationalSchema(env);
+      const contractorId=Number(measurementMatch[1]),b=await request.json().catch(()=>({}));
+      const number=String(b.measurement_number||"").trim(),date=String(b.measurement_date||"").trim(),amount=Math.max(0,Number(b.amount||0)),notes=String(b.notes||"").trim();
+      if(!number||!date||amount<=0)return json({error:"Informe número, data e valor da medição."},400);
+      const contractor=await env.DB.prepare("SELECT id FROM contractors WHERE id=? AND active=1").bind(contractorId).first();
+      if(!contractor)return json({error:"Terceirizada não encontrada."},404);
+      const now=new Date().toISOString();
+      const ir=await env.DB.prepare("INSERT INTO contractor_measurements(contractor_id,measurement_number,measurement_date,amount,notes,created_by,created_by_name,created_at) VALUES(?,?,?,?,?,?,?,?)")
+        .bind(contractorId,number,date,amount,notes,auth.id,String(auth.name||auth.username||""),now).run();
+      return json({ok:true,id:Number(ir.meta?.last_row_id||0)},201);
+    }
+
+    const measurementDelete=path.match(/^\/api\/contractor-measurements\/(\d+)$/);
+    if(measurementDelete&&request.method==="DELETE"){
+      if(auth.role!=="admin")return json({error:"Somente o Administrador pode excluir medições."},403);
+      await ensureOperationalSchema(env);
+      await env.DB.prepare("DELETE FROM contractor_measurements WHERE id=?").bind(Number(measurementDelete[1])).run();
+      return json({ok:true});
+    }
+
+    if(path==="/tarefas" && request.method==="GET"){
       if(!(await hasProjectAccess(env,auth,"emirates-parque-flamboyant")))return new Response("Acesso negado.",{status:403});
       await ensureOperationalSchema(env);
       return new Response(operationalPage(auth),{headers:{"content-type":"text/html; charset=UTF-8"}});
