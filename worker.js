@@ -945,13 +945,13 @@ header{background:linear-gradient(90deg,var(--wine),var(--wine2));color:#fff;pad
 header h1{margin:0;font-size:20px}header small{display:block;margin-top:4px;opacity:.85}header a{color:#fff;text-decoration:none;font-size:12px}
 main{max-width:1260px;margin:auto;padding:22px}.toolbar{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:14px}.toolbar h2{margin:0;font-size:20px}
 .btn{border:1px solid #d9cec6;background:#fff;border-radius:7px;padding:9px 12px;font-weight:700;font-size:11px;cursor:pointer}.btn.primary{background:var(--wine);color:#fff;border-color:var(--wine)}.btn.small{padding:6px 8px;font-size:9px}
-.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.contractor{background:#fff;border:1px solid var(--line);border-radius:12px;padding:15px;box-shadow:0 7px 20px #0000000b}
-.head{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}.head h3{margin:0;font-size:15px}.contract-number{display:inline-block;margin-top:6px;background:#f4ecef;color:var(--wine);border:1px solid #ead9df;border-radius:6px;padding:5px 7px;font-size:8px;font-weight:800}.company-contact{margin-top:6px;font-size:8px;line-height:1.55;color:var(--muted)}.company-contact b{color:var(--text)}
-.balance{border-radius:8px;color:#fff;padding:8px 10px;text-align:right;min-width:90px}.balance b{display:block;font-size:15px}.balance small{font-size:7px}.green{background:var(--green)}.blue{background:var(--blue)}.yellow{background:var(--yellow);color:#332b16}.red{background:var(--red)}
-.money{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:12px 0}.money div{background:#f8f5f2;border-radius:7px;padding:8px}.money small{display:block;font-size:7px;color:var(--muted)}.money b{display:block;font-size:10px;margin-top:3px}
-.section-title{font-size:7px;color:var(--muted);font-weight:800;margin:11px 0 6px}.service-list{display:grid;gap:6px}.service-item{border:1px solid #eee4dd;border-radius:7px;padding:7px;background:#fffdfa}.service-item b{display:block;font-size:8px}.macro{display:inline-block;margin-top:4px;background:#f1e9ec;color:var(--wine);border-radius:999px;padding:3px 6px;font-size:6.5px;font-weight:700}
-.measure-summary{display:grid;grid-template-columns:1fr 1fr;gap:6px}.measure-summary div{border:1px solid #eee4dd;border-radius:7px;padding:7px}.measure-summary small{display:block;font-size:6.5px;color:var(--muted)}.measure-summary b{font-size:9px}
-.info{margin-top:10px;border-top:1px solid var(--line);padding-top:9px;font-size:8px;line-height:1.7}.actions{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}.empty{background:#fff;border:1px dashed #d5cbc2;border-radius:10px;padding:28px;text-align:center;color:var(--muted)}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(420px,1fr));gap:18px;align-items:start}.contractor{background:#fff;border:1px solid var(--line);border-radius:14px;padding:20px;box-shadow:0 9px 24px #00000010;min-height:420px}
+.head{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}.head h3{margin:0;font-size:18px}.contract-number{display:inline-block;margin-top:8px;background:#f4ecef;color:var(--wine);border:1px solid #ead9df;border-radius:7px;padding:6px 8px;font-size:9px;font-weight:800}.company-contact{margin-top:7px;font-size:10px;line-height:1.6;color:var(--muted)}.company-contact b{color:var(--text)}
+.balance{border-radius:9px;color:#fff;padding:10px 12px;text-align:right;min-width:105px}.balance b{display:block;font-size:20px}.balance small{font-size:7px}.green{background:var(--green)}.blue{background:var(--blue)}.yellow{background:var(--yellow);color:#332b16}.red{background:var(--red)}
+.money{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:12px 0}.money div{background:#f8f5f2;border-radius:7px;padding:8px}.money small{display:block;font-size:8px;color:var(--muted)}.money b{display:block;font-size:13px;margin-top:4px}
+.section-title{font-size:8px;color:var(--muted);font-weight:800;margin:14px 0 7px;letter-spacing:.2px}.service-list{display:grid;gap:6px}.service-item{border:1px solid #eee4dd;border-radius:7px;padding:7px;background:#fffdfa}.service-item b{display:block;font-size:10px}.macro{display:inline-block;margin-top:5px;background:#f1e9ec;color:var(--wine);border-radius:999px;padding:4px 7px;font-size:7.5px;font-weight:700}
+.measure-summary{display:grid;grid-template-columns:1fr 1fr;gap:6px}.measure-summary div{border:1px solid #eee4dd;border-radius:7px;padding:7px}.measure-summary small{display:block;font-size:8px;color:var(--muted)}.measure-summary b{font-size:12px}
+.info{margin-top:12px;border-top:1px solid var(--line);padding-top:10px;font-size:10px;line-height:1.7}.actions{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}.empty{background:#fff;border:1px dashed #d5cbc2;border-radius:10px;padding:28px;text-align:center;color:var(--muted)}
 .modal-back{position:fixed;inset:0;background:#0006;display:none;align-items:center;justify-content:center;padding:18px;z-index:50}.modal-back.show{display:flex}.modal{background:#fff;border-radius:12px;width:min(900px,96vw);max-height:92vh;overflow:auto;padding:17px}.modal.measure{width:min(760px,96vw)}
 .modal-head{display:flex;justify-content:space-between;align-items:center}.modal-head h3{margin:0}.close{border:0;background:transparent;font-size:20px;cursor:pointer}
 .form{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:12px}.field label{display:block;font-size:8px;font-weight:800;margin-bottom:4px}.field input,.field select,.field textarea{width:100%;border:1px solid #d8d0c8;border-radius:6px;padding:8px;background:#fff}.field textarea{min-height:60px}.wide{grid-column:1/-1}
@@ -959,24 +959,24 @@ main{max-width:1260px;margin:auto;padding:22px}.toolbar{display:flex;justify-con
 .help{font-size:7px;color:var(--muted);margin:5px 0 8px}.modal-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:12px}
 .measure-form{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;background:#f8f5f2;border-radius:8px;padding:10px;margin:12px 0}.measure-form .notes{grid-column:1/-1}
 .measure-table{width:100%;border-collapse:collapse;font-size:8px}.measure-table th,.measure-table td{padding:7px;border-bottom:1px solid #eee4dd;text-align:left}.measure-table th{background:#f7f2ed}.measure-total{display:flex;justify-content:flex-end;gap:20px;margin:10px 0;font-size:9px}
-@media(max-width:1000px){.grid{grid-template-columns:1fr 1fr}}@media(max-width:700px){.grid,.form,.measure-form{grid-template-columns:1fr}.service-row{grid-template-columns:1fr}.wide,.measure-form .notes{grid-column:auto}}
+@media(max-width:1050px){.grid{grid-template-columns:1fr}}@media(max-width:700px){.grid,.form,.measure-form{grid-template-columns:1fr}.service-row{grid-template-columns:1fr}.wide,.measure-form .notes{grid-column:auto}}
 </style>
 </head>
 <body>
 <header><div><h1>Empreiteiros</h1><small>Emirates Parque Flamboyant</small></div><a href="/obra/emirates-parque-flamboyant">← Voltar à obra</a></header>
 <main>
- <div class="toolbar"><div><h2>Empreiteiros</h2><div style="font-size:9px;color:var(--muted);margin-top:4px">Contratos, serviços vinculados às frentes e medições na janela de 01 a 10.</div></div>${admin?'<button class="btn primary" id="newBtn">＋ Nova empresa</button>':''}</div>
+ <div class="toolbar"><div><h2>Empreiteiros</h2><div style="font-size:9px;color:var(--muted);margin-top:4px">Contratos, serviços vinculados às frentes e medições dos empreiteiros.</div></div>${admin?'<button class="btn primary" id="newBtn">＋ Novo empreiteiro</button>':''}</div>
  <div id="grid" class="grid"></div>
 </main>
 
 <div class="modal-back" id="modal"><div class="modal">
- <div class="modal-head"><h3 id="modalTitle">Nova empresa</h3><button class="close" id="closeBtn">×</button></div>
+ <div class="modal-head"><h3 id="modalTitle">Novo empreiteiro</h3><button class="close" id="closeBtn">×</button></div>
  <div class="form">
   <div class="field"><label>Nome da Empresa</label><input id="companyName"></div>
   <div class="field"><label>NÚMERO DE CONTRATO</label><input id="contractNumber" placeholder="Ex.: CT-2026-0145"></div>
-  <div class="field"><label>Valor de contrato (R$)</label><input id="contractValue" type="number" min="0" step="0.01"></div>
-  <div class="field"><label>Saldo de contrato (R$)</label><input id="contractBalance" type="number" readonly title="Calculado automaticamente pelas medições"></div>
-  <div class="field"><label>Saldo de serviço</label><input id="serviceBalance" placeholder="Ex.: 35 aptos / 42%"></div>
+  <div class="field"><label>Valor do contrato</label><input id="contractValue" type="text" inputmode="numeric" placeholder="R$ 0,00"></div>
+  <div class="field"><label>Saldo do contrato</label><input id="contractBalance" type="text" readonly title="Calculado automaticamente pelas medições"></div>
+  
   <div class="field"><label>Contato</label><input id="contactName"></div>
   <div class="field"><label>Telefone</label><input id="phone" inputmode="numeric" maxlength="15" placeholder="(62) 98340.4022"></div>
 
@@ -987,7 +987,7 @@ main{max-width:1260px;margin:auto;padding:22px}.toolbar{display:flex;justify-con
     <button class="btn small" type="button" id="addServiceBtn" style="margin-top:8px">＋ Adicionar serviço</button>
   </div>
  </div>
- <div class="modal-actions"><button class="btn" id="cancelBtn">Cancelar</button><button class="btn primary" id="saveBtn">Salvar empresa</button></div>
+ <div class="modal-actions"><button class="btn" id="cancelBtn">Cancelar</button><button class="btn primary" id="saveBtn">Salvar empreiteiro</button></div>
 </div></div>
 
 <div class="modal-back" id="measureModal"><div class="modal measure">
@@ -999,7 +999,7 @@ main{max-width:1260px;margin:auto;padding:22px}.toolbar{display:flex;justify-con
  ${admin?`<div class="measure-form">
    <div class="field"><label>Nº da medição</label><input id="measurementNumber" placeholder="Ex.: 05"></div>
    <div class="field"><label>Data</label><input id="measurementDate" type="date"></div>
-   <div class="field"><label>Valor medido (R$)</label><input id="measurementAmount" type="number" min="0" step="0.01"></div>
+   <div class="field"><label>Valor medido</label><input id="measurementAmount" type="text" inputmode="numeric" placeholder="R$ 0,00"></div>
    <div class="field notes"><label>Observação</label><input id="measurementNotes" placeholder="Ex.: Medição referente aos serviços executados em agosto"></div>
    <div style="grid-column:1/-1;text-align:right"><button class="btn primary small" id="addMeasurementBtn">＋ Registrar medição</button></div>
  </div>`:''}
@@ -1014,21 +1014,32 @@ let items=[],editingId=null,measurementContractorId=null;
 const $=id=>document.getElementById(id);
 const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const money=n=>Number(n||0).toLocaleString("pt-BR",{style:"currency",currency:"BRL"});
+function moneyInput(v){
+ const digits=String(v??"").replace(/\D/g,"");
+ if(!digits)return "";
+ const n=Number(digits)/100;
+ return n.toLocaleString("pt-BR",{style:"currency",currency:"BRL"});
+}
+function moneyFromInput(v){
+ const digits=String(v??"").replace(/\D/g,"");
+ return digits?Number(digits)/100:0;
+}
+function setMoneyInput(el,value){
+ el.value=Number(value||0).toLocaleString("pt-BR",{style:"currency",currency:"BRL"});
+}
+
 const dateBR=v=>v?new Date(v+"T12:00:00").toLocaleDateString("pt-BR"):"—";
 function phoneMask(v){
- const d=String(v||"").replace(/\D/g,"").slice(0,11);
+ const d=String(v||"").replace(/\D/g,"").slice(-11);
  if(!d)return "";
- const ddd=d.slice(0,2),p1=d.slice(2,7),p2=d.slice(7,11);
- let out="("+ddd;
- if(d.length>=2)out+=") ";
- if(d.length>2)out+=p1;
- if(d.length>7)out+="."+p2;
- return out;
+ if(d.length<=2)return "("+d;
+ if(d.length<=7)return "("+d.slice(0,2)+") "+d.slice(2);
+ return "("+d.slice(0,2)+") "+d.slice(2,7)+"."+d.slice(7,11);
 }
 function recalcBalance(){
- const value=Math.max(0,Number($("contractValue").value||0));
+ const value=Math.max(0,moneyFromInput($("contractValue").value));
  const measured=editingId ? Number(items.find(x=>Number(x.id)===Number(editingId))?.measured_total||0) : 0;
- $("contractBalance").value=Math.max(0,value-measured).toFixed(2);
+ setMoneyInput($("contractBalance"),Math.max(0,value-measured));
 }
 function balanceOf(c){return Math.max(0,Number(c.contract_value||0)-Number(c.measured_total||0))}
 function pct(c){return Number(c.contract_value)>0?Math.max(0,Math.min(100,balanceOf(c)/Number(c.contract_value)*100)):0}
@@ -1054,15 +1065,20 @@ function render(){
    '<div class="money"><div><small>Valor do contrato</small><b>'+money(c.contract_value)+'</b></div><div><small>Saldo do contrato</small><b>'+money(balanceOf(c))+'</b></div></div>'+
    '<div class="section-title">SERVIÇOS CONTRATADOS</div><div class="service-list">'+(sv.length?sv.map(s=>'<div class="service-item"><b>'+esc(s.description)+'</b><span class="macro">'+esc(s.macro_service)+'</span></div>').join(""):'<div style="font-size:8px;color:var(--muted)">Nenhum serviço descrito.</div>')+'</div>'+
    '<div class="section-title">MEDIÇÕES</div><div class="measure-summary"><div><small>Última medição</small><b>'+(c.last_measurement_date?dateBR(c.last_measurement_date):"—")+'</b></div><div><small>Valor da última</small><b>'+money(c.last_measurement_amount||0)+'</b></div><div><small>Medições registradas</small><b>'+Number(c.measurement_count||0)+'</b></div><div><small>Total medido</small><b>'+money(c.measured_total||0)+'</b></div></div>'+
-   '<div class="info"><b>Saldo de serviço:</b> '+esc(c.service_balance||"—")+'</div>'+
+   
    '<div class="actions"><button class="btn small" onclick="openMeasurements('+c.id+')">Medições</button>'+(IS_ADMIN?'<button class="btn small" onclick="editItem('+c.id+')">Editar</button><button class="btn small" onclick="removeItem('+c.id+')">Excluir</button>':'')+'</div>'+
   '</article>'
  }).join(""):'<div class="empty">Nenhum empreiteiro cadastrado.</div>';
 }
 
 function openModal(item=null){
- editingId=item?.id||null;$("modalTitle").textContent=item?"Editar empresa":"Nova empresa";
- $("companyName").value=item?.company_name||"";$("contractNumber").value=item?.contract_number||"";$("contractValue").value=item?.contract_value||"";$("contractBalance").value=Math.max(0,Number(item?.contract_value||0)-Number(item?.measured_total||0)).toFixed(2);$("serviceBalance").value=item?.service_balance||"";$("contactName").value=item?.contact_name||"";$("phone").value=phoneMask(item?.phone||"");
+ editingId=item?.id||null;$("modalTitle").textContent=item?"Editar empreiteiro":"Novo empreiteiro";
+ $("companyName").value=item?.company_name||"";
+ $("contractNumber").value=item?.contract_number||"";
+ setMoneyInput($("contractValue"),Number(item?.contract_value||0));
+ setMoneyInput($("contractBalance"),Math.max(0,Number(item?.contract_value||0)-Number(item?.measured_total||0)));
+ $("contactName").value=item?.contact_name||"";
+ $("phone").value=phoneMask(item?.phone||"");
  $("serviceRows").innerHTML="";
  const list=item?.contracted_services||[];
  if(list.length)list.forEach(addService);else addService();
@@ -1072,7 +1088,7 @@ function editItem(id){openModal(items.find(x=>Number(x.id)===Number(id)))}
 async function removeItem(id){if(!confirm("Excluir este empreiteiro?"))return;try{await api("/api/contractors/"+id,{method:"DELETE"});await load()}catch(e){alert(e.message)}}
 
 async function save(){
- const body={company_name:$("companyName").value.trim(),contract_number:$("contractNumber").value.trim(),contract_value:Number($("contractValue").value||0),service_balance:$("serviceBalance").value.trim(),contact_name:$("contactName").value.trim(),phone:phoneMask($("phone").value),contracted_services:getServices()};
+ const body={company_name:$("companyName").value.trim(),contract_number:$("contractNumber").value.trim(),contract_value:moneyFromInput($("contractValue").value),contact_name:$("contactName").value.trim(),phone:phoneMask($("phone").value),contracted_services:getServices()};
  if(!body.company_name)return alert("Informe o nome da empresa.");
  if(!body.contract_number)return alert("Informe o número do contrato.");
  if(!body.contracted_services.length)return alert("Cadastre ao menos um serviço contratado.");
@@ -1093,7 +1109,7 @@ async function loadMeasurements(){
  $("measurementRows").innerHTML=rows.length?rows.map(x=>'<tr><td>'+esc(x.measurement_number||"—")+'</td><td>'+dateBR(x.measurement_date)+'</td><td>'+money(x.amount)+'</td><td>'+esc(x.notes||"")+'</td>'+(IS_ADMIN?'<td><button class="btn small" onclick="deleteMeasurement('+x.id+')">Excluir</button></td>':'')+'</tr>').join(""):'<tr><td colspan="'+(IS_ADMIN?5:4)+'">Nenhuma medição registrada.</td></tr>';
 }
 async function addMeasurement(){
- const body={measurement_number:$("measurementNumber").value.trim(),measurement_date:$("measurementDate").value,amount:Number($("measurementAmount").value||0),notes:$("measurementNotes").value.trim()};
+ const body={measurement_number:$("measurementNumber").value.trim(),measurement_date:$("measurementDate").value,amount:moneyFromInput($("measurementAmount").value),notes:$("measurementNotes").value.trim()};
  if(!body.measurement_number||!body.measurement_date||body.amount<=0)return alert("Preencha número, data e valor da medição.");
  const md=new Date(body.measurement_date+"T12:00:00"),day=md.getDate();
  if(day<1||day>10)return alert("Empreiteiros só podem ter medições registradas dentro da janela do dia 01 ao dia 10.");
@@ -1103,7 +1119,8 @@ async function deleteMeasurement(id){if(!confirm("Excluir esta medição?"))retu
 async function load(){const d=await api("/api/contractors");items=d.items||[];render()}
 
 $("phone").addEventListener("input",e=>{e.target.value=phoneMask(e.target.value)});
-$("contractValue").addEventListener("input",recalcBalance);
+$("contractValue").addEventListener("input",e=>{e.target.value=moneyInput(e.target.value);recalcBalance()});
+$("measurementAmount").addEventListener("input",e=>{e.target.value=moneyInput(e.target.value)});
 if(IS_ADMIN){$("newBtn").onclick=()=>openModal();$("saveBtn").onclick=save;$("addServiceBtn").onclick=()=>addService();$("addMeasurementBtn").onclick=addMeasurement}
 $("closeBtn").onclick=$("cancelBtn").onclick=()=>$("modal").classList.remove("show");
 $("closeMeasureBtn").onclick=()=>$("measureModal").classList.remove("show");
@@ -1300,7 +1317,7 @@ export default {
       }
     }
 
-        if((path==="/terceirizados"||path==="/empreiteiros") && request.method==="GET"){if(!(await hasProjectAccess(env,auth,"emirates-parque-flamboyant")))return new Response("Acesso negado.",{status:403});await ensureOperationalSchema(env);return new Response(contractorsPage(auth),{headers:{"content-type":"text/html; charset=UTF-8"}});}
+        if((path==="/empreiteiros"||path==="/empreiteiros") && request.method==="GET"){if(!(await hasProjectAccess(env,auth,"emirates-parque-flamboyant")))return new Response("Acesso negado.",{status:403});await ensureOperationalSchema(env);return new Response(contractorsPage(auth),{headers:{"content-type":"text/html; charset=UTF-8"}});}
     if(path==="/api/contractors" && request.method==="GET"){
       if(!(await hasProjectAccess(env,auth,"emirates-parque-flamboyant")))return json({error:"Acesso negado."},403);
       await ensureOperationalSchema(env);
@@ -1331,7 +1348,7 @@ export default {
       const now=new Date().toISOString();
       const ir=await env.DB.prepare(`INSERT INTO contractors(project_slug,company_name,contract_number,contract_value,contract_balance,service_balance,contact_name,phone,active,created_at,updated_at)
         VALUES('emirates-parque-flamboyant',?,?,?,?,?,?,?,?,?,?)`)
-        .bind(name,contractNumber,Math.max(0,Number(b.contract_value||0)),Math.max(0,Number(b.contract_value||0)),String(b.service_balance||"").trim(),String(b.contact_name||"").trim(),String(b.phone||"").trim(),1,now,now).run();
+        .bind(name,contractNumber,Math.max(0,Number(b.contract_value||0)),Math.max(0,Number(b.contract_value||0)),"",String(b.contact_name||"").trim(),String(b.phone||"").trim(),1,now,now).run();
       const id=Number(ir.meta?.last_row_id||0);
       if(services.length)await env.DB.batch(services.map((s,i)=>env.DB.prepare("INSERT OR REPLACE INTO contractor_services(contractor_id,service,description,macro_service) VALUES(?,?,?,?)").bind(id,s.description+" #"+(i+1),s.description,s.macro_service)));
       return json({ok:true,id},201);
@@ -1349,7 +1366,7 @@ export default {
       if(!services.length)return json({error:"Cadastre ao menos um serviço contratado e seu macroserviço."},400);
       const now=new Date().toISOString();
       const measuredRow=await env.DB.prepare("SELECT COALESCE(SUM(amount),0) total FROM contractor_measurements WHERE contractor_id=?").bind(id).first();const measuredTotal=Number(measuredRow?.total||0);await env.DB.prepare("UPDATE contractors SET company_name=?,contract_number=?,contract_value=?,contract_balance=?,service_balance=?,contact_name=?,phone=?,updated_at=? WHERE id=?")
-        .bind(name,contractNumber,Math.max(0,Number(b.contract_value||0)),Math.max(0,Math.max(0,Number(b.contract_value||0))-measuredTotal),String(b.service_balance||"").trim(),String(b.contact_name||"").trim(),String(b.phone||"").trim(),now,id).run();
+        .bind(name,contractNumber,Math.max(0,Number(b.contract_value||0)),Math.max(0,Math.max(0,Number(b.contract_value||0))-measuredTotal),"",String(b.contact_name||"").trim(),String(b.phone||"").trim(),now,id).run();
       await env.DB.prepare("DELETE FROM contractor_services WHERE contractor_id=?").bind(id).run();
       if(services.length)await env.DB.batch(services.map((s,i)=>env.DB.prepare("INSERT INTO contractor_services(contractor_id,service,description,macro_service) VALUES(?,?,?,?)").bind(id,s.description+" #"+(i+1),s.description,s.macro_service)));
       return json({ok:true});
