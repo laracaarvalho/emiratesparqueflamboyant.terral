@@ -597,7 +597,7 @@ init().catch(()=>{projects.innerHTML='<div class="empty">Não foi possível carr
 
 
 
-async function ensureOperationalSchema(env){
+async function ensureOperationalSchemaRaw(env){
   await env.DB.prepare(`CREATE TABLE IF NOT EXISTS contractors (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     project_slug TEXT NOT NULL,
@@ -618,18 +618,21 @@ async function ensureOperationalSchema(env){
     service TEXT NOT NULL,
     description TEXT NOT NULL DEFAULT '',
     macro_service TEXT NOT NULL DEFAULT '',
+    service_value REAL NOT NULL DEFAULT 0,
     PRIMARY KEY(contractor_id,service)
   )`).run();
 
   const csCols=(await env.DB.prepare("PRAGMA table_info(contractor_services)").all()).results||[];
   if(!csCols.some(c=>c.name==="description"))await env.DB.prepare("ALTER TABLE contractor_services ADD COLUMN description TEXT NOT NULL DEFAULT ''").run();
   if(!csCols.some(c=>c.name==="macro_service"))await env.DB.prepare("ALTER TABLE contractor_services ADD COLUMN macro_service TEXT NOT NULL DEFAULT ''").run();
+  if(!csCols.some(c=>c.name==="service_value"))await env.DB.prepare("ALTER TABLE contractor_services ADD COLUMN service_value REAL NOT NULL DEFAULT 0").run();
   await env.DB.prepare("UPDATE contractor_services SET description=service WHERE description='' OR description IS NULL").run();
   await env.DB.prepare("UPDATE contractor_services SET macro_service=service WHERE macro_service='' OR macro_service IS NULL").run();
 
   await env.DB.prepare(`CREATE TABLE IF NOT EXISTS contractor_measurements (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     contractor_id INTEGER NOT NULL,
+    contractor_service_key TEXT,
     measurement_number TEXT NOT NULL DEFAULT '',
     measurement_date TEXT NOT NULL,
     amount REAL NOT NULL DEFAULT 0,
@@ -638,6 +641,9 @@ async function ensureOperationalSchema(env){
     created_by_name TEXT NOT NULL DEFAULT '',
     created_at TEXT NOT NULL
   )`).run();
+
+  const cmCols=(await env.DB.prepare("PRAGMA table_info(contractor_measurements)").all()).results||[];
+  if(!cmCols.some(c=>c.name==="contractor_service_key"))await env.DB.prepare("ALTER TABLE contractor_measurements ADD COLUMN contractor_service_key TEXT").run();
 
   await env.DB.prepare(`CREATE TABLE IF NOT EXISTS operational_tasks (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -667,6 +673,14 @@ async function ensureOperationalSchema(env){
   await env.DB.prepare("CREATE INDEX IF NOT EXISTS idx_operational_tasks_contractor ON operational_tasks(contractor_id)").run();
   await env.DB.prepare("CREATE INDEX IF NOT EXISTS idx_contractors_project ON contractors(project_slug)").run();
   await env.DB.prepare("CREATE INDEX IF NOT EXISTS idx_contractor_measurements_contractor ON contractor_measurements(contractor_id)").run();
+  await env.DB.prepare("CREATE INDEX IF NOT EXISTS idx_contractor_measurements_service ON contractor_measurements(contractor_id,contractor_service_key)").run();
+}
+let operationalSchemaReadyAt=0;
+async function ensureOperationalSchema(env){
+ const now=Date.now();
+ if(operationalSchemaReadyAt && now-operationalSchemaReadyAt<300000)return;
+ await ensureOperationalSchemaRaw(env);
+ operationalSchemaReadyAt=now;
 }
 
 function operationalPage(auth){
@@ -937,231 +951,136 @@ function contractorsPage(auth){
 <html lang="pt-BR">
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>TERRAL | EMPREITEIROS</title>
+<title>TERRAL | EMPREITEIROS</title><link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%23690020'/%3E%3Cpath d='M13 15h38v9H37v27H27V24H13z' fill='white'/%3E%3C/svg%3E">
 <style>
-:root{--wine:#690020;--wine2:#8a1237;--bg:#f5f3f0;--card:#fff;--line:#e4ddd6;--text:#29231f;--muted:#756d66;--green:#28a745;--blue:#2775ca;--yellow:#f2b51d;--red:#dc3545}
+:root{--wine:#690020;--wine2:#8a1237;--bg:#f7f5f2;--card:#fff;--line:#e6ddd5;--text:#29231f;--muted:#756d66;--green:#2aaa45;--blue:#2f79c8;--yellow:#e8a91d;--red:#dd3e43}
 *{box-sizing:border-box}body{margin:0;font-family:Arial,Helvetica,sans-serif;background:var(--bg);color:var(--text)}
-header{background:linear-gradient(90deg,var(--wine),var(--wine2));color:#fff;padding:18px 26px;display:flex;justify-content:space-between;align-items:center}
-header h1{margin:0;font-size:20px}header small{display:block;margin-top:4px;opacity:.85}header a{color:#fff;text-decoration:none;font-size:12px}
-main{max-width:1260px;margin:auto;padding:22px}.toolbar{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:14px}.toolbar h2{margin:0;font-size:20px}
-.btn{border:1px solid #d9cec6;background:#fff;border-radius:7px;padding:9px 12px;font-weight:700;font-size:11px;cursor:pointer}.btn.primary{background:var(--wine);color:#fff;border-color:var(--wine)}.btn.small{padding:6px 8px;font-size:9px}
-.grid{display:grid;grid-template-columns:repeat(2,minmax(420px,1fr));gap:18px;align-items:start}.contractor{background:#fff;border:1px solid var(--line);border-radius:14px;padding:20px;box-shadow:0 9px 24px #00000010;min-height:420px}
-.head{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}.head h3{margin:0;font-size:18px}.contract-number{display:inline-block;margin-top:8px;background:#f4ecef;color:var(--wine);border:1px solid #ead9df;border-radius:7px;padding:6px 8px;font-size:9px;font-weight:800}.company-contact{margin-top:7px;font-size:10px;line-height:1.6;color:var(--muted)}.company-contact b{color:var(--text)}
-.balance{border-radius:9px;color:#fff;padding:10px 12px;text-align:right;min-width:105px}.balance b{display:block;font-size:20px}.balance small{font-size:7px}.green{background:var(--green)}.blue{background:var(--blue)}.yellow{background:var(--yellow);color:#332b16}.red{background:var(--red)}
-.money{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:12px 0}.money div{background:#f8f5f2;border-radius:7px;padding:8px}.money small{display:block;font-size:8px;color:var(--muted)}.money b{display:block;font-size:13px;margin-top:4px}
-.section-title{font-size:8px;color:var(--muted);font-weight:800;margin:14px 0 7px;letter-spacing:.2px}.service-list{display:grid;gap:6px}.service-item{border:1px solid #eee4dd;border-radius:7px;padding:7px;background:#fffdfa}.service-item b{display:block;font-size:10px}.macro{display:inline-block;margin-top:5px;background:#f1e9ec;color:var(--wine);border-radius:999px;padding:4px 7px;font-size:7.5px;font-weight:700}
-.measure-summary{display:grid;grid-template-columns:1fr 1fr;gap:6px}.measure-summary div{border:1px solid #eee4dd;border-radius:7px;padding:7px}.measure-summary small{display:block;font-size:8px;color:var(--muted)}.measure-summary b{font-size:12px}
-.info{margin-top:12px;border-top:1px solid var(--line);padding-top:10px;font-size:10px;line-height:1.7}.actions{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}.empty{background:#fff;border:1px dashed #d5cbc2;border-radius:10px;padding:28px;text-align:center;color:var(--muted)}
-.modal-back{position:fixed;inset:0;background:#0006;display:none;align-items:center;justify-content:center;padding:18px;z-index:50}.modal-back.show{display:flex}.modal{background:#fff;border-radius:12px;width:min(900px,96vw);max-height:92vh;overflow:auto;padding:17px}.modal.measure{width:min(760px,96vw)}
-.modal-head{display:flex;justify-content:space-between;align-items:center}.modal-head h3{margin:0}.close{border:0;background:transparent;font-size:20px;cursor:pointer}
-.form{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:12px}.field label{display:block;font-size:8px;font-weight:800;margin-bottom:4px}.field input,.field select,.field textarea{width:100%;border:1px solid #d8d0c8;border-radius:6px;padding:8px;background:#fff}.field textarea{min-height:60px}.wide{grid-column:1/-1}
-.services-editor{border:1px solid #ddd4cc;border-radius:8px;padding:10px;background:#fdfbf9}.service-row{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(180px,.8fr) 34px;gap:7px;align-items:end;margin-bottom:7px}.service-row:last-child{margin-bottom:0}.remove-service{height:34px;border:1px solid #e3c9c9;background:#fff5f5;color:#a32121;border-radius:6px;cursor:pointer}
-.help{font-size:7px;color:var(--muted);margin:5px 0 8px}.modal-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:12px}
-.measure-form{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;background:#f8f5f2;border-radius:8px;padding:10px;margin:12px 0}.measure-form .notes{grid-column:1/-1}
-.measure-table{width:100%;border-collapse:collapse;font-size:8px}.measure-table th,.measure-table td{padding:7px;border-bottom:1px solid #eee4dd;text-align:left}.measure-table th{background:#f7f2ed}.measure-total{display:flex;justify-content:flex-end;gap:20px;margin:10px 0;font-size:9px}
-@media(max-width:1050px){.grid{grid-template-columns:1fr}}@media(max-width:700px){.grid,.form,.measure-form{grid-template-columns:1fr}.service-row{grid-template-columns:1fr}.wide,.measure-form .notes{grid-column:auto}}
+header{background:linear-gradient(90deg,var(--wine),var(--wine2));color:#fff;padding:20px 30px;display:flex;justify-content:space-between;align-items:center}header h1{margin:0;font-size:22px}header small{display:block;margin-top:5px;opacity:.88}header a{color:#fff;text-decoration:none;font-size:12px}
+main{max-width:1360px;margin:auto;padding:25px}.toolbar{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:18px}.toolbar h2{margin:0;font-size:22px}.toolbar p{margin:4px 0 0;font-size:10px;color:var(--muted)}
+.btn{border:1px solid #d9cec6;background:#fff;border-radius:8px;padding:9px 13px;font-weight:700;font-size:10px;cursor:pointer}.btn.primary{background:var(--wine);color:#fff;border-color:var(--wine)}.btn.small{padding:6px 9px;font-size:8px}
+.grid{display:grid;grid-template-columns:1fr;gap:18px}.contractor{background:#fff;border:1px solid var(--line);border-radius:14px;padding:20px;box-shadow:0 8px 25px #0000000c}
+.head{display:grid;grid-template-columns:minmax(270px,1.2fr) repeat(4,minmax(130px,170px));gap:10px;align-items:stretch}.company h3{margin:0;font-size:19px}.company-contact{font-size:9px;line-height:1.6;color:var(--muted);margin-top:5px}.company-contact b{color:var(--text)}.contract-number{display:inline-block;margin-top:7px;padding:5px 8px;border-radius:7px;background:#f4e9ed;color:var(--wine);font-size:8px;font-weight:800}
+.summary-box{border:1px solid #eee5de;background:#fbf9f7;border-radius:9px;padding:10px}.summary-box small{display:block;font-size:7px;color:var(--muted)}.summary-box b{display:block;font-size:12px;margin-top:4px}.summary-box.balance-box b{font-size:16px}
+.balance-line{height:7px;background:#e9e6e3;border-radius:999px;overflow:hidden;margin-top:7px}.balance-line i{display:block;height:100%;border-radius:999px}
+.section-title{font-size:8px;color:var(--muted);font-weight:800;margin:17px 0 7px;letter-spacing:.25px}
+.services-table{border:1px solid var(--line);border-radius:10px;overflow:hidden}.service-head,.service-row{display:grid;grid-template-columns:minmax(220px,1.5fr) 125px 125px 125px 120px 80px 145px;align-items:center}.service-head{background:#f7f2ee;font-size:7px;font-weight:800;color:#5f5751}.service-head div,.service-row>div{padding:9px 10px}.service-row{border-top:1px solid #eee7e1;font-size:8px}.service-row strong{display:block;font-size:9px}.macro{display:inline-block;margin-top:4px;background:#f2e9ec;color:var(--wine);border-radius:999px;padding:3px 6px;font-size:6.5px;font-weight:700}
+.svc-money{font-weight:800}.green-t{color:var(--green)}.blue-t{color:var(--blue)}.yellow-t{color:#a87700}.red-t{color:var(--red)}.svc-pct{display:flex;align-items:center;gap:6px}.svc-pct b{min-width:30px}.mini-bar{height:7px;flex:1;background:#ece9e6;border-radius:999px;overflow:hidden}.mini-bar i{display:block;height:100%;border-radius:999px}.last-measure small{display:block;color:var(--muted);font-size:6.5px}.last-measure b{font-size:8px}
+.measurements-foot{display:flex;justify-content:space-between;align-items:center;gap:10px;border-top:1px solid var(--line);margin-top:14px;padding-top:12px}.measurements-foot .left{display:flex;gap:16px;font-size:8px;color:var(--muted)}.measurements-foot b{color:var(--text)}.actions{display:flex;gap:6px;flex-wrap:wrap}.empty{background:#fff;border:1px dashed #d5cbc2;border-radius:10px;padding:32px;text-align:center;color:var(--muted)}
+.modal-back{position:fixed;inset:0;background:#0006;display:none;align-items:center;justify-content:center;padding:18px;z-index:50}.modal-back.show{display:flex}.modal{background:#fff;border-radius:12px;width:min(1000px,96vw);max-height:92vh;overflow:auto;padding:18px}.modal.measure{width:min(850px,96vw)}.modal-head{display:flex;justify-content:space-between;align-items:center}.modal-head h3{margin:0}.close{border:0;background:transparent;font-size:20px;cursor:pointer}
+.form{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:12px}.field label{display:block;font-size:8px;font-weight:800;margin-bottom:4px}.field input,.field select{width:100%;border:1px solid #d8d0c8;border-radius:7px;padding:9px;background:#fff}.wide{grid-column:1/-1}.services-editor{border:1px solid #ddd4cc;border-radius:9px;padding:10px;background:#fdfbf9}.service-edit-row{display:grid;grid-template-columns:minmax(0,1.45fr) minmax(180px,.85fr) 180px 34px;gap:8px;align-items:end;margin-bottom:8px}.remove-service{height:36px;border:1px solid #e3c9c9;background:#fff5f5;color:#a32121;border-radius:7px;cursor:pointer}.services-total{display:flex;justify-content:flex-end;gap:20px;margin-top:9px;font-size:9px}.services-total .bad{color:var(--red)}.services-total .ok{color:var(--green)}.help{font-size:7px;color:var(--muted);margin:5px 0 8px}.modal-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:12px}
+.measure-window{margin-top:12px;border:1px solid #e3d8cf;background:#fbf7f3;border-radius:8px;padding:10px;font-size:8px;line-height:1.6}.measure-form{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;background:#f8f5f2;border-radius:8px;padding:10px;margin:12px 0}.measure-form .service-select,.measure-form .notes{grid-column:1/-1}.measure-table{width:100%;border-collapse:collapse;font-size:8px}.measure-table th,.measure-table td{padding:7px;border-bottom:1px solid #eee4dd;text-align:left}.measure-table th{background:#f7f2ed}.measure-total{display:flex;justify-content:flex-end;gap:20px;margin:10px 0;font-size:9px}
+@media(max-width:1120px){.head{grid-template-columns:1fr 1fr 1fr}.company{grid-column:1/-1}.service-head{display:none}.service-row{grid-template-columns:1fr 1fr}.service-row>div:before{content:attr(data-label);display:block;font-size:6.5px;color:var(--muted);font-weight:800;margin-bottom:3px}}
+@media(max-width:700px){main{padding:14px}.head,.form,.measure-form,.service-edit-row,.service-row{grid-template-columns:1fr}.company{grid-column:auto}.wide,.measure-form .service-select,.measure-form .notes{grid-column:auto}}
 </style>
 </head>
 <body>
 <header><div><h1>Empreiteiros</h1><small>Emirates Parque Flamboyant</small></div><a href="/obra/emirates-parque-flamboyant">← Voltar à obra</a></header>
 <main>
- <div class="toolbar"><div><h2>Empreiteiros</h2><div style="font-size:9px;color:var(--muted);margin-top:4px">Contratos, serviços vinculados às frentes e medições dos empreiteiros.</div></div>${admin?'<button class="btn primary" id="newBtn">＋ Novo empreiteiro</button>':''}</div>
- <div id="grid" class="grid"></div>
+<div class="toolbar"><div><h2>Empreiteiros</h2><p>Saldo do contrato e acompanhamento financeiro individual por serviço.</p></div>${admin?'<button class="btn primary" id="newBtn">＋ Novo empreiteiro</button>':''}</div>
+<div id="grid" class="grid"><div class="contractor" style="min-height:150px"><b>Carregando empreiteiros...</b></div></div>
 </main>
 
 <div class="modal-back" id="modal"><div class="modal">
- <div class="modal-head"><h3 id="modalTitle">Novo empreiteiro</h3><button class="close" id="closeBtn">×</button></div>
- <div class="form">
-  <div class="field"><label>Nome da Empresa</label><input id="companyName"></div>
-  <div class="field"><label>NÚMERO DE CONTRATO</label><input id="contractNumber" placeholder="Ex.: CT-2026-0145"></div>
-  <div class="field"><label>Valor do contrato</label><input id="contractValue" type="text" inputmode="numeric" placeholder="R$ 0,00"></div>
-  <div class="field"><label>Saldo do contrato</label><input id="contractBalance" type="text" readonly title="Calculado automaticamente pelas medições"></div>
-  
-  <div class="field"><label>Contato</label><input id="contactName"></div>
-  <div class="field"><label>Telefone</label><input id="phone" inputmode="numeric" maxlength="15" placeholder="(62) 98340.4022"></div>
-
-  <div class="field wide">
-    <label>SERVIÇOS CONTRATADOS</label>
-    <div class="help">Descreva exatamente o objeto contratado e, ao lado, classifique em qual macroserviço do fluxo operacional ele se encaixa.</div>
-    <div class="services-editor" id="serviceRows"></div>
-    <button class="btn small" type="button" id="addServiceBtn" style="margin-top:8px">＋ Adicionar serviço</button>
-  </div>
- </div>
- <div class="modal-actions"><button class="btn" id="cancelBtn">Cancelar</button><button class="btn primary" id="saveBtn">Salvar empreiteiro</button></div>
+<div class="modal-head"><h3 id="modalTitle">Novo empreiteiro</h3><button class="close" id="closeBtn">×</button></div>
+<div class="form">
+<div class="field"><label>Nome da Empresa</label><input id="companyName"></div>
+<div class="field"><label>NÚMERO DE CONTRATO</label><input id="contractNumber"></div>
+<div class="field"><label>Valor do contrato</label><input id="contractValue" type="text" inputmode="numeric" placeholder="R$ 0,00"></div>
+<div class="field"><label>Saldo do contrato</label><input id="contractBalance" type="text" readonly></div>
+<div class="field"><label>Contato</label><input id="contactName"></div>
+<div class="field"><label>Telefone</label><input id="phone" inputmode="numeric" maxlength="15" placeholder=""></div>
+<div class="field wide"><label>SERVIÇOS CONTRATADOS</label><div class="help">Defina o valor de cada serviço. A soma deve ser exatamente igual ao valor total do contrato.</div><div class="services-editor" id="serviceRows"></div><button class="btn small" type="button" id="addServiceBtn" style="margin-top:8px">＋ Adicionar serviço</button><div class="services-total"><span>Soma dos serviços: <b id="servicesTotal">R$ 0,00</b></span><span id="servicesDifference"></span></div></div>
+</div>
+<div class="modal-actions"><button class="btn" id="cancelBtn">Cancelar</button><button class="btn primary" id="saveBtn">Salvar empreiteiro</button></div>
 </div></div>
 
 <div class="modal-back" id="measureModal"><div class="modal measure">
- <div class="modal-head"><div><h3>Medições realizadas</h3><div id="measureCompany" style="font-size:8px;color:var(--muted);margin-top:3px"></div></div><button class="close" id="closeMeasureBtn">×</button></div>
- <div id="measurementWindowInfo" style="margin-top:12px;border:1px solid #e3d8cf;background:#fbf7f3;border-radius:8px;padding:10px;font-size:8px;line-height:1.6">
-   <b>Janela de medição do empreiteiro: dias 01 a 10.</b><br>
-   <span id="measurementEligibility">A produção elegível será considerada a partir da última medição registrada.</span>
- </div>
- ${admin?`<div class="measure-form">
-   <div class="field"><label>Nº da medição</label><input id="measurementNumber" placeholder="Ex.: 05"></div>
-   <div class="field"><label>Data</label><input id="measurementDate" type="date"></div>
-   <div class="field"><label>Valor medido</label><input id="measurementAmount" type="text" inputmode="numeric" placeholder="R$ 0,00"></div>
-   <div class="field notes"><label>Observação</label><input id="measurementNotes" placeholder="Ex.: Medição referente aos serviços executados em agosto"></div>
-   <div style="grid-column:1/-1;text-align:right"><button class="btn primary small" id="addMeasurementBtn">＋ Registrar medição</button></div>
- </div>`:''}
- <div class="measure-total"><span>Quantidade: <b id="measurementCount">0</b></span><span>Total registrado: <b id="measurementTotal">R$ 0,00</b></span></div>
- <div style="overflow:auto"><table class="measure-table"><thead><tr><th>Medição</th><th>Data</th><th>Valor</th><th>Observação</th>${admin?'<th></th>':''}</tr></thead><tbody id="measurementRows"></tbody></table></div>
+<div class="modal-head"><div><h3>Medições realizadas</h3><div id="measureCompany" style="font-size:8px;color:var(--muted);margin-top:3px"></div></div><button class="close" id="closeMeasureBtn">×</button></div>
+<div class="measure-window"><b>Janela de medição do empreiteiro: dias 01 a 10.</b><br><span id="measurementEligibility"></span></div>
+${admin?`<div class="measure-form">
+<div class="field service-select"><label>Serviço medido</label><select id="measurementService"></select></div>
+<div class="field"><label>Nº da medição</label><input id="measurementNumber"></div>
+<div class="field"><label>Data</label><input id="measurementDate" type="date"></div>
+<div class="field"><label>Valor medido</label><input id="measurementAmount" type="text" inputmode="numeric" placeholder="R$ 0,00"></div>
+<div class="field notes"><label>Observação</label><input id="measurementNotes"></div>
+<div style="grid-column:1/-1;text-align:right"><button class="btn primary small" id="addMeasurementBtn">＋ Registrar medição</button></div>
+</div>`:''}
+<div class="measure-total"><span>Quantidade: <b id="measurementCount">0</b></span><span>Total registrado: <b id="measurementTotal">R$ 0,00</b></span></div>
+<div style="overflow:auto"><table class="measure-table"><thead><tr><th>Medição</th><th>Serviço</th><th>Data</th><th>Valor</th><th>Observação</th>${admin?'<th></th>':''}</tr></thead><tbody id="measurementRows"></tbody></table></div>
 </div></div>
 
 <script>
 const IS_ADMIN=${admin?'true':'false'};
 const MACROS=${JSON.stringify(["Checklist - Instaladora","Checklist - Pedreiro","Checklist - Rejunte","Checklist - Pintura","Limpeza","Vistoria - Qualidade","Vistoria - Cliente","Revistoria - Cliente","Unidade aprovada"])};
 let items=[],editingId=null,measurementContractorId=null;
-const $=id=>document.getElementById(id);
-const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const $=id=>document.getElementById(id),esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const money=n=>Number(n||0).toLocaleString("pt-BR",{style:"currency",currency:"BRL"});
 function moneyInput(v){
- const digits=String(v??"").replace(/\D/g,"");
- if(!digits)return "";
- const n=Number(digits)/100;
- return n.toLocaleString("pt-BR",{style:"currency",currency:"BRL"});
+ const raw=String(v??"").trim();
+ if(!raw)return "";
+ const clean=raw.replace(/R\$|\s/g,"");
+ let n;
+ if(clean.includes(",")) n=Number(clean.replace(/\./g,"").replace(",","."));
+ else n=Number(clean.replace(/[^0-9.-]/g,""));
+ return Number.isFinite(n)?n.toLocaleString("pt-BR",{style:"currency",currency:"BRL"}):"";
 }
 function moneyFromInput(v){
- const digits=String(v??"").replace(/\D/g,"");
- return digits?Number(digits)/100:0;
+ const raw=String(v??"").trim();
+ if(!raw)return 0;
+ const clean=raw.replace(/R\$|\s/g,"");
+ let n;
+ if(clean.includes(",")) n=Number(clean.replace(/\./g,"").replace(",","."));
+ else n=Number(clean.replace(/[^0-9.-]/g,""));
+ return Number.isFinite(n)?n:0;
 }
-function setMoneyInput(el,value){
- el.value=Number(value||0).toLocaleString("pt-BR",{style:"currency",currency:"BRL"});
-}
-
-const dateBR=v=>v?new Date(v+"T12:00:00").toLocaleDateString("pt-BR"):"—";
-function phoneMask(v){
- const d=String(v||"").replace(/\D/g,"").slice(-11);
- if(!d)return "";
- if(d.length<=2)return "("+d;
- if(d.length<=7)return "("+d.slice(0,2)+") "+d.slice(2);
- return "("+d.slice(0,2)+") "+d.slice(2,7)+"."+d.slice(7,11);
-}
-function recalcBalance(){
- const value=Math.max(0,moneyFromInput($("contractValue").value));
- const measured=editingId ? Number(items.find(x=>Number(x.id)===Number(editingId))?.measured_total||0) : 0;
- setMoneyInput($("contractBalance"),Math.max(0,value-measured));
-}
-function balanceOf(c){return Math.max(0,Number(c.contract_value||0)-Number(c.measured_total||0))}
-function pct(c){return Number(c.contract_value)>0?Math.max(0,Math.min(100,balanceOf(c)/Number(c.contract_value)*100)):0}
-function cls(p){return p>=70?"green":p>=40?"blue":p>=10?"yellow":"red"}
+function setMoneyInput(el,v){el.value=money(v)}
+function phoneMask(v){const d=String(v||"").replace(/\D/g,"").slice(-11);if(!d)return "";if(d.length<=2)return "("+d;if(d.length<=7)return "("+d.slice(0,2)+") "+d.slice(2);return "("+d.slice(0,2)+") "+d.slice(2,7)+"."+d.slice(7,11)}
+function colorVar(p){return p>=70?"var(--green)":p>=40?"var(--blue)":p>=10?"var(--yellow)":"var(--red)"}
+function textClass(p){return p>=70?"green-t":p>=40?"blue-t":p>=10?"yellow-t":"red-t"}
 async function api(url,opt={}){const r=await fetch(url,{headers:{"content-type":"application/json",...(opt.headers||{})},...opt}),d=await r.json().catch(()=>({}));if(!r.ok)throw new Error(d.error||"Erro");return d}
+function contractBalance(c){return Math.max(0,Number(c.contract_value||0)-Number(c.measured_total||0))}
+function contractPct(c){return Number(c.contract_value)>0?Math.round(contractBalance(c)/Number(c.contract_value)*100):0}
+function serviceBalance(s){return Math.max(0,Number(s.service_value||0)-Number(s.measured_total||0))}
+function servicePct(s){return Number(s.service_value)>0?Math.round(serviceBalance(s)/Number(s.service_value)*100):0}
 
-function serviceRow(data={}){
- const wrap=document.createElement("div");wrap.className="service-row";
- wrap.innerHTML='<div class="field"><label>Descrição do serviço contratado</label><input class="svc-description" placeholder="Ex.: Execução de rejunte epóxi nos apartamentos" value="'+esc(data.description||"")+'"></div>'+
- '<div class="field"><label>Macroserviço / Macrofluxo</label><select class="svc-macro">'+MACROS.map(m=>'<option value="'+esc(m)+'" '+(data.macro_service===m?'selected':'')+'>'+esc(m)+'</option>').join("")+'</select></div>'+
- '<button type="button" class="remove-service" title="Remover">×</button>';
- wrap.querySelector(".remove-service").onclick=()=>wrap.remove();
- return wrap;
+function renderService(s){
+ const bal=serviceBalance(s),pct=servicePct(s);
+ return '<div class="service-row"><div data-label="Serviço"><strong>'+esc(s.description)+'</strong><span class="macro">'+esc(s.macro_service)+'</span></div><div data-label="Valor do serviço" class="svc-money">'+money(s.service_value)+'</div><div data-label="Total medido" class="svc-money">'+money(s.measured_total)+'</div><div data-label="Saldo" class="svc-money '+textClass(pct)+'">'+money(bal)+'</div><div data-label="% saldo" class="svc-pct"><b>'+pct+'%</b><span class="mini-bar"><i style="width:'+pct+'%;background:'+colorVar(pct)+'"></i></span></div><div data-label="Medições"><b>'+Number(s.measurement_count||0)+'</b></div><div data-label="Última medição" class="last-measure"><b>'+(s.last_measurement_date?new Date(s.last_measurement_date+"T12:00:00").toLocaleDateString("pt-BR"):"—")+'</b><small>'+money(s.last_measurement_amount||0)+'</small></div></div>';
 }
-function addService(data={}){$("serviceRows").appendChild(serviceRow(data))}
-function getServices(){return [...document.querySelectorAll(".service-row")].map(r=>({description:r.querySelector(".svc-description").value.trim(),macro_service:r.querySelector(".svc-macro").value})).filter(x=>x.description)}
-
 function render(){
- $("grid").innerHTML=items.length?items.map(c=>{
-  const p=pct(c),sv=c.contracted_services||[];
-  return '<article class="contractor">'+
-   '<div class="head"><div><h3>'+esc(c.company_name)+'</h3><div class="company-contact"><b>'+esc(c.contact_name||"Contato não informado")+'</b><br>'+esc(phoneMask(c.phone||"Telefone não informado"))+'</div><div class="contract-number">CONTRATO Nº '+esc(c.contract_number||"NÃO INFORMADO")+'</div></div><div class="balance '+cls(p)+'"><small>Saldo</small><b>'+p.toFixed(0)+'%</b></div></div>'+
-   '<div class="money"><div><small>Valor do contrato</small><b>'+money(c.contract_value)+'</b></div><div><small>Saldo do contrato</small><b>'+money(balanceOf(c))+'</b></div></div>'+
-   '<div class="section-title">SERVIÇOS CONTRATADOS</div><div class="service-list">'+(sv.length?sv.map(s=>'<div class="service-item"><b>'+esc(s.description)+'</b><span class="macro">'+esc(s.macro_service)+'</span></div>').join(""):'<div style="font-size:8px;color:var(--muted)">Nenhum serviço descrito.</div>')+'</div>'+
-   '<div class="section-title">MEDIÇÕES</div><div class="measure-summary"><div><small>Última medição</small><b>'+(c.last_measurement_date?dateBR(c.last_measurement_date):"—")+'</b></div><div><small>Valor da última</small><b>'+money(c.last_measurement_amount||0)+'</b></div><div><small>Medições registradas</small><b>'+Number(c.measurement_count||0)+'</b></div><div><small>Total medido</small><b>'+money(c.measured_total||0)+'</b></div></div>'+
-   
-   '<div class="actions"><button class="btn small" onclick="openMeasurements('+c.id+')">Medições</button>'+(IS_ADMIN?'<button class="btn small" onclick="editItem('+c.id+')">Editar</button><button class="btn small" onclick="removeItem('+c.id+')">Excluir</button>':'')+'</div>'+
-  '</article>'
- }).join(""):'<div class="empty">Nenhum empreiteiro cadastrado.</div>';
+ $("grid").innerHTML=items.length?items.map(c=>{const pct=contractPct(c),sv=c.contracted_services||[];return '<article class="contractor"><div class="head"><div class="company"><h3>'+esc(c.company_name)+'</h3><div class="company-contact"><b>'+esc(c.contact_name||"Contato não informado")+'</b><br>'+esc(phoneMask(c.phone||""))+'</div><div class="contract-number">CONTRATO Nº '+esc(c.contract_number||"NÃO INFORMADO")+'</div></div><div class="summary-box"><small>Valor do contrato</small><b>'+money(c.contract_value)+'</b></div><div class="summary-box"><small>Total medido</small><b>'+money(c.measured_total)+'</b></div><div class="summary-box"><small>Última medição</small><b>'+(c.last_measurement_date?new Date(c.last_measurement_date+"T12:00:00").toLocaleDateString("pt-BR"):"—")+'</b><small>'+money(c.last_measurement_amount||0)+'</small></div><div class="summary-box balance-box"><small>Saldo total do contrato</small><b>'+money(contractBalance(c))+' · '+pct+'%</b><div class="balance-line"><i style="width:'+pct+'%;background:'+colorVar(pct)+'"></i></div></div></div><div class="section-title">SERVIÇOS CONTRATADOS — SALDO INDIVIDUAL</div><div class="services-table"><div class="service-head"><div>Serviço / Macrofluxo</div><div>Valor do serviço</div><div>Total medido</div><div>Saldo do serviço</div><div>% Saldo</div><div>Medições</div><div>Última medição</div></div>'+sv.map(renderService).join("")+'</div>'+(Number(c.unallocated_measured_total||0)>0?'<div style="margin-top:8px;padding:8px;border-radius:7px;background:#fff4db;color:#745400;font-size:8px"><b>Atenção:</b> '+money(c.unallocated_measured_total)+' de medições antigas ainda não estão vinculadas a um serviço. Elas continuam abatendo o saldo total do contrato.</div>':'')+'<div class="measurements-foot"><div class="left"><span>Medições: <b>'+Number(c.measurement_count||0)+'</b></span><span>Serviços: <b>'+sv.length+'</b></span></div><div class="actions"><button class="btn small" onclick="openMeasurements('+c.id+')">Medições</button>'+(IS_ADMIN?'<button class="btn small" onclick="editItem('+c.id+')">Editar</button><button class="btn small" onclick="removeItem('+c.id+')">Excluir</button>':'')+'</div></div></article>'}).join(""):'<div class="empty">Nenhum empreiteiro cadastrado.</div>';
 }
 
-function openModal(item=null){
- editingId=item?.id||null;$("modalTitle").textContent=item?"Editar empreiteiro":"Novo empreiteiro";
- $("companyName").value=item?.company_name||"";
- $("contractNumber").value=item?.contract_number||"";
- setMoneyInput($("contractValue"),Number(item?.contract_value||0));
- setMoneyInput($("contractBalance"),Math.max(0,Number(item?.contract_value||0)-Number(item?.measured_total||0)));
- $("contactName").value=item?.contact_name||"";
- $("phone").value=phoneMask(item?.phone||"");
- $("serviceRows").innerHTML="";
- const list=item?.contracted_services||[];
- if(list.length)list.forEach(addService);else addService();
- $("modal").classList.add("show");
+function serviceEditRow(data={}){
+ const w=document.createElement("div");w.className="service-edit-row";w.dataset.serviceKey=data.service_key||"";
+ w.innerHTML='<div class="field"><label>Descrição do serviço contratado</label><input class="svc-description" value="'+esc(data.description||"")+'"></div><div class="field"><label>Macroserviço / Macrofluxo</label><select class="svc-macro">'+MACROS.map(m=>'<option value="'+esc(m)+'" '+(data.macro_service===m?'selected':'')+'>'+esc(m)+'</option>').join("")+'</select></div><div class="field"><label>Valor do serviço</label><input class="svc-value" type="text" inputmode="numeric" placeholder="R$ 0,00" value="'+(data.service_value?money(data.service_value):"")+'"></div><button type="button" class="remove-service">×</button>';
+ w.querySelector(".svc-value").addEventListener("input",updateServiceTotals);
+ w.querySelector(".svc-value").addEventListener("blur",e=>{const v=moneyFromInput(e.target.value);e.target.value=v?money(v):"";updateServiceTotals()});
+ w.querySelector(".remove-service").onclick=()=>{w.remove();updateServiceTotals()};return w;
 }
+function addService(data={}){$("serviceRows").appendChild(serviceEditRow(data));updateServiceTotals()}
+function getServices(){return [...document.querySelectorAll(".service-edit-row")].map(r=>({service_key:r.dataset.serviceKey||"",description:r.querySelector(".svc-description").value.trim(),macro_service:r.querySelector(".svc-macro").value,service_value:moneyFromInput(r.querySelector(".svc-value").value)})).filter(x=>x.description)}
+function updateServiceTotals(){const sum=getServices().reduce((a,s)=>a+s.service_value,0),contract=moneyFromInput($("contractValue").value),diff=Math.round((contract-sum)*100)/100;$("servicesTotal").textContent=money(sum);$("servicesDifference").textContent=Math.abs(diff)<.01?"Valores conferem":"Diferença: "+money(Math.abs(diff));$("servicesDifference").className=Math.abs(diff)<.01?"ok":"bad"}
+function recalcBalance(){const value=moneyFromInput($("contractValue").value),measured=editingId?Number(items.find(x=>Number(x.id)===Number(editingId))?.measured_total||0):0;setMoneyInput($("contractBalance"),Math.max(0,value-measured));updateServiceTotals()}
+function openModal(item=null){editingId=item?.id||null;$("modalTitle").textContent=item?"Editar empreiteiro":"Novo empreiteiro";$("companyName").value=item?.company_name||"";$("contractNumber").value=item?.contract_number||"";setMoneyInput($("contractValue"),item?.contract_value||0);setMoneyInput($("contractBalance"),contractBalance(item||{}));$("contactName").value=item?.contact_name||"";$("phone").value=phoneMask(item?.phone||"");$("serviceRows").innerHTML="";const list=item?.contracted_services||[];if(list.length)list.forEach(addService);else addService();updateServiceTotals();$("modal").classList.add("show")}
 function editItem(id){openModal(items.find(x=>Number(x.id)===Number(id)))}
 async function removeItem(id){if(!confirm("Excluir este empreiteiro?"))return;try{await api("/api/contractors/"+id,{method:"DELETE"});await load()}catch(e){alert(e.message)}}
+async function save(){const body={company_name:$("companyName").value.trim(),contract_number:$("contractNumber").value.trim(),contract_value:moneyFromInput($("contractValue").value),contact_name:$("contactName").value.trim(),phone:phoneMask($("phone").value),contracted_services:getServices()};if(!body.company_name||!body.contract_number)return alert("Preencha empresa e número do contrato.");if(body.contract_value<=0)return alert("Informe o valor do contrato.");if(!body.contracted_services.length)return alert("Cadastre ao menos um serviço.");if(body.contracted_services.some(s=>s.service_value<=0))return alert("Informe o valor de todos os serviços.");if(Math.abs(body.contracted_services.reduce((a,s)=>a+s.service_value,0)-body.contract_value)>.01)return alert("A soma dos serviços deve ser igual ao valor total do contrato.");try{await api(editingId?"/api/contractors/"+editingId:"/api/contractors",{method:editingId?"PATCH":"POST",body:JSON.stringify(body)});$("modal").classList.remove("show");await load()}catch(e){alert(e.message)}}
 
-async function save(){
- const body={company_name:$("companyName").value.trim(),contract_number:$("contractNumber").value.trim(),contract_value:moneyFromInput($("contractValue").value),contact_name:$("contactName").value.trim(),phone:phoneMask($("phone").value),contracted_services:getServices()};
- if(!body.company_name)return alert("Informe o nome da empresa.");
- if(!body.contract_number)return alert("Informe o número do contrato.");
- if(!body.contracted_services.length)return alert("Cadastre ao menos um serviço contratado.");
- try{await api(editingId?"/api/contractors/"+editingId:"/api/contractors",{method:editingId?"PATCH":"POST",body:JSON.stringify(body)});$("modal").classList.remove("show");await load()}catch(e){alert(e.message)}
-}
-
-async function openMeasurements(id){
- measurementContractorId=id;
- const c=items.find(x=>Number(x.id)===Number(id));$("measureCompany").textContent=(c?.company_name||"")+" • Contrato nº "+(c?.contract_number||"—");
- const last=c?.last_measurement_date?dateBR(c.last_measurement_date):"nenhuma medição anterior";
- $("measurementEligibility").innerHTML="Última medição: <b>"+last+"</b>. Produção elegível: atividades produzidas após a última medição e aprovadas para pagamento.";
- if(IS_ADMIN){$("measurementNumber").value="";$("measurementDate").value=new Date().toISOString().slice(0,10);$("measurementAmount").value="";$("measurementNotes").value=""}
- $("measureModal").classList.add("show");await loadMeasurements();
-}
-async function loadMeasurements(){
- const d=await api("/api/contractors/"+measurementContractorId+"/measurements"),rows=d.items||[];
- $("measurementCount").textContent=rows.length;$("measurementTotal").textContent=money(rows.reduce((a,b)=>a+Number(b.amount||0),0));
- $("measurementRows").innerHTML=rows.length?rows.map(x=>'<tr><td>'+esc(x.measurement_number||"—")+'</td><td>'+dateBR(x.measurement_date)+'</td><td>'+money(x.amount)+'</td><td>'+esc(x.notes||"")+'</td>'+(IS_ADMIN?'<td><button class="btn small" onclick="deleteMeasurement('+x.id+')">Excluir</button></td>':'')+'</tr>').join(""):'<tr><td colspan="'+(IS_ADMIN?5:4)+'">Nenhuma medição registrada.</td></tr>';
-}
-async function addMeasurement(){
- const body={measurement_number:$("measurementNumber").value.trim(),measurement_date:$("measurementDate").value,amount:moneyFromInput($("measurementAmount").value),notes:$("measurementNotes").value.trim()};
- if(!body.measurement_number||!body.measurement_date||body.amount<=0)return alert("Preencha número, data e valor da medição.");
- const md=new Date(body.measurement_date+"T12:00:00"),day=md.getDate();
- if(day<1||day>10)return alert("Empreiteiros só podem ter medições registradas dentro da janela do dia 01 ao dia 10.");
- try{await api("/api/contractors/"+measurementContractorId+"/measurements",{method:"POST",body:JSON.stringify(body)});await loadMeasurements();await load();$("measurementNumber").value="";$("measurementAmount").value="";$("measurementNotes").value=""}catch(e){alert(e.message)}
-}
-async function deleteMeasurement(id){if(!confirm("Excluir esta medição?"))return;try{await api("/api/contractor-measurements/"+id,{method:"DELETE"});await loadMeasurements();await load()}catch(e){alert(e.message)}}
+async function openMeasurements(id){measurementContractorId=id;const c=items.find(x=>Number(x.id)===Number(id));$("measureCompany").textContent=(c?.company_name||"")+" • Contrato nº "+(c?.contract_number||"—");if(IS_ADMIN)$("measurementService").innerHTML='<option value="">Selecione o serviço contratado</option>'+(c?.contracted_services||[]).map(s=>'<option value="'+esc(s.service_key)+'">'+esc(s.description)+' — saldo '+money(serviceBalance(s))+'</option>').join("");const last=c?.last_measurement_date?new Date(c.last_measurement_date+"T12:00:00").toLocaleDateString("pt-BR"):"nenhuma medição anterior";$("measurementEligibility").innerHTML="Última medição geral: <b>"+last+"</b>. Toda nova medição deve indicar o serviço correspondente.";if(IS_ADMIN){$("measurementNumber").value="";$("measurementDate").value=new Date().toISOString().slice(0,10);$("measurementAmount").value="";$("measurementNotes").value=""}$("measureModal").classList.add("show");await loadMeasurements()}
+async function loadMeasurements(){const d=await api("/api/contractors/"+measurementContractorId+"/measurements"),rows=d.items||[];$("measurementCount").textContent=rows.length;$("measurementTotal").textContent=money(rows.reduce((a,b)=>a+Number(b.amount||0),0));$("measurementRows").innerHTML=rows.length?rows.map(x=>'<tr><td>'+esc(x.measurement_number||"—")+'</td><td>'+esc(x.service_description||"Não vinculado")+'</td><td>'+new Date(x.measurement_date+"T12:00:00").toLocaleDateString("pt-BR")+'</td><td>'+money(x.amount)+'</td><td>'+esc(x.notes||"")+'</td>'+(IS_ADMIN?'<td><button class="btn small" onclick="deleteMeasurement('+x.id+')">Excluir</button></td>':'')+'</tr>').join(""):'<tr><td colspan="'+(IS_ADMIN?6:5)+'">Nenhuma medição registrada.</td></tr>'}
+async function addMeasurement(){const body={contractor_service_key:$("measurementService").value,measurement_number:$("measurementNumber").value.trim(),measurement_date:$("measurementDate").value,amount:moneyFromInput($("measurementAmount").value),notes:$("measurementNotes").value.trim()};if(!body.contractor_service_key)return alert("Selecione o serviço medido.");if(!body.measurement_number||!body.measurement_date||body.amount<=0)return alert("Preencha número, data e valor.");const day=Number(body.measurement_date.slice(8,10));if(day<1||day>10)return alert("A janela de medição dos empreiteiros é do dia 01 ao dia 10.");try{await api("/api/contractors/"+measurementContractorId+"/measurements",{method:"POST",body:JSON.stringify(body)});await load();await openMeasurements(measurementContractorId)}catch(e){alert(e.message)}}
+async function deleteMeasurement(id){if(!confirm("Excluir esta medição?"))return;try{await api("/api/contractor-measurements/"+id,{method:"DELETE"});await load();await openMeasurements(measurementContractorId)}catch(e){alert(e.message)}}
 async function load(){const d=await api("/api/contractors");items=d.items||[];render()}
 
-$("phone").addEventListener("input",e=>{e.target.value=phoneMask(e.target.value)});
-$("contractValue").addEventListener("input",e=>{e.target.value=moneyInput(e.target.value);recalcBalance()});
-$("measurementAmount").addEventListener("input",e=>{e.target.value=moneyInput(e.target.value)});
+$("phone").addEventListener("input",e=>e.target.value=phoneMask(e.target.value));
+$("contractValue").addEventListener("input",recalcBalance);
+$("contractValue").addEventListener("blur",e=>{const v=moneyFromInput(e.target.value);e.target.value=v?money(v):"";recalcBalance()});
+if(IS_ADMIN)$("measurementAmount").addEventListener("blur",e=>{const v=moneyFromInput(e.target.value);e.target.value=v?money(v):""});
 if(IS_ADMIN){$("newBtn").onclick=()=>openModal();$("saveBtn").onclick=save;$("addServiceBtn").onclick=()=>addService();$("addMeasurementBtn").onclick=addMeasurement}
-$("closeBtn").onclick=$("cancelBtn").onclick=()=>$("modal").classList.remove("show");
-$("closeMeasureBtn").onclick=()=>$("measureModal").classList.remove("show");
-$("modal").onclick=e=>{if(e.target===$("modal"))$("modal").classList.remove("show")};
-$("measureModal").onclick=e=>{if(e.target===$("measureModal"))$("measureModal").classList.remove("show")};
-load().catch(e=>alert(e.message));
+$("closeBtn").onclick=$("cancelBtn").onclick=()=>$("modal").classList.remove("show");$("closeMeasureBtn").onclick=()=>$("measureModal").classList.remove("show");$("modal").onclick=e=>{if(e.target===$("modal"))$("modal").classList.remove("show")};$("measureModal").onclick=e=>{if(e.target===$("measureModal"))$("measureModal").classList.remove("show")};load().catch(e=>alert(e.message));
 </script>
 </body></html>`;
-}
-
-
-function superAdminPage(){
-return String.raw`<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>TERRAL | SUPER ADMIN</title>
-<style>
-:root{--wine:#690020;--wine2:#8a1237;--bg:#f4f2ef;--card:#fff;--line:#e4ddd6;--text:#2b2623;--muted:#746c67;--green:#218838;--red:#c9303d}
-*{box-sizing:border-box}body{margin:0;font-family:Arial,Helvetica,sans-serif;background:var(--bg);color:var(--text)}button,input,select,textarea{font:inherit}button,a{cursor:pointer}
-header{background:linear-gradient(90deg,#560019,var(--wine2));color:#fff;padding:19px 28px;display:flex;justify-content:space-between;align-items:center}header h1{margin:0;font-size:21px}header p{margin:4px 0 0;font-size:11px;opacity:.9}header a{color:#fff;text-decoration:none;font-size:12px;font-weight:700}
-main{max-width:1180px;margin:auto;padding:22px}.warning{background:#fff7db;border:1px solid #ead897;border-radius:9px;padding:11px 13px;font-size:10px;margin-bottom:14px}.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.card{background:#fff;border:1px solid var(--line);border-radius:11px;padding:15px;box-shadow:0 8px 22px #0000000b}.card h2{margin:0 0 5px;font-size:14px;color:var(--wine)}.sub{font-size:9px;color:var(--muted);margin-bottom:12px}.form{display:grid;grid-template-columns:1fr 1fr;gap:9px}.field label{display:block;font-size:8px;font-weight:800;margin-bottom:4px}.field input,.field select,.field textarea{width:100%;border:1px solid #d9d0c8;border-radius:6px;padding:8px;background:#fff}.field textarea{min-height:58px}.wide{grid-column:1/-1}.btn{border:1px solid #d8cec7;background:#fff;border-radius:7px;padding:8px 11px;font-size:9px;font-weight:800}.btn.primary{background:var(--wine);color:#fff;border-color:var(--wine)}.status{display:inline-block;border-radius:999px;padding:4px 7px;font-size:7px;font-weight:800}.status.on{background:#dff3e4;color:#176b32}.status.off{background:#f8d9dc;color:#9b2630}
-.projects{display:grid;gap:7px}.project{display:grid;grid-template-columns:1fr 110px 145px 75px;gap:7px;align-items:center;border-top:1px solid #eee;padding-top:7px;font-size:8px}.project:first-child{border-top:0}.project input,.project select{width:100%;border:1px solid #ddd3cb;border-radius:5px;padding:6px;font-size:8px}
-.audit{max-height:320px;overflow:auto}.audit-row{display:grid;grid-template-columns:125px 130px 1fr;gap:8px;border-bottom:1px solid #eee;padding:7px 0;font-size:7.5px}.audit-row b{color:var(--wine)}.full{grid-column:1/-1}
-@media(max-width:800px){.grid{grid-template-columns:1fr}.form{grid-template-columns:1fr}.wide{grid-column:auto}.project{grid-template-columns:1fr}.audit-row{grid-template-columns:1fr}}
-</style></head><body>
-<header><div><h1>SUPER ADMIN</h1><p>Controle proprietário • Licenças • Proteção do sistema</p></div><a href="/">← Voltar ao sistema</a></header>
-<main>
-<div class="warning"><b>Conta protegida:</b> administradores comuns não podem alterar, excluir, redefinir senha ou retirar o acesso do Super Admin.</div>
-<div class="grid">
-<section class="card"><h2>Licença geral</h2><div class="sub">Controla o acesso ao sistema inteiro. O Super Admin continua entrando mesmo com a licença suspensa.</div>
-<div class="form"><div class="field"><label>Cliente / empresa</label><input id="client"></div><div class="field"><label>Status</label><select id="status"><option value="ACTIVE">ATIVA</option><option value="SUSPENDED">SUSPENSA</option></select></div><div class="field"><label>Validade</label><input id="expires" type="date"></div><div class="field wide"><label>Observações</label><textarea id="notes"></textarea></div></div><div style="margin-top:10px"><button class="btn primary" id="saveLicense">Salvar licença geral</button></div></section>
-<section class="card"><h2>Proteções ativas</h2><div class="sub">Camadas aplicadas nesta versão.</div><div style="font-size:9px;line-height:1.9">✓ Super Admin separado dos administradores<br>✓ APIs sem CORS público<br>✓ Licença geral no servidor<br>✓ Licença individual por obra<br>✓ Conta Super Admin não editável por Admin<br>✓ Registro de auditoria de alterações críticas<br>✓ Sessões e permissões continuam validadas no backend</div></section>
-<section class="card full"><h2>Licenças por obra</h2><div class="sub">Desative uma obra para que administradores e usuários deixem de acessá-la. O Super Admin mantém acesso.</div><div id="projects" class="projects"></div></section>
-<section class="card full"><h2>Auditoria de segurança</h2><div class="sub">Últimas alterações críticas realizadas no sistema.</div><div id="audit" class="audit"></div></section>
-</div></main>
-<script>
-const $=id=>document.getElementById(id),esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
-async function api(url,opt={}){const r=await fetch(url,{headers:{"content-type":"application/json",...(opt.headers||{})},...opt});const d=await r.json().catch(()=>({}));if(r.status===401){location.href="/login";throw new Error("Sessão expirada")}if(!r.ok)throw new Error(d.error||"Erro");return d}
-async function load(){const d=await api("/api/super/license");client.value=d.license.client_name||"";status.value=d.license.status||"ACTIVE";expires.value=d.license.expires_at||"";notes.value=d.license.notes||"";projects.innerHTML=(d.projects||[]).map(p=>'<div class="project"><div><b>'+esc(p.name)+'</b><br><span class="status '+(Number(p.enabled)===1?"on":"off")+'">'+(Number(p.enabled)===1?"LIBERADA":"BLOQUEADA")+'</span></div><select id="en_'+p.slug+'"><option value="1" '+(Number(p.enabled)===1?"selected":"")+'>Liberada</option><option value="0" '+(Number(p.enabled)!==1?"selected":"")+'>Bloqueada</option></select><input id="ex_'+p.slug+'" type="date" value="'+esc(p.expires_at||"")+'"><button class="btn" onclick="saveProject('+JSON.stringify(p.slug)+')">Salvar</button></div>').join("");await loadAudit()}
-async function saveProject(slug){try{await api("/api/super/projects/"+encodeURIComponent(slug)+"/license",{method:"PUT",body:JSON.stringify({enabled:Number($("en_"+slug).value),expires_at:$("ex_"+slug).value})});await load()}catch(e){alert(e.message)}}
-saveLicense.onclick=async()=>{try{await api("/api/super/license",{method:"PUT",body:JSON.stringify({client_name:client.value.trim(),status:status.value,expires_at:expires.value,notes:notes.value.trim()})});await load();alert("Licença atualizada.")}catch(e){alert(e.message)}};
-async function loadAudit(){const d=await api("/api/super/audit");audit.innerHTML=(d.items||[]).length?(d.items||[]).map(x=>'<div class="audit-row"><span>'+esc(x.created_at)+'</span><b>'+esc(x.username||"Sistema")+'</b><span>'+esc(x.action)+' • '+esc(x.entity)+' '+esc(x.entity_id||"")+(x.details?'<br>'+esc(x.details):'')+'</span></div>').join(""):'Nenhuma alteração registrada.'}
-load().catch(e=>alert(e.message));
-</script></body></html>`;
 }
 
 function projectPlaceholderPage(projectName){
@@ -1326,11 +1245,17 @@ export default {
         COALESCE((SELECT SUM(m.amount) FROM contractor_measurements m WHERE m.contractor_id=c.id),0) AS measured_total,
         (SELECT m.measurement_date FROM contractor_measurements m WHERE m.contractor_id=c.id ORDER BY m.measurement_date DESC,m.id DESC LIMIT 1) AS last_measurement_date,
         COALESCE((SELECT m.amount FROM contractor_measurements m WHERE m.contractor_id=c.id ORDER BY m.measurement_date DESC,m.id DESC LIMIT 1),0) AS last_measurement_amount,
-        MAX(0,c.contract_value-COALESCE((SELECT SUM(m.amount) FROM contractor_measurements m WHERE m.contractor_id=c.id),0)) AS calculated_contract_balance
+        COALESCE((SELECT SUM(m.amount) FROM contractor_measurements m WHERE m.contractor_id=c.id AND (m.contractor_service_key IS NULL OR m.contractor_service_key='')),0) AS unallocated_measured_total
         FROM contractors c WHERE c.project_slug='emirates-parque-flamboyant' AND c.active=1 ORDER BY c.company_name COLLATE NOCASE`).all()).results||[];
-      for(const c of rows){c.contract_balance=Number(c.calculated_contract_balance||0);
-        const sr=(await env.DB.prepare("SELECT description,macro_service FROM contractor_services WHERE contractor_id=? ORDER BY rowid").bind(c.id).all()).results||[];
-        c.contracted_services=sr.map(x=>({description:x.description,macro_service:x.macro_service}));
+      for(const c of rows){
+        c.contract_balance=Math.max(0,Number(c.contract_value||0)-Number(c.measured_total||0));
+        const sr=(await env.DB.prepare(`SELECT cs.service AS service_key,cs.description,cs.macro_service,cs.service_value,
+          COALESCE((SELECT SUM(m.amount) FROM contractor_measurements m WHERE m.contractor_id=cs.contractor_id AND m.contractor_service_key=cs.service),0) AS measured_total,
+          (SELECT COUNT(*) FROM contractor_measurements m WHERE m.contractor_id=cs.contractor_id AND m.contractor_service_key=cs.service) AS measurement_count,
+          (SELECT m.measurement_date FROM contractor_measurements m WHERE m.contractor_id=cs.contractor_id AND m.contractor_service_key=cs.service ORDER BY m.measurement_date DESC,m.id DESC LIMIT 1) AS last_measurement_date,
+          COALESCE((SELECT m.amount FROM contractor_measurements m WHERE m.contractor_id=cs.contractor_id AND m.contractor_service_key=cs.service ORDER BY m.measurement_date DESC,m.id DESC LIMIT 1),0) AS last_measurement_amount
+          FROM contractor_services cs WHERE cs.contractor_id=? ORDER BY cs.rowid`).bind(c.id).all()).results||[];
+        c.contracted_services=sr;
         c.services=[...new Set(sr.map(x=>x.macro_service).filter(Boolean))];
       }
       return json({items:rows});
@@ -1339,18 +1264,21 @@ export default {
     if(path==="/api/contractors" && request.method==="POST"){
       if(auth.role!=="admin")return json({error:"Somente o Administrador pode cadastrar empreiteiros."},403);
       await ensureOperationalSchema(env);
-      const b=await request.json().catch(()=>({})),name=String(b.company_name||"").trim(),contractNumber=String(b.contract_number||"").trim();
-      if(!name)return json({error:"Informe o nome da empresa."},400);
-      if(!contractNumber)return json({error:"Informe o número do contrato."},400);
+      const b=await request.json().catch(()=>({})),name=String(b.company_name||"").trim(),contractNumber=String(b.contract_number||"").trim(),contractValue=Math.max(0,Number(b.contract_value||0));
+      if(!name||!contractNumber||contractValue<=0)return json({error:"Preencha empresa, número e valor do contrato."},400);
       const validMacros=["Checklist - Instaladora","Checklist - Pedreiro","Checklist - Rejunte","Checklist - Pintura","Limpeza","Vistoria - Qualidade","Vistoria - Cliente","Revistoria - Cliente","Unidade aprovada"];
-      const services=Array.isArray(b.contracted_services)?b.contracted_services.map(x=>({description:String(x?.description||"").trim(),macro_service:String(x?.macro_service||"").trim()})).filter(x=>x.description&&validMacros.includes(x.macro_service)):[];
-      if(!services.length)return json({error:"Cadastre ao menos um serviço contratado e seu macroserviço."},400);
+      const services=Array.isArray(b.contracted_services)?b.contracted_services.map(x=>({description:String(x?.description||"").trim(),macro_service:String(x?.macro_service||"").trim(),service_value:Math.max(0,Number(x?.service_value||0))})).filter(x=>x.description&&validMacros.includes(x.macro_service)&&x.service_value>0):[];
+      if(!services.length)return json({error:"Cadastre ao menos um serviço com valor."},400);
+      if(Math.abs(services.reduce((a,s)=>a+s.service_value,0)-contractValue)>.01)return json({error:"A soma dos serviços deve ser igual ao valor do contrato."},400);
       const now=new Date().toISOString();
-      const ir=await env.DB.prepare(`INSERT INTO contractors(project_slug,company_name,contract_number,contract_value,contract_balance,service_balance,contact_name,phone,active,created_at,updated_at)
-        VALUES('emirates-parque-flamboyant',?,?,?,?,?,?,?,?,?,?)`)
-        .bind(name,contractNumber,Math.max(0,Number(b.contract_value||0)),Math.max(0,Number(b.contract_value||0)),"",String(b.contact_name||"").trim(),String(b.phone||"").trim(),1,now,now).run();
+      const ir=await env.DB.prepare(`INSERT INTO contractors(project_slug,company_name,contract_number,contract_value,contract_balance,service_balance,contact_name,phone,active,created_at,updated_at) VALUES('emirates-parque-flamboyant',?,?,?,?,?,?,?,?,?,?)`)
+        .bind(name,contractNumber,contractValue,contractValue,"",String(b.contact_name||"").trim(),String(b.phone||"").trim(),1,now,now).run();
       const id=Number(ir.meta?.last_row_id||0);
-      if(services.length)await env.DB.batch(services.map((s,i)=>env.DB.prepare("INSERT OR REPLACE INTO contractor_services(contractor_id,service,description,macro_service) VALUES(?,?,?,?)").bind(id,s.description+" #"+(i+1),s.description,s.macro_service)));
+      let n=1;
+      for(const s of services){
+        const key="SVC-"+id+"-"+Date.now()+"-"+(n++);
+        await env.DB.prepare("INSERT INTO contractor_services(contractor_id,service,description,macro_service,service_value) VALUES(?,?,?,?,?)").bind(id,key,s.description,s.macro_service,s.service_value).run();
+      }
       return json({ok:true,id},201);
     }
 
@@ -1358,17 +1286,43 @@ export default {
     if(contractorMatch&&request.method==="PATCH"){
       if(auth.role!=="admin")return json({error:"Somente o Administrador pode editar empreiteiros."},403);
       await ensureOperationalSchema(env);
-      const id=Number(contractorMatch[1]),b=await request.json().catch(()=>({})),name=String(b.company_name||"").trim(),contractNumber=String(b.contract_number||"").trim();
-      if(!name)return json({error:"Informe o nome da empresa."},400);
-      if(!contractNumber)return json({error:"Informe o número do contrato."},400);
+      const id=Number(contractorMatch[1]),b=await request.json().catch(()=>({})),name=String(b.company_name||"").trim(),contractNumber=String(b.contract_number||"").trim(),contractValue=Math.max(0,Number(b.contract_value||0));
+      if(!name||!contractNumber||contractValue<=0)return json({error:"Preencha empresa, contrato e valor."},400);
       const validMacros=["Checklist - Instaladora","Checklist - Pedreiro","Checklist - Rejunte","Checklist - Pintura","Limpeza","Vistoria - Qualidade","Vistoria - Cliente","Revistoria - Cliente","Unidade aprovada"];
-      const services=Array.isArray(b.contracted_services)?b.contracted_services.map(x=>({description:String(x?.description||"").trim(),macro_service:String(x?.macro_service||"").trim()})).filter(x=>x.description&&validMacros.includes(x.macro_service)):[];
-      if(!services.length)return json({error:"Cadastre ao menos um serviço contratado e seu macroserviço."},400);
-      const now=new Date().toISOString();
-      const measuredRow=await env.DB.prepare("SELECT COALESCE(SUM(amount),0) total FROM contractor_measurements WHERE contractor_id=?").bind(id).first();const measuredTotal=Number(measuredRow?.total||0);await env.DB.prepare("UPDATE contractors SET company_name=?,contract_number=?,contract_value=?,contract_balance=?,service_balance=?,contact_name=?,phone=?,updated_at=? WHERE id=?")
-        .bind(name,contractNumber,Math.max(0,Number(b.contract_value||0)),Math.max(0,Math.max(0,Number(b.contract_value||0))-measuredTotal),"",String(b.contact_name||"").trim(),String(b.phone||"").trim(),now,id).run();
-      await env.DB.prepare("DELETE FROM contractor_services WHERE contractor_id=?").bind(id).run();
-      if(services.length)await env.DB.batch(services.map((s,i)=>env.DB.prepare("INSERT INTO contractor_services(contractor_id,service,description,macro_service) VALUES(?,?,?,?)").bind(id,s.description+" #"+(i+1),s.description,s.macro_service)));
+      const services=Array.isArray(b.contracted_services)?b.contracted_services.map(x=>({service_key:String(x?.service_key||"").trim(),description:String(x?.description||"").trim(),macro_service:String(x?.macro_service||"").trim(),service_value:Math.max(0,Number(x?.service_value||0))})).filter(x=>x.description&&validMacros.includes(x.macro_service)&&x.service_value>0):[];
+      if(!services.length)return json({error:"Cadastre ao menos um serviço com valor."},400);
+      if(Math.abs(services.reduce((a,s)=>a+s.service_value,0)-contractValue)>.01)return json({error:"A soma dos serviços deve ser igual ao valor total do contrato."},400);
+      for(const s of services){
+        if(s.service_key){
+          const measured=await env.DB.prepare("SELECT COALESCE(SUM(amount),0) total FROM contractor_measurements WHERE contractor_id=? AND contractor_service_key=?").bind(id,s.service_key).first();
+          if(Number(measured?.total||0)>s.service_value+.001)return json({error:'O valor de um serviço não pode ficar abaixo do que já foi medido.'},400);
+        }
+      }
+      const allMeasured=await env.DB.prepare("SELECT COALESCE(SUM(amount),0) total FROM contractor_measurements WHERE contractor_id=?").bind(id).first();
+      if(Number(allMeasured?.total||0)>contractValue+.001)return json({error:"O contrato não pode ficar menor que o total já medido."},400);
+      await env.DB.prepare("UPDATE contractors SET company_name=?,contract_number=?,contract_value=?,contract_balance=?,service_balance='',contact_name=?,phone=?,updated_at=? WHERE id=?")
+        .bind(name,contractNumber,contractValue,Math.max(0,contractValue-Number(allMeasured?.total||0)),String(b.contact_name||"").trim(),String(b.phone||"").trim(),new Date().toISOString(),id).run();
+
+      const existing=(await env.DB.prepare("SELECT service FROM contractor_services WHERE contractor_id=?").bind(id).all()).results||[];
+      const keep=new Set();
+      let n=1;
+      for(const s of services){
+        if(s.service_key&&existing.some(e=>e.service===s.service_key)){
+          keep.add(s.service_key);
+          await env.DB.prepare("UPDATE contractor_services SET description=?,macro_service=?,service_value=? WHERE contractor_id=? AND service=?").bind(s.description,s.macro_service,s.service_value,id,s.service_key).run();
+        }else{
+          const key="SVC-"+id+"-"+Date.now()+"-"+(n++);
+          keep.add(key);
+          await env.DB.prepare("INSERT INTO contractor_services(contractor_id,service,description,macro_service,service_value) VALUES(?,?,?,?,?)").bind(id,key,s.description,s.macro_service,s.service_value).run();
+        }
+      }
+      for(const e of existing){
+        if(!keep.has(e.service)){
+          const linked=await env.DB.prepare("SELECT COUNT(*) n FROM contractor_measurements WHERE contractor_id=? AND contractor_service_key=?").bind(id,e.service).first();
+          if(Number(linked?.n||0)>0)return json({error:"Não é possível remover um serviço que já possui medições."},400);
+          await env.DB.prepare("DELETE FROM contractor_services WHERE contractor_id=? AND service=?").bind(id,e.service).run();
+        }
+      }
       return json({ok:true});
     }
 
@@ -1388,26 +1342,27 @@ export default {
       if(!(await hasProjectAccess(env,auth,"emirates-parque-flamboyant")))return json({error:"Acesso negado."},403);
       await ensureOperationalSchema(env);
       const id=Number(measurementMatch[1]);
-      const items=(await env.DB.prepare("SELECT * FROM contractor_measurements WHERE contractor_id=? ORDER BY measurement_date DESC,id DESC").bind(id).all()).results||[];
+      const items=(await env.DB.prepare(`SELECT m.*,cs.description AS service_description FROM contractor_measurements m LEFT JOIN contractor_services cs ON cs.contractor_id=m.contractor_id AND cs.service=m.contractor_service_key WHERE m.contractor_id=? ORDER BY m.measurement_date DESC,m.id DESC`).bind(id).all()).results||[];
       return json({items});
     }
 
     if(measurementMatch&&request.method==="POST"){
       if(auth.role!=="admin")return json({error:"Somente o Administrador pode registrar medições."},403);
       await ensureOperationalSchema(env);
-      const contractorId=Number(measurementMatch[1]),b=await request.json().catch(()=>({}));
-      const number=String(b.measurement_number||"").trim(),date=String(b.measurement_date||"").trim(),amount=Math.max(0,Number(b.amount||0)),notes=String(b.notes||"").trim();
-      if(!number||!date||amount<=0)return json({error:"Informe número, data e valor da medição."},400);
-      const measurementDay=Number(date.slice(8,10));
-      if(measurementDay<1||measurementDay>10)return json({error:"A janela de medição de empreiteiros é do dia 01 ao dia 10."},400);
-      const contractor=await env.DB.prepare("SELECT id FROM contractors WHERE id=? AND active=1").bind(contractorId).first();
-      if(!contractor)return json({error:"Empreiteiro não encontrado."},404);
+      const contractorId=Number(measurementMatch[1]),b=await request.json().catch(()=>({})),serviceKey=String(b.contractor_service_key||"").trim(),number=String(b.measurement_number||"").trim(),date=String(b.measurement_date||"").trim(),amount=Math.max(0,Number(b.amount||0)),notes=String(b.notes||"").trim();
+      if(!serviceKey||!number||!date||amount<=0)return json({error:"Selecione o serviço e preencha os dados da medição."},400);
+      const day=Number(date.slice(8,10));if(day<1||day>10)return json({error:"A janela de medição dos empreiteiros é do dia 01 ao dia 10."},400);
+      const contractor=await env.DB.prepare("SELECT id,contract_value FROM contractors WHERE id=? AND active=1").bind(contractorId).first();
+      const service=await env.DB.prepare("SELECT service_value,description FROM contractor_services WHERE contractor_id=? AND service=?").bind(contractorId,serviceKey).first();
+      if(!contractor||!service)return json({error:"Empreiteiro ou serviço não encontrado."},404);
+      const measured=await env.DB.prepare("SELECT COALESCE(SUM(amount),0) total FROM contractor_measurements WHERE contractor_id=? AND contractor_service_key=?").bind(contractorId,serviceKey).first();
+      const available=Math.max(0,Number(service.service_value||0)-Number(measured?.total||0));
+      if(amount>available+.001)return json({error:"A medição ultrapassa o saldo disponível deste serviço."},400);
       const now=new Date().toISOString();
-      const ir=await env.DB.prepare("INSERT INTO contractor_measurements(contractor_id,measurement_number,measurement_date,amount,notes,created_by,created_by_name,created_at) VALUES(?,?,?,?,?,?,?,?)")
-        .bind(contractorId,number,date,amount,notes,auth.id,String(auth.name||auth.username||""),now).run();
-      const sums=await env.DB.prepare("SELECT COALESCE(SUM(amount),0) total FROM contractor_measurements WHERE contractor_id=?").bind(contractorId).first();
-      const ctr=await env.DB.prepare("SELECT contract_value FROM contractors WHERE id=?").bind(contractorId).first();
-      await env.DB.prepare("UPDATE contractors SET contract_balance=?,updated_at=? WHERE id=?").bind(Math.max(0,Number(ctr?.contract_value||0)-Number(sums?.total||0)),now,contractorId).run();
+      const ir=await env.DB.prepare("INSERT INTO contractor_measurements(contractor_id,contractor_service_key,measurement_number,measurement_date,amount,notes,created_by,created_by_name,created_at) VALUES(?,?,?,?,?,?,?,?,?)")
+        .bind(contractorId,serviceKey,number,date,amount,notes,auth.id,String(auth.name||auth.username||""),now).run();
+      const total=await env.DB.prepare("SELECT COALESCE(SUM(amount),0) total FROM contractor_measurements WHERE contractor_id=?").bind(contractorId).first();
+      await env.DB.prepare("UPDATE contractors SET contract_balance=?,updated_at=? WHERE id=?").bind(Math.max(0,Number(contractor.contract_value||0)-Number(total?.total||0)),now,contractorId).run();
       return json({ok:true,id:Number(ir.meta?.last_row_id||0)},201);
     }
 
@@ -1415,12 +1370,11 @@ export default {
     if(measurementDelete&&request.method==="DELETE"){
       if(auth.role!=="admin")return json({error:"Somente o Administrador pode excluir medições."},403);
       await ensureOperationalSchema(env);
-      const measurementId=Number(measurementDelete[1]);
-      const mr=await env.DB.prepare("SELECT contractor_id FROM contractor_measurements WHERE id=?").bind(measurementId).first();
+      const measurementId=Number(measurementDelete[1]),mr=await env.DB.prepare("SELECT contractor_id FROM contractor_measurements WHERE id=?").bind(measurementId).first();
       await env.DB.prepare("DELETE FROM contractor_measurements WHERE id=?").bind(measurementId).run();
       if(mr?.contractor_id){
-        const cid=Number(mr.contractor_id),sumr=await env.DB.prepare("SELECT COALESCE(SUM(amount),0) total FROM contractor_measurements WHERE contractor_id=?").bind(cid).first(),ctr=await env.DB.prepare("SELECT contract_value FROM contractors WHERE id=?").bind(cid).first();
-        await env.DB.prepare("UPDATE contractors SET contract_balance=?,updated_at=? WHERE id=?").bind(Math.max(0,Number(ctr?.contract_value||0)-Number(sumr?.total||0)),new Date().toISOString(),cid).run();
+        const cid=Number(mr.contractor_id),sum=await env.DB.prepare("SELECT COALESCE(SUM(amount),0) total FROM contractor_measurements WHERE contractor_id=?").bind(cid).first(),ctr=await env.DB.prepare("SELECT contract_value FROM contractors WHERE id=?").bind(cid).first();
+        await env.DB.prepare("UPDATE contractors SET contract_balance=?,updated_at=? WHERE id=?").bind(Math.max(0,Number(ctr?.contract_value||0)-Number(sum?.total||0)),new Date().toISOString(),cid).run();
       }
       return json({ok:true});
     }
