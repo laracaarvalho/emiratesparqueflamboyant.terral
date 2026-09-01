@@ -977,7 +977,7 @@ main{max-width:1360px;margin:auto;padding:25px}.toolbar{display:flex;justify-con
 <header><div><h1>Empreiteiros</h1><small>Emirates Parque Flamboyant</small></div><a href="/obra/emirates-parque-flamboyant">← Voltar à obra</a></header>
 <main>
 <div class="toolbar"><div><h2>Empreiteiros</h2><p>Saldo do contrato e acompanhamento financeiro individual por serviço.</p></div>${admin?'<button class="btn primary" id="newBtn">＋ Novo empreiteiro</button>':''}</div>
-<div id="grid" class="grid"><div class="contractor" style="min-height:150px"><b>Carregando empreiteiros...</b></div></div>
+<div id="grid" class="grid"></div>
 </main>
 
 <div class="modal-back" id="modal"><div class="modal">
@@ -1016,25 +1016,30 @@ let items=[],editingId=null,measurementContractorId=null;
 const $=id=>document.getElementById(id),esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const money=n=>Number(n||0).toLocaleString("pt-BR",{style:"currency",currency:"BRL"});
 function moneyInput(v){
- const raw=String(v??"").trim();
- if(!raw)return "";
- const clean=raw.replace(/R\$|\s/g,"");
- let n;
- if(clean.includes(",")) n=Number(clean.replace(/\./g,"").replace(",","."));
- else n=Number(clean.replace(/[^0-9.-]/g,""));
- return Number.isFinite(n)?n.toLocaleString("pt-BR",{style:"currency",currency:"BRL"}):"";
+ const n=moneyFromInput(v);
+ return n>0?n.toLocaleString("pt-BR",{style:"currency",currency:"BRL"}):"";
 }
 function moneyFromInput(v){
- const raw=String(v??"").trim();
+ let raw=String(v??"").trim();
  if(!raw)return 0;
- const clean=raw.replace(/R\$|\s/g,"");
+ raw=raw.replace(/R\$/gi,"").replace(/\s/g,"");
  let n;
- if(clean.includes(",")) n=Number(clean.replace(/\./g,"").replace(",","."));
- else n=Number(clean.replace(/[^0-9.-]/g,""));
+ if(raw.includes(",")){
+   n=Number(raw.replace(/\./g,"").replace(",",".").replace(/[^0-9.-]/g,""));
+ }else{
+   n=Number(raw.replace(/[^0-9.-]/g,""));
+ }
  return Number.isFinite(n)?n:0;
 }
 function setMoneyInput(el,v){el.value=money(v)}
-function phoneMask(v){const d=String(v||"").replace(/\D/g,"").slice(-11);if(!d)return "";if(d.length<=2)return "("+d;if(d.length<=7)return "("+d.slice(0,2)+") "+d.slice(2);return "("+d.slice(0,2)+") "+d.slice(2,7)+"."+d.slice(7,11)}
+function phoneDigits(v){return String(v||"").replace(/\D/g,"").slice(0,11)}
+function phoneMask(v){
+ const d=phoneDigits(v);
+ if(!d)return "";
+ if(d.length<3)return "("+d;
+ if(d.length<8)return "("+d.slice(0,2)+") "+d.slice(2);
+ return "("+d.slice(0,2)+") "+d.slice(2,7)+"."+d.slice(7,11);
+}
 function colorVar(p){return p>=70?"var(--green)":p>=40?"var(--blue)":p>=10?"var(--yellow)":"var(--red)"}
 function textClass(p){return p>=70?"green-t":p>=40?"blue-t":p>=10?"yellow-t":"red-t"}
 async function api(url,opt={}){const r=await fetch(url,{headers:{"content-type":"application/json",...(opt.headers||{})},...opt}),d=await r.json().catch(()=>({}));if(!r.ok)throw new Error(d.error||"Erro");return d}
@@ -1055,17 +1060,45 @@ function serviceEditRow(data={}){
  const w=document.createElement("div");w.className="service-edit-row";w.dataset.serviceKey=data.service_key||"";
  w.innerHTML='<div class="field"><label>Descrição do serviço contratado</label><input class="svc-description" value="'+esc(data.description||"")+'"></div><div class="field"><label>Macroserviço / Macrofluxo</label><select class="svc-macro">'+MACROS.map(m=>'<option value="'+esc(m)+'" '+(data.macro_service===m?'selected':'')+'>'+esc(m)+'</option>').join("")+'</select></div><div class="field"><label>Valor do serviço</label><input class="svc-value" type="text" inputmode="numeric" placeholder="R$ 0,00" value="'+(data.service_value?money(data.service_value):"")+'"></div><button type="button" class="remove-service">×</button>';
  w.querySelector(".svc-value").addEventListener("input",updateServiceTotals);
- w.querySelector(".svc-value").addEventListener("blur",e=>{const v=moneyFromInput(e.target.value);e.target.value=v?money(v):"";updateServiceTotals()});
+ w.querySelector(".svc-value").addEventListener("blur",e=>{
+   const v=moneyFromInput(e.target.value);
+   e.target.value=v>0?money(v):"";
+   updateServiceTotals();
+ });
  w.querySelector(".remove-service").onclick=()=>{w.remove();updateServiceTotals()};return w;
 }
 function addService(data={}){$("serviceRows").appendChild(serviceEditRow(data));updateServiceTotals()}
 function getServices(){return [...document.querySelectorAll(".service-edit-row")].map(r=>({service_key:r.dataset.serviceKey||"",description:r.querySelector(".svc-description").value.trim(),macro_service:r.querySelector(".svc-macro").value,service_value:moneyFromInput(r.querySelector(".svc-value").value)})).filter(x=>x.description)}
 function updateServiceTotals(){const sum=getServices().reduce((a,s)=>a+s.service_value,0),contract=moneyFromInput($("contractValue").value),diff=Math.round((contract-sum)*100)/100;$("servicesTotal").textContent=money(sum);$("servicesDifference").textContent=Math.abs(diff)<.01?"Valores conferem":"Diferença: "+money(Math.abs(diff));$("servicesDifference").className=Math.abs(diff)<.01?"ok":"bad"}
-function recalcBalance(){const value=moneyFromInput($("contractValue").value),measured=editingId?Number(items.find(x=>Number(x.id)===Number(editingId))?.measured_total||0):0;setMoneyInput($("contractBalance"),Math.max(0,value-measured));updateServiceTotals()}
-function openModal(item=null){editingId=item?.id||null;$("modalTitle").textContent=item?"Editar empreiteiro":"Novo empreiteiro";$("companyName").value=item?.company_name||"";$("contractNumber").value=item?.contract_number||"";setMoneyInput($("contractValue"),item?.contract_value||0);setMoneyInput($("contractBalance"),contractBalance(item||{}));$("contactName").value=item?.contact_name||"";$("phone").value=phoneMask(item?.phone||"");$("serviceRows").innerHTML="";const list=item?.contracted_services||[];if(list.length)list.forEach(addService);else addService();updateServiceTotals();$("modal").classList.add("show")}
+function recalcBalance(){
+ const value=moneyFromInput($("contractValue").value);
+ let measured=0;
+ if(editingId){
+   const current=items.find(x=>Number(x.id)===Number(editingId));
+   measured=Number(current?.measured_total||0);
+ }
+ const balance=Math.max(0,value-measured);
+ $("contractBalance").value=money(balance);
+ updateServiceTotals();
+}
+function openModal(item=null){
+ editingId=item?.id||null;
+ $("modalTitle").textContent=item?"Editar empreiteiro":"Novo empreiteiro";
+ $("companyName").value=item?.company_name||"";
+ $("contractNumber").value=item?.contract_number||"";
+ $("contractValue").value=item?money(Number(item.contract_value||0)):"";
+ $("contractBalance").value=item?money(contractBalance(item)):"R$ 0,00";
+ $("contactName").value=item?.contact_name||"";
+ $("phone").value=item?phoneMask(item.phone||""):"";
+ $("serviceRows").innerHTML="";
+ const list=item?.contracted_services||[];
+ if(list.length)list.forEach(addService);else addService();
+ updateServiceTotals();
+ $("modal").classList.add("show");
+}
 function editItem(id){openModal(items.find(x=>Number(x.id)===Number(id)))}
 async function removeItem(id){if(!confirm("Excluir este empreiteiro?"))return;try{await api("/api/contractors/"+id,{method:"DELETE"});await load()}catch(e){alert(e.message)}}
-async function save(){const body={company_name:$("companyName").value.trim(),contract_number:$("contractNumber").value.trim(),contract_value:moneyFromInput($("contractValue").value),contact_name:$("contactName").value.trim(),phone:phoneMask($("phone").value),contracted_services:getServices()};if(!body.company_name||!body.contract_number)return alert("Preencha empresa e número do contrato.");if(body.contract_value<=0)return alert("Informe o valor do contrato.");if(!body.contracted_services.length)return alert("Cadastre ao menos um serviço.");if(body.contracted_services.some(s=>s.service_value<=0))return alert("Informe o valor de todos os serviços.");if(Math.abs(body.contracted_services.reduce((a,s)=>a+s.service_value,0)-body.contract_value)>.01)return alert("A soma dos serviços deve ser igual ao valor total do contrato.");try{await api(editingId?"/api/contractors/"+editingId:"/api/contractors",{method:editingId?"PATCH":"POST",body:JSON.stringify(body)});$("modal").classList.remove("show");await load()}catch(e){alert(e.message)}}
+async function save(){const body={company_name:$("companyName").value.trim(),contract_number:$("contractNumber").value.trim(),contract_value:moneyFromInput($("contractValue").value),contact_name:$("contactName").value.trim(),phone:phoneMask(phoneDigits($("phone").value)),contracted_services:getServices()};if(!body.company_name||!body.contract_number)return alert("Preencha empresa e número do contrato.");if(body.contract_value<=0)return alert("Informe o valor do contrato.");if(!body.contracted_services.length)return alert("Cadastre ao menos um serviço.");if(body.contracted_services.some(s=>s.service_value<=0))return alert("Informe o valor de todos os serviços.");if(Math.abs(body.contracted_services.reduce((a,s)=>a+s.service_value,0)-body.contract_value)>.01)return alert("A soma dos serviços deve ser igual ao valor total do contrato.");try{await api(editingId?"/api/contractors/"+editingId:"/api/contractors",{method:editingId?"PATCH":"POST",body:JSON.stringify(body)});$("modal").classList.remove("show");await load()}catch(e){alert(e.message)}}
 
 async function openMeasurements(id){measurementContractorId=id;const c=items.find(x=>Number(x.id)===Number(id));$("measureCompany").textContent=(c?.company_name||"")+" • Contrato nº "+(c?.contract_number||"—");if(IS_ADMIN)$("measurementService").innerHTML='<option value="">Selecione o serviço contratado</option>'+(c?.contracted_services||[]).map(s=>'<option value="'+esc(s.service_key)+'">'+esc(s.description)+' — saldo '+money(serviceBalance(s))+'</option>').join("");const last=c?.last_measurement_date?new Date(c.last_measurement_date+"T12:00:00").toLocaleDateString("pt-BR"):"nenhuma medição anterior";$("measurementEligibility").innerHTML="Última medição geral: <b>"+last+"</b>. Toda nova medição deve indicar o serviço correspondente.";if(IS_ADMIN){$("measurementNumber").value="";$("measurementDate").value=new Date().toISOString().slice(0,10);$("measurementAmount").value="";$("measurementNotes").value=""}$("measureModal").classList.add("show");await loadMeasurements()}
 async function loadMeasurements(){const d=await api("/api/contractors/"+measurementContractorId+"/measurements"),rows=d.items||[];$("measurementCount").textContent=rows.length;$("measurementTotal").textContent=money(rows.reduce((a,b)=>a+Number(b.amount||0),0));$("measurementRows").innerHTML=rows.length?rows.map(x=>'<tr><td>'+esc(x.measurement_number||"—")+'</td><td>'+esc(x.service_description||"Não vinculado")+'</td><td>'+new Date(x.measurement_date+"T12:00:00").toLocaleDateString("pt-BR")+'</td><td>'+money(x.amount)+'</td><td>'+esc(x.notes||"")+'</td>'+(IS_ADMIN?'<td><button class="btn small" onclick="deleteMeasurement('+x.id+')">Excluir</button></td>':'')+'</tr>').join(""):'<tr><td colspan="'+(IS_ADMIN?6:5)+'">Nenhuma medição registrada.</td></tr>'}
@@ -1073,10 +1106,29 @@ async function addMeasurement(){const body={contractor_service_key:$("measuremen
 async function deleteMeasurement(id){if(!confirm("Excluir esta medição?"))return;try{await api("/api/contractor-measurements/"+id,{method:"DELETE"});await load();await openMeasurements(measurementContractorId)}catch(e){alert(e.message)}}
 async function load(){const d=await api("/api/contractors");items=d.items||[];render()}
 
-$("phone").addEventListener("input",e=>e.target.value=phoneMask(e.target.value));
+$("phone").addEventListener("input",e=>{
+ e.target.value=phoneDigits(e.target.value);
+});
+$("phone").addEventListener("blur",e=>{
+ e.target.value=phoneMask(e.target.value);
+});
+$("phone").addEventListener("focus",e=>{
+ e.target.value=phoneDigits(e.target.value);
+});
+
 $("contractValue").addEventListener("input",recalcBalance);
-$("contractValue").addEventListener("blur",e=>{const v=moneyFromInput(e.target.value);e.target.value=v?money(v):"";recalcBalance()});
-if(IS_ADMIN)$("measurementAmount").addEventListener("blur",e=>{const v=moneyFromInput(e.target.value);e.target.value=v?money(v):""});
+$("contractValue").addEventListener("blur",e=>{
+ const v=moneyFromInput(e.target.value);
+ e.target.value=v>0?money(v):"";
+ recalcBalance();
+});
+
+if(IS_ADMIN){
+ $("measurementAmount").addEventListener("blur",e=>{
+   const v=moneyFromInput(e.target.value);
+   e.target.value=v>0?money(v):"";
+ });
+}
 if(IS_ADMIN){$("newBtn").onclick=()=>openModal();$("saveBtn").onclick=save;$("addServiceBtn").onclick=()=>addService();$("addMeasurementBtn").onclick=addMeasurement}
 $("closeBtn").onclick=$("cancelBtn").onclick=()=>$("modal").classList.remove("show");$("closeMeasureBtn").onclick=()=>$("measureModal").classList.remove("show");$("modal").onclick=e=>{if(e.target===$("modal"))$("modal").classList.remove("show")};$("measureModal").onclick=e=>{if(e.target===$("measureModal"))$("measureModal").classList.remove("show")};load().catch(e=>alert(e.message));
 </script>
