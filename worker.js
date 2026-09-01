@@ -985,10 +985,10 @@ main{max-width:1360px;margin:auto;padding:25px}.toolbar{display:flex;justify-con
 <div class="form">
 <div class="field"><label>Nome da Empresa</label><input id="companyName"></div>
 <div class="field"><label>NÚMERO DE CONTRATO</label><input id="contractNumber"></div>
-<div class="field"><label>Valor do contrato</label><input id="contractValue" type="text" inputmode="numeric" placeholder="R$ 0,00"></div>
-<div class="field"><label>Saldo do contrato</label><input id="contractBalance" type="text" readonly></div>
+<div class="field"><label>Valor do contrato</label><input id="contractValue" type="text" inputmode="decimal" autocomplete="off" placeholder="R$ 0,00" oninput="recalcBalance()" onkeyup="recalcBalance()" onchange="recalcBalance()" onblur="formatContractValue()"></div>
+<div class="field"><label>Saldo do contrato</label><input id="contractBalance" type="text" readonly tabindex="-1" title="Calculado automaticamente pelo valor do contrato menos as medições"></div>
 <div class="field"><label>Contato</label><input id="contactName"></div>
-<div class="field"><label>Telefone</label><input id="phone" inputmode="numeric" maxlength="15" placeholder=""></div>
+<div class="field"><label>Telefone</label><input id="phone" type="tel" inputmode="numeric" maxlength="15" autocomplete="off" placeholder="" onfocus="this.value=phoneDigits(this.value)" oninput="this.value=phoneDigits(this.value)" onblur="this.value=phoneMask(this.value)"></div>
 <div class="field wide"><label>SERVIÇOS CONTRATADOS</label><div class="help">Defina o valor de cada serviço. A soma deve ser exatamente igual ao valor total do contrato.</div><div class="services-editor" id="serviceRows"></div><button class="btn small" type="button" id="addServiceBtn" style="margin-top:8px">＋ Adicionar serviço</button><div class="services-total"><span>Soma dos serviços: <b id="servicesTotal">R$ 0,00</b></span><span id="servicesDifference"></span></div></div>
 </div>
 <div class="modal-actions"><button class="btn" id="cancelBtn">Cancelar</button><button class="btn primary" id="saveBtn">Salvar empreiteiro</button></div>
@@ -1017,27 +1017,41 @@ const $=id=>document.getElementById(id),esc=s=>String(s??"").replace(/[&<>"']/g,
 const money=n=>Number(n||0).toLocaleString("pt-BR",{style:"currency",currency:"BRL"});
 function moneyInput(v){
  const n=moneyFromInput(v);
- return n>0?n.toLocaleString("pt-BR",{style:"currency",currency:"BRL"}):"";
+ return n>0?money(n):"";
 }
 function moneyFromInput(v){
- let raw=String(v??"").trim();
+ const raw=String(v??"").trim();
  if(!raw)return 0;
- raw=raw.replace(/R\$/gi,"").replace(/\s/g,"");
- let n;
+
+ // Valor já formatado em pt-BR: R$ 250.000,00
  if(raw.includes(",")){
-   n=Number(raw.replace(/\./g,"").replace(",",".").replace(/[^0-9.-]/g,""));
- }else{
-   n=Number(raw.replace(/[^0-9.-]/g,""));
+   const normalized=raw
+     .replace(/R\$/gi,"")
+     .replace(/\s/g,"")
+     .replace(/\./g,"")
+     .replace(",",".")
+     .replace(/[^0-9.-]/g,"");
+   const n=Number(normalized);
+   return Number.isFinite(n)?n:0;
  }
+
+ // Digitação simples: 250000 ou 250000.50
+ const normalized=raw
+   .replace(/R\$/gi,"")
+   .replace(/\s/g,"")
+   .replace(/[^0-9.-]/g,"");
+ const n=Number(normalized);
  return Number.isFinite(n)?n:0;
 }
 function setMoneyInput(el,v){el.value=money(v)}
-function phoneDigits(v){return String(v||"").replace(/\D/g,"").slice(0,11)}
+function phoneDigits(v){
+ return String(v??"").replace(/\D/g,"").slice(0,11);
+}
 function phoneMask(v){
  const d=phoneDigits(v);
  if(!d)return "";
- if(d.length<3)return "("+d;
- if(d.length<8)return "("+d.slice(0,2)+") "+d.slice(2);
+ if(d.length<=2)return "("+d;
+ if(d.length<=7)return "("+d.slice(0,2)+") "+d.slice(2);
  return "("+d.slice(0,2)+") "+d.slice(2,7)+"."+d.slice(7,11);
 }
 function colorVar(p){return p>=70?"var(--green)":p>=40?"var(--blue)":p>=10?"var(--yellow)":"var(--red)"}
@@ -1071,15 +1085,18 @@ function addService(data={}){$("serviceRows").appendChild(serviceEditRow(data));
 function getServices(){return [...document.querySelectorAll(".service-edit-row")].map(r=>({service_key:r.dataset.serviceKey||"",description:r.querySelector(".svc-description").value.trim(),macro_service:r.querySelector(".svc-macro").value,service_value:moneyFromInput(r.querySelector(".svc-value").value)})).filter(x=>x.description)}
 function updateServiceTotals(){const sum=getServices().reduce((a,s)=>a+s.service_value,0),contract=moneyFromInput($("contractValue").value),diff=Math.round((contract-sum)*100)/100;$("servicesTotal").textContent=money(sum);$("servicesDifference").textContent=Math.abs(diff)<.01?"Valores conferem":"Diferença: "+money(Math.abs(diff));$("servicesDifference").className=Math.abs(diff)<.01?"ok":"bad"}
 function recalcBalance(){
- const value=moneyFromInput($("contractValue").value);
- let measured=0;
- if(editingId){
-   const current=items.find(x=>Number(x.id)===Number(editingId));
-   measured=Number(current?.measured_total||0);
- }
- const balance=Math.max(0,value-measured);
+ const contractValue=moneyFromInput($("contractValue").value);
+ const current=editingId?items.find(x=>Number(x.id)===Number(editingId)):null;
+ const measuredTotal=Number(current?.measured_total||0);
+ const balance=Math.max(0,contractValue-measuredTotal);
+
  $("contractBalance").value=money(balance);
  updateServiceTotals();
+}
+function formatContractValue(){
+ const v=moneyFromInput($("contractValue").value);
+ $("contractValue").value=v>0?money(v):"";
+ recalcBalance();
 }
 function openModal(item=null){
  editingId=item?.id||null;
@@ -1095,6 +1112,7 @@ function openModal(item=null){
  if(list.length)list.forEach(addService);else addService();
  updateServiceTotals();
  $("modal").classList.add("show");
+ requestAnimationFrame(()=>recalcBalance());
 }
 function editItem(id){openModal(items.find(x=>Number(x.id)===Number(id)))}
 async function removeItem(id){if(!confirm("Excluir este empreiteiro?"))return;try{await api("/api/contractors/"+id,{method:"DELETE"});await load()}catch(e){alert(e.message)}}
@@ -1105,23 +1123,6 @@ async function loadMeasurements(){const d=await api("/api/contractors/"+measurem
 async function addMeasurement(){const body={contractor_service_key:$("measurementService").value,measurement_number:$("measurementNumber").value.trim(),measurement_date:$("measurementDate").value,amount:moneyFromInput($("measurementAmount").value),notes:$("measurementNotes").value.trim()};if(!body.contractor_service_key)return alert("Selecione o serviço medido.");if(!body.measurement_number||!body.measurement_date||body.amount<=0)return alert("Preencha número, data e valor.");const day=Number(body.measurement_date.slice(8,10));if(day<1||day>10)return alert("A janela de medição dos empreiteiros é do dia 01 ao dia 10.");try{await api("/api/contractors/"+measurementContractorId+"/measurements",{method:"POST",body:JSON.stringify(body)});await load();await openMeasurements(measurementContractorId)}catch(e){alert(e.message)}}
 async function deleteMeasurement(id){if(!confirm("Excluir esta medição?"))return;try{await api("/api/contractor-measurements/"+id,{method:"DELETE"});await load();await openMeasurements(measurementContractorId)}catch(e){alert(e.message)}}
 async function load(){const d=await api("/api/contractors");items=d.items||[];render()}
-
-$("phone").addEventListener("input",e=>{
- e.target.value=phoneDigits(e.target.value);
-});
-$("phone").addEventListener("blur",e=>{
- e.target.value=phoneMask(e.target.value);
-});
-$("phone").addEventListener("focus",e=>{
- e.target.value=phoneDigits(e.target.value);
-});
-
-$("contractValue").addEventListener("input",recalcBalance);
-$("contractValue").addEventListener("blur",e=>{
- const v=moneyFromInput(e.target.value);
- e.target.value=v>0?money(v):"";
- recalcBalance();
-});
 
 if(IS_ADMIN){
  $("measurementAmount").addEventListener("blur",e=>{
@@ -1288,7 +1289,7 @@ export default {
       }
     }
 
-        if((path==="/empreiteiros"||path==="/empreiteiros") && request.method==="GET"){if(!(await hasProjectAccess(env,auth,"emirates-parque-flamboyant")))return new Response("Acesso negado.",{status:403});await ensureOperationalSchema(env);return new Response(contractorsPage(auth),{headers:{"content-type":"text/html; charset=UTF-8"}});}
+        if((path==="/empreiteiros"||path==="/terceirizados") && request.method==="GET"){if(!(await hasProjectAccess(env,auth,"emirates-parque-flamboyant")))return new Response("Acesso negado.",{status:403});await ensureOperationalSchema(env);return new Response(contractorsPage(auth),{headers:{"content-type":"text/html; charset=UTF-8"}});}
     if(path==="/api/contractors" && request.method==="GET"){
       if(!(await hasProjectAccess(env,auth,"emirates-parque-flamboyant")))return json({error:"Acesso negado."},403);
       await ensureOperationalSchema(env);
