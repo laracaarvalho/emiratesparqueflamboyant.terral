@@ -1550,7 +1550,7 @@ export default {
       if(!(await hasProjectAccess(env,auth,"emirates-parque-flamboyant")))return secureHtml("Acesso negado.",403);
       await ensureOperationalSchema(env);
       let page=operationalPage(auth);
-      page=page.replace("<body><div class=\\"shell\\">","<body data-open-dashboard=\\"1\\"><div class=\\"shell\\">");
+      page=page.replace('<body><div class="shell">','<body data-open-dashboard="1"><div class="shell">');
       page=page.replace('load().catch(e=>alert("Erro ao carregar o operacional: "+e.message));','if(document.body.dataset.openDashboard==="1"){const b=document.querySelector(\\'.tab[data-view="dashboard"]\\');if(b)setTimeout(()=>b.click(),0)}load().catch(e=>alert("Erro ao carregar o operacional: "+e.message));');
       return secureHtml(page);
     }
