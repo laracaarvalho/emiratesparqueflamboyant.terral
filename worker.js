@@ -988,7 +988,7 @@ main{max-width:1360px;margin:auto;padding:25px}.toolbar{display:flex;justify-con
 <div class="field"><label>Valor do contrato</label><input id="contractValue" type="text" inputmode="decimal" autocomplete="off" placeholder="R$ 0,00" oninput="recalcBalance()" onkeyup="recalcBalance()" onchange="recalcBalance()" onblur="formatContractValue()"></div>
 <div class="field"><label>Saldo do contrato</label><input id="contractBalance" type="text" readonly tabindex="-1" autocomplete="off"></div>
 <div class="field"><label>Contato</label><input id="contactName"></div>
-<div class="field"><label>Telefone</label><input id="phone" name="contractor_phone_digits" type="text" inputmode="numeric" maxlength="11" autocomplete="new-password" data-lpignore="true" data-1p-ignore="true" placeholder=""></div>
+<div class="field"><label>Telefone</label><input id="phone" inputmode="numeric" maxlength="15" placeholder=""></div>
 <div class="field wide"><label>SERVIÇOS CONTRATADOS</label><div class="help">Defina o valor de cada serviço. A soma deve ser exatamente igual ao valor total do contrato.</div><div class="services-editor" id="serviceRows"></div><button class="btn small" type="button" id="addServiceBtn" style="margin-top:8px">＋ Adicionar serviço</button><div class="services-total"><span>Soma dos serviços: <b id="servicesTotal">R$ 0,00</b></span><span id="servicesDifference"></span></div></div>
 </div>
 <div class="modal-actions"><button class="btn" id="cancelBtn">Cancelar</button><button class="btn primary" id="saveBtn">Salvar empreiteiro</button></div>
@@ -1020,32 +1020,38 @@ function moneyInput(v){
  return n>0?money(n):"";
 }
 function moneyFromInput(v){
- const raw=String(v??"").trim();
+ let raw=String(v??"").trim();
  if(!raw)return 0;
 
- // pt-BR formatado: R$ 250.000,00
- if(raw.includes(",")){
-   const normalized=raw
-     .replace(/R\$/gi,"")
-     .replace(/\s/g,"")
-     .replace(/\./g,"")
-     .replace(",",".")
-     .replace(/[^0-9.-]/g,"");
-   const n=Number(normalized);
-   return Number.isFinite(n)?n:0;
+ raw=raw.split("R$").join("").split(" ").join("");
+
+ // Mantém somente caracteres numéricos e separadores.
+ let clean="";
+ for(const ch of raw){
+   if((ch>="0"&&ch<="9")||ch===","||ch==="."||ch==="-")clean+=ch;
+ }
+ if(!clean)return 0;
+
+ let normalized=clean;
+
+ // Formato brasileiro: 250.000,00
+ if(clean.includes(",")){
+   normalized=clean.split(".").join("");
+   normalized=normalized.replace(",",".");
  }
 
- // digitação simples: 250000 ou 250000.50
- const normalized=raw
-   .replace(/R\$/gi,"")
-   .replace(/\s/g,"")
-   .replace(/[^0-9.-]/g,"");
  const n=Number(normalized);
  return Number.isFinite(n)?n:0;
 }
 function setMoneyInput(el,v){el.value=money(v)}
 function phoneDigits(v){
- return String(v??"").replace(/\D/g,"").slice(0,11);
+ const raw=String(v??"");
+ let digits="";
+ for(const ch of raw){
+   if(ch>="0"&&ch<="9")digits+=ch;
+   if(digits.length>=11)break;
+ }
+ return digits;
 }
 function phoneMask(v){
  const d=phoneDigits(v);
@@ -1053,16 +1059,6 @@ function phoneMask(v){
  if(d.length<=2)return "("+d;
  if(d.length<=7)return "("+d.slice(0,2)+") "+d.slice(2);
  return "("+d.slice(0,2)+") "+d.slice(2,7)+"."+d.slice(7,11);
-}
-function preparePhoneField(){
- const el=$("phone");
- if(!el)return;
- el.value=phoneDigits(el.value);
-}
-function finishPhoneField(){
- const el=$("phone");
- if(!el)return;
- el.value=phoneMask(el.value);
 }
 function colorVar(p){return p>=70?"var(--green)":p>=40?"var(--blue)":p>=10?"var(--yellow)":"var(--red)"}
 function textClass(p){return p>=70?"green-t":p>=40?"blue-t":p>=10?"yellow-t":"red-t"}
@@ -1094,28 +1090,23 @@ function serviceEditRow(data={}){
 function addService(data={}){$("serviceRows").appendChild(serviceEditRow(data));updateServiceTotals()}
 function getServices(){return [...document.querySelectorAll(".service-edit-row")].map(r=>({service_key:r.dataset.serviceKey||"",description:r.querySelector(".svc-description").value.trim(),macro_service:r.querySelector(".svc-macro").value,service_value:moneyFromInput(r.querySelector(".svc-value").value)})).filter(x=>x.description)}
 function updateServiceTotals(){const sum=getServices().reduce((a,s)=>a+s.service_value,0),contract=moneyFromInput($("contractValue").value),diff=Math.round((contract-sum)*100)/100;$("servicesTotal").textContent=money(sum);$("servicesDifference").textContent=Math.abs(diff)<.01?"Valores conferem":"Diferença: "+money(Math.abs(diff));$("servicesDifference").className=Math.abs(diff)<.01?"ok":"bad"}
-function currentMeasuredTotal(){
- if(!editingId)return 0;
- const current=items.find(x=>Number(x.id)===Number(editingId));
- return Number(current?.measured_total||0);
-}
 function recalcBalance(){
- const field=$("contractValue");
- const balanceField=$("contractBalance");
- if(!field||!balanceField)return;
+ const contractValue=moneyFromInput($("contractValue").value);
 
- const contractValue=moneyFromInput(field.value);
- const measured=currentMeasuredTotal();
- const balance=Math.max(0,contractValue-measured);
+ let measuredTotal=0;
+ if(editingId){
+   const current=items.find(x=>Number(x.id)===Number(editingId));
+   measuredTotal=Number(current?.measured_total||0);
+ }
 
- balanceField.value=money(balance);
+ const balance=Math.max(0,contractValue-measuredTotal);
+ $("contractBalance").value=money(balance);
+
  updateServiceTotals();
 }
 function formatContractValue(){
- const field=$("contractValue");
- if(!field)return;
- const value=moneyFromInput(field.value);
- field.value=value>0?money(value):"";
+ const value=moneyFromInput($("contractValue").value);
+ $("contractValue").value=value>0?money(value):"";
  recalcBalance();
 }
 function openModal(item=null){
@@ -1126,23 +1117,17 @@ function openModal(item=null){
  $("contractValue").value=item?money(Number(item.contract_value||0)):"";
  $("contractBalance").value=item?money(contractBalance(item)):"R$ 0,00";
  $("contactName").value=item?.contact_name||"";
- $("phone").value=item?phoneDigits(item.phone||""):"";
+ $("phone").value=item?phoneMask(item.phone||""):"";
  $("serviceRows").innerHTML="";
  const list=item?.contracted_services||[];
  if(list.length)list.forEach(addService);else addService();
-
+ updateServiceTotals();
  $("modal").classList.add("show");
-
- // Força os campos calculados depois que o modal foi renderizado.
- requestAnimationFrame(()=>{
-   recalcBalance();
-   if(item)finishPhoneField();
-   else $("phone").value="";
- });
+ requestAnimationFrame(()=>recalcBalance());
 }
 function editItem(id){openModal(items.find(x=>Number(x.id)===Number(id)))}
 async function removeItem(id){if(!confirm("Excluir este empreiteiro?"))return;try{await api("/api/contractors/"+id,{method:"DELETE"});await load()}catch(e){alert(e.message)}}
-async function save(){const body={company_name:$("companyName").value.trim(),contract_number:$("contractNumber").value.trim(),contract_value:moneyFromInput($("contractValue").value),contact_name:$("contactName").value.trim(),phone:phoneMask($("phone").value),contracted_services:getServices()};if(!body.company_name||!body.contract_number)return alert("Preencha empresa e número do contrato.");if(body.contract_value<=0)return alert("Informe o valor do contrato.");if(!body.contracted_services.length)return alert("Cadastre ao menos um serviço.");if(body.contracted_services.some(s=>s.service_value<=0))return alert("Informe o valor de todos os serviços.");if(Math.abs(body.contracted_services.reduce((a,s)=>a+s.service_value,0)-body.contract_value)>.01)return alert("A soma dos serviços deve ser igual ao valor total do contrato.");try{await api(editingId?"/api/contractors/"+editingId:"/api/contractors",{method:editingId?"PATCH":"POST",body:JSON.stringify(body)});$("modal").classList.remove("show");await load()}catch(e){alert(e.message)}}
+async function save(){const body={company_name:$("companyName").value.trim(),contract_number:$("contractNumber").value.trim(),contract_value:moneyFromInput($("contractValue").value),contact_name:$("contactName").value.trim(),phone:phoneMask(phoneDigits($("phone").value)),contracted_services:getServices()};if(!body.company_name||!body.contract_number)return alert("Preencha empresa e número do contrato.");if(body.contract_value<=0)return alert("Informe o valor do contrato.");if(!body.contracted_services.length)return alert("Cadastre ao menos um serviço.");if(body.contracted_services.some(s=>s.service_value<=0))return alert("Informe o valor de todos os serviços.");if(Math.abs(body.contracted_services.reduce((a,s)=>a+s.service_value,0)-body.contract_value)>.01)return alert("A soma dos serviços deve ser igual ao valor total do contrato.");try{await api(editingId?"/api/contractors/"+editingId:"/api/contractors",{method:editingId?"PATCH":"POST",body:JSON.stringify(body)});$("modal").classList.remove("show");await load()}catch(e){alert(e.message)}}
 
 async function openMeasurements(id){measurementContractorId=id;const c=items.find(x=>Number(x.id)===Number(id));$("measureCompany").textContent=(c?.company_name||"")+" • Contrato nº "+(c?.contract_number||"—");if(IS_ADMIN)$("measurementService").innerHTML='<option value="">Selecione o serviço contratado</option>'+(c?.contracted_services||[]).map(s=>'<option value="'+esc(s.service_key)+'">'+esc(s.description)+' — saldo '+money(serviceBalance(s))+'</option>').join("");const last=c?.last_measurement_date?new Date(c.last_measurement_date+"T12:00:00").toLocaleDateString("pt-BR"):"nenhuma medição anterior";$("measurementEligibility").innerHTML="Última medição geral: <b>"+last+"</b>. Toda nova medição deve indicar o serviço correspondente.";if(IS_ADMIN){$("measurementNumber").value="";$("measurementDate").value=new Date().toISOString().slice(0,10);$("measurementAmount").value="";$("measurementNotes").value=""}$("measureModal").classList.add("show");await loadMeasurements()}
 async function loadMeasurements(){const d=await api("/api/contractors/"+measurementContractorId+"/measurements"),rows=d.items||[];$("measurementCount").textContent=rows.length;$("measurementTotal").textContent=money(rows.reduce((a,b)=>a+Number(b.amount||0),0));$("measurementRows").innerHTML=rows.length?rows.map(x=>'<tr><td>'+esc(x.measurement_number||"—")+'</td><td>'+esc(x.service_description||"Não vinculado")+'</td><td>'+new Date(x.measurement_date+"T12:00:00").toLocaleDateString("pt-BR")+'</td><td>'+money(x.amount)+'</td><td>'+esc(x.notes||"")+'</td>'+(IS_ADMIN?'<td><button class="btn small" onclick="deleteMeasurement('+x.id+')">Excluir</button></td>':'')+'</tr>').join(""):'<tr><td colspan="'+(IS_ADMIN?6:5)+'">Nenhuma medição registrada.</td></tr>'}
@@ -1150,23 +1135,15 @@ async function addMeasurement(){const body={contractor_service_key:$("measuremen
 async function deleteMeasurement(id){if(!confirm("Excluir esta medição?"))return;try{await api("/api/contractor-measurements/"+id,{method:"DELETE"});await load();await openMeasurements(measurementContractorId)}catch(e){alert(e.message)}}
 async function load(){const d=await api("/api/contractors");items=d.items||[];render()}
 
-$("phone").addEventListener("focus",preparePhoneField);
-$("phone").addEventListener("input",e=>{e.target.value=phoneDigits(e.target.value)});
-$("phone").addEventListener("blur",finishPhoneField);
-
-// Camada extra: alguns navegadores restauram valores de formulário sem disparar input.
-// Enquanto o modal estiver aberto, conferimos o saldo calculado.
-let balanceWatchValue="";
-setInterval(()=>{
- const modal=$("modal");
- if(!modal||!modal.classList.contains("show"))return;
- const raw=$("contractValue")?.value||"";
- const key=raw+"|"+editingId+"|"+currentMeasuredTotal();
- if(key!==balanceWatchValue){
-   balanceWatchValue=key;
-   recalcBalance();
- }
-},200);
+$("phone").addEventListener("input",e=>{
+ e.target.value=phoneDigits(e.target.value);
+});
+$("phone").addEventListener("blur",e=>{
+ e.target.value=phoneMask(e.target.value);
+});
+$("phone").addEventListener("focus",e=>{
+ e.target.value=phoneDigits(e.target.value);
+});
 
 if(IS_ADMIN){
  $("measurementAmount").addEventListener("blur",e=>{
