@@ -967,6 +967,12 @@ document.querySelectorAll(".common-launch").forEach(b=>b.onclick=()=>{tower="COM
 $("newTaskBtn").onclick=()=>{const active=document.querySelector(".tab.active")?.dataset.view||"dubai";tower=active==="istambul"?"ISTAMBUL":active==="comum"?"COMUM":"DUBAI";$("formTower").value=tower;const c=tower==="COMUM";$("floorField").classList.toggle("hidden",c);$("apartmentField").classList.toggle("hidden",c);$("commonField").classList.toggle("hidden",!c);if(!c){floor=6;selectedApartment=units(tower,floor)[0];syncForm()}refreshFormServices();$("taskModal").classList.add("show")};
 $("closeModal").onclick=()=>$("taskModal").classList.remove("show");$("cancelModal").onclick=()=>$("taskModal").classList.remove("show");$("taskModal").onclick=e=>{if(e.target===$("taskModal"))$("taskModal").classList.remove("show")};
 $("saveTask").onclick=async()=>{const t=$("formTower").value;const body={project_slug:PROJECT,employee_id:Number($("employee").value||0),contractor_id:Number($("contractor").value||0)||null,tower:t,floor:t==="COMUM"?0:Number($("formFloor").value),apartment:t==="COMUM"?$("formCommonArea").value:$("formApartment").value,service:$("service").value,status:$("status").value,observations:$("observations").value.trim()};if(!body.employee_id||!body.service){alert("Selecione funcionário e serviço.");return}$("saveTask").disabled=true;$("saveTask").textContent="Salvando...";try{await api("/api/operational/tasks",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify(body)});$("observations").value="";$("taskModal").classList.remove("show");await reload();toast("Serviço lançado com data e hora automáticas.")}catch(e){alert(e.message)}finally{$("saveTask").disabled=false;$("saveTask").textContent="Salvar serviço"}};
+const startView=new URLSearchParams(location.search).get("view");
+if(startView==="dashboard"){
+  const tabs=[...document.querySelectorAll(".tab")];
+  const dashboardTab=tabs.find(x=>x.dataset.view==="dashboard");
+  if(dashboardTab)setTimeout(()=>dashboardTab.click(),0);
+}
 load().catch(e=>alert("Erro ao carregar o operacional: "+e.message));
 </script></body></html>`;
 }
@@ -1548,11 +1554,7 @@ export default {
 
     if(path==="/dashboard" && request.method==="GET"){
       if(!(await hasProjectAccess(env,auth,"emirates-parque-flamboyant")))return secureHtml("Acesso negado.",403);
-      await ensureOperationalSchema(env);
-      let page=operationalPage(auth);
-      page=page.replace('<body><div class="shell">','<body data-open-dashboard="1"><div class="shell">');
-      page=page.replace('load().catch(e=>alert("Erro ao carregar o operacional: "+e.message));','if(document.body.dataset.openDashboard==="1"){const b=document.querySelector(\\'.tab[data-view="dashboard"]\\');if(b)setTimeout(()=>b.click(),0)}load().catch(e=>alert("Erro ao carregar o operacional: "+e.message));');
-      return secureHtml(page);
+      return new Response(null,{status:302,headers:{Location:"/producao?view=dashboard"}});
     }
 
     if(path==="/api/task-catalog" && request.method==="GET"){
