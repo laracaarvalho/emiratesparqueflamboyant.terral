@@ -684,7 +684,29 @@ async function ensureOperationalSchema(env){
 }
 
 
+
+const TERRAL_STANDARD_MACROFLOW=[{"code":"FUNDACAO_CONTENCAO","name":"Fundação e Contenção","services":[{"code":"MOBILIZACAO_INICIAL","name":"Mobilização Inicial","stages":["Limpeza do terreno e confrontação de divisas","Tapume e calçada (proteção)","Instalações Provisórias de Canteiro"]},{"code":"CONTENCAO","name":"Contenção","stages":["Locação","Cravação de perfil","Viga de coroamento","Estabilização de talude (berma)","Fechamento de cortina","Tirantes - Perfuração","Tirantes - Injeção","Tirantes - Protensão","Isolamento e sinalização","Guarda corpo rígido e escada de acesso"]},{"code":"ESCAVACAO_LOCACAO","name":"Escavação / Locação e Gabarito","stages":["Escavação","Execução do gabarito","Locação dos eixos","Conferência da locação"]},{"code":"FUNDACAO_SAPATA","name":"Fundação Sapata","stages":["Escavação","Acerto manual","Chapisco e lastro","Armação","Gabaritagem","Concretagem"]},{"code":"FUNDACAO_BLOCOS","name":"Fundação Blocos","stages":["Estacas de fundação","Escavação","Acerto manual","Regularização das estacas","Chapisco e magro","Armação","SPDA","Gabaritagem","Concretagem","Guarda corpo rígido e escada de acesso"]},{"code":"PROVA_CARGA","name":"Prova de Carga","stages":["Prova de carga"]},{"code":"REBAIXAMENTO","name":"Rebaixamento do Lençol","stages":["Rebaixamento"]},{"code":"BALDRAMES","name":"Baldrames + Arranques de Pilares","stages":["Forma","Armação","Concreto","Reaterro","Bota fora"]},{"code":"IMPERMEABILIZACAO_POCOS","name":"Impermeabilização dos Poços de Elevadores","stages":["Impermeabilização"]}]},{"code":"ESTRUTURA","name":"Estrutura","services":[{"code":"ESTRUTURA_CONCRETO","name":"Estrutura","stages":["Escoramento","Formas","Armação","Instalações embutidas / passagens","Concretagem","Desforma","SPDA"]}]},{"code":"TORRE_FASE_1","name":"Torre - Fase 1","services":[{"code":"PRUMADAS","name":"Prumadas","stages":["Prumada de recalque / distribuição","Prumada de esgoto","Prumada de ventilação / água pluvial","Prumada + caixas de incêndio","Chumbamento de todas as prumadas","Irrigação"]},{"code":"ELETRICAS_TETO","name":"Instalações Elétricas e Sistemas de Teto","stages":["Instalação das caixinhas 4x4","Distribuição das mangueiras de teto","Fixação das tubulações"]},{"code":"ELEVACAO_EXTERNA","name":"Elevação Externa","stages":["Marcação de alvenaria","Chapisco externa + pilares","Alvenaria externa","Vergas e contravergas","Taliscamento alvenaria externa","Contramarco externo"]},{"code":"ALVENARIA_ESCADA","name":"Alvenaria Caixa de Escada","stages":["Alvenaria caixa de escada","Taliscamento caixa de escada"]},{"code":"GRADIL_LAJE_TECNICA","name":"Gradil Metálico / Laje Técnica","stages":["Instalação do gradil da laje técnica"]},{"code":"GAS","name":"Prolongamentos + Ramais de Gás","stages":["Prolongamentos","Instalação dos ramais de gás","Chumbamento do caminhamento do gás","Teste de gás"]},{"code":"CONTRAPISO","name":"Contrapiso","stages":["Limpeza e regularização da base","Mapeamento da laje","Talisca do contrapiso","Execução do contrapiso","Conferência do caimento do piso"]},{"code":"HIDROSSANITARIAS","name":"Instalações Hidrossanitárias","stages":["Ramais de esgoto","Ramais de água fria / quente","Fixação das tubulações","Execução do duto de exaustão","Testes das instalações hidrossanitárias"]},{"code":"ALVENARIA_INTERNA","name":"Alvenaria Interna","stages":["Marcação de alvenaria interna","Eixos","Execução da alvenaria interna","Vergas"]},{"code":"TALISCAMENTO_INTERNO","name":"Taliscamento Interno","stages":["Taliscamento interno"]},{"code":"CONTRAMARCO_INTERNO","name":"Contramarco Interno","stages":["Contramarco interno","Batente porta corta-fogo"]},{"code":"AR_CONDICIONADO","name":"Isométrico / Ar Condicionado","stages":["Furação","Teste do dreno","Execução do isométrico","Caixa polar","Chumbamento","Instalação da infraestrutura da rede do ar condicionado","Teste da rede de ar condicionado"]},{"code":"ELETRICAS_PAREDE","name":"Instalações Elétricas e Sistemas de Parede","stages":["Tubulações e caixas (parede)","Fundo de quadro","Caixas em geral do hall","Enfiação","Testes elétricos"]},{"code":"REBOCO_INTERNO","name":"Reboco Interno","stages":["Encunhamento","Tela","Reboco interno","Teste de arrancamento"]},{"code":"FORRO_GESSO_DRYWALL","name":"Forro de Gesso + Drywall","stages":["Definição do nível","Execução do forro de gesso - apartamento + hall","Massa + fita","Fechamento dos shafts"]}]},{"code":"TORRE_FASE_2","name":"Torre - Fase 2","services":[{"code":"IMPERMEABILIZACAO","name":"Impermeabilização","stages":["Execução da impermeabilização","Proteção dos ralos","Teste de impermeabilização"]},{"code":"REVESTIMENTO","name":"Revestimento de Piso + Parede","stages":["Revestimento de parede","Revestimento de piso","Seca piso / ralos","Conferência do caimento do piso","Rejuntamento","Filetes + soleiras","Rejunte"]},{"code":"PINTURA_PVA","name":"Pintura PVA","stages":["1ª e 2ª demão de massa PVA (teto e parede)","1ª demão de pintura (teto e parede)","2ª demão de pintura (parede e teto)","Sacadas e lajes técnicas","Revisão de pintura (teto e parede)"]},{"code":"BANCADAS","name":"Bancadas","stages":["Instalação mão francesa","Instalação de bancadas","Proteção","Rejunte de bancada / massa plástica"]},{"code":"MIOLOS_QUADROS","name":"Miolos e Quadros","stages":["Fechamento dos quadros","Interruptores","Testes","Identificação dos circuitos","Identificação dos disjuntores","Acabamento elétrico"]},{"code":"ESQUADRIAS_ALUMINIO","name":"Esquadrias de Alumínio","stages":["Limpeza do contramarco","Impermeabilização","Instalação da esquadria","Acessórios e arremates","Pré regulagem","Regulagem final das esquadrias de alumínio"]},{"code":"ESQUADRIAS_MADEIRA_RODAPE","name":"Esquadrias de Madeira + Rodapé","stages":["Retirada da proteção de piso","Limpeza grossa","Instalação das portas","Instalação dos alizares","Instalação de ferragens","Proteção da esquadria da entrada","Instalação do rodapé","Arremates do rodapé","Emassamento e rejunte dos arremates do rodapé"]},{"code":"LOUCAS_METAIS","name":"Louças e Metais","stages":["Instalação das bacias sanitárias","Instalação dos tanques","Instalação dos metais"]},{"code":"LIMPEZA_FINA","name":"Limpeza Fina Interna","stages":["Limpeza fina interna","Adesivos","Gotas de silicone","Cantoneiras"]},{"code":"VISTORIA_QUALIDADE","name":"Vistoria Interna da Qualidade","stages":["Vistoria interna da qualidade","FORM Termo de Vistoria Interna","Checklist de Vistoria de Unidade e correção das pendências"]},{"code":"ENTREGA_CLIENTE","name":"Entrega do Cliente","stages":["Limpeza fina para entrega","Vistoria com o cliente","Entrega do cliente"]}]},{"code":"FACHADA","name":"Fachada","services":[{"code":"BALANCINS","name":"Montagem dos Balancins","stages":["Montagem dos balancins","Descida de arame"]},{"code":"REBOCO_EXTERNO","name":"Reboco Externo","stages":["Limpeza + chapisco","Execução da talisca","Reboco externo","Frisos e juntas","Instalação da tela fachadeira"]},{"code":"PEITORIL","name":"Peitoril","stages":["Instalação do peitoril","Proteção"]},{"code":"PINTURA_EXTERNA","name":"Pintura Externa","stages":["Teste da tinta da fachada","Textura externa","Pintura externa","Pintura do gradil metálico"]},{"code":"GUARDA_CORPO_FACHADA","name":"Guarda Corpo de Alumínio e Vidro","stages":["Instalação do guarda corpo"]},{"code":"PELE_VIDRO","name":"Pele de Vidro","stages":["Pele de vidro"]}]},{"code":"ESCADAS","name":"Escadas","services":[{"code":"ACABAMENTOS_ESCADA","name":"Acabamentos de Escadas","stages":["Reboco duto de pressurização","Corrimão / gradil","Tratamento de teto + piso","Textura de teto / gesso corrido","Massa PVA","Portal do elevador de serviço","Porta corta-fogo","Grelhas de ventilação","Pintura de corrimão + PCF","Pintura final","Acabamentos elétricos + luminárias","Equipamentos de incêndio + adesivos"]}]},{"code":"HALL_ANTECAMARA","name":"Hall + Antecâmara","services":[{"code":"PRUMADAS_ELETRICAS_HALL","name":"Prumadas Elétricas e Sistemas","stages":["Prumadas elétricas e sistemas","Barramento blindado (Busway)"]},{"code":"SHAFT_HALL","name":"Shaft","stages":["Estruturação do shaft","Compartimentação do shaft","Fechamento do shaft"]},{"code":"INCENDIO_GAS_MEDICAO","name":"Incêndio, Gás e Medição","stages":["Caixas de incêndio","Abrigo dos medidores de gás","Centro de medição"]},{"code":"ACABAMENTOS_HALL","name":"Acabamentos Hall + Antecâmara","stages":["Forro de gesso","Requadração e acabamento do portal dos elevadores","Emassamento e 1ª demão de pintura PVA","Portas venezianas","Pintura final","Acabamentos elétricos + luminárias","Equipamentos de incêndio + adesivos","Validação junto ao órgão competente - individualização dos hidrômetros / pavimento modelo"]}]}];
+
+async function ensureCorporateMacroflowSchema(env){
+  await env.DB.prepare(`CREATE TABLE IF NOT EXISTS corporate_macroflows (code TEXT PRIMARY KEY,name TEXT NOT NULL,sort_order INTEGER NOT NULL DEFAULT 0,active INTEGER NOT NULL DEFAULT 1)`).run();
+  await env.DB.prepare(`CREATE TABLE IF NOT EXISTS corporate_services (code TEXT PRIMARY KEY,macroflow_code TEXT NOT NULL,name TEXT NOT NULL,sort_order INTEGER NOT NULL DEFAULT 0,active INTEGER NOT NULL DEFAULT 1)`).run();
+  await env.DB.prepare(`CREATE TABLE IF NOT EXISTS corporate_stages (id INTEGER PRIMARY KEY AUTOINCREMENT,service_code TEXT NOT NULL,name TEXT NOT NULL,sort_order INTEGER NOT NULL DEFAULT 0,active INTEGER NOT NULL DEFAULT 1,UNIQUE(service_code,name))`).run();
+  const count=await env.DB.prepare("SELECT COUNT(*) n FROM corporate_macroflows").first();
+  if(Number(count?.n||0)===0){
+    const stmts=[];
+    TERRAL_STANDARD_MACROFLOW.forEach((m,mi)=>{
+      stmts.push(env.DB.prepare("INSERT OR IGNORE INTO corporate_macroflows(code,name,sort_order,active) VALUES(?,?,?,1)").bind(m.code,m.name,mi+1));
+      (m.services||[]).forEach((svc,si)=>{
+        stmts.push(env.DB.prepare("INSERT OR IGNORE INTO corporate_services(code,macroflow_code,name,sort_order,active) VALUES(?,?,?,?,1)").bind(svc.code,m.code,svc.name,si+1));
+        (svc.stages||[]).forEach((stage,sti)=>stmts.push(env.DB.prepare("INSERT OR IGNORE INTO corporate_stages(service_code,name,sort_order,active) VALUES(?,?,?,1)").bind(svc.code,stage,sti+1)));
+      });
+    });
+    for(let i=0;i<stmts.length;i+=80)await env.DB.batch(stmts.slice(i,i+80));
+  }
+}
+
 async function ensureTaskCatalogSchema(env){
+  await ensureCorporateMacroflowSchema(env);
   await env.DB.prepare(`CREATE TABLE IF NOT EXISTS task_catalog (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     project_slug TEXT NOT NULL,
@@ -705,10 +727,60 @@ async function ensureTaskCatalogSchema(env){
     approved_at TEXT,
     updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
   )`).run();
+  const tcCols=(await env.DB.prepare("PRAGMA table_info(task_catalog)").all()).results||[];
+  if(!tcCols.some(c=>c.name==="standard_macroflow_code"))await env.DB.prepare("ALTER TABLE task_catalog ADD COLUMN standard_macroflow_code TEXT NOT NULL DEFAULT ''").run();
+  if(!tcCols.some(c=>c.name==="standard_service_code"))await env.DB.prepare("ALTER TABLE task_catalog ADD COLUMN standard_service_code TEXT NOT NULL DEFAULT ''").run();
+  if(!tcCols.some(c=>c.name==="standard_stage_id"))await env.DB.prepare("ALTER TABLE task_catalog ADD COLUMN standard_stage_id INTEGER").run();
   await env.DB.prepare("CREATE INDEX IF NOT EXISTS idx_task_catalog_project ON task_catalog(project_slug)").run();
   await env.DB.prepare("CREATE INDEX IF NOT EXISTS idx_task_catalog_approval ON task_catalog(project_slug,approval_status,active)").run();
 }
 
+
+async function ensureProductionSchema(env){
+  await ensureTaskCatalogSchema(env);
+  await ensureOperationalSchema(env);
+  await env.DB.prepare(`CREATE TABLE IF NOT EXISTS production_records (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    project_slug TEXT NOT NULL,
+    responsible_user_id INTEGER NOT NULL,
+    responsible_name TEXT NOT NULL,
+    executor_type TEXT NOT NULL DEFAULT 'MOP',
+    employee_id INTEGER,
+    contractor_id INTEGER,
+    task_catalog_id INTEGER,
+    task_name_snapshot TEXT NOT NULL,
+    macro_service_snapshot TEXT NOT NULL DEFAULT '',
+    unit_snapshot TEXT NOT NULL DEFAULT 'UN',
+    unit_value_snapshot REAL NOT NULL DEFAULT 0,
+    quantity REAL NOT NULL DEFAULT 0,
+    total_value REAL NOT NULL DEFAULT 0,
+    tower TEXT NOT NULL,
+    floor INTEGER NOT NULL DEFAULT 0,
+    apartment TEXT NOT NULL,
+    started_at TEXT NOT NULL,
+    finished_at TEXT,
+    status TEXT NOT NULL DEFAULT 'EM_ANDAMENTO',
+    observations TEXT NOT NULL DEFAULT '',
+    fvs_number TEXT NOT NULL DEFAULT '',
+    fvs_status TEXT NOT NULL DEFAULT 'PENDENTE',
+    measurement_status TEXT NOT NULL DEFAULT 'NAO_LIBERADA',
+    created_at TEXT NOT NULL,
+    updated_at TEXT NOT NULL
+  )`).run();
+  await env.DB.prepare("CREATE INDEX IF NOT EXISTS idx_production_project ON production_records(project_slug)").run();
+  await env.DB.prepare("CREATE INDEX IF NOT EXISTS idx_production_task ON production_records(task_catalog_id)").run();
+  await env.DB.prepare("CREATE INDEX IF NOT EXISTS idx_production_employee ON production_records(employee_id)").run();
+  await env.DB.prepare("CREATE INDEX IF NOT EXISTS idx_production_contractor ON production_records(contractor_id)").run();
+  const n=await env.DB.prepare("SELECT COUNT(*) n FROM production_records WHERE project_slug='emirates-parque-flamboyant'").first();
+  if(Number(n?.n||0)===0){
+    const legacy=(await env.DB.prepare("SELECT * FROM operational_tasks WHERE project_slug='emirates-parque-flamboyant' ORDER BY id").all()).results||[];
+    for(const x of legacy){
+      const cat=await env.DB.prepare("SELECT id,macro_service,unit,unit_value FROM task_catalog WHERE project_slug='emirates-parque-flamboyant' AND task_name=? AND approval_status='APPROVED' ORDER BY id DESC LIMIT 1").bind(x.service).first();
+      await env.DB.prepare(`INSERT INTO production_records(project_slug,responsible_user_id,responsible_name,executor_type,employee_id,contractor_id,task_catalog_id,task_name_snapshot,macro_service_snapshot,unit_snapshot,unit_value_snapshot,quantity,total_value,tower,floor,apartment,started_at,finished_at,status,observations,created_at,updated_at) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`)
+       .bind(x.project_slug,x.responsible_user_id,x.responsible_name,x.contractor_id?'CONTRACTOR':'MOP',x.employee_id,x.contractor_id,cat?.id||null,x.service,cat?.macro_service||'',cat?.unit||'UN',Number(cat?.unit_value||0),1,Number(cat?.unit_value||0),x.tower,x.floor,x.apartment,x.started_at,x.finished_at,x.status,x.observations,x.created_at,x.updated_at).run();
+    }
+  }
+}
 
 function operationalPage(auth){
   const loggedName=String(auth?.name||auth?.username||"Usuário").replace(/[&<>"']/g,ch=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[ch]));
@@ -828,14 +900,7 @@ return String.raw`<!doctype html>
     <section class="report-box"><h3>TOP FUNCIONÁRIOS — CONCLUÍDOS</h3><div id="topEmployees" class="top-list"></div></section>
     <section class="report-box"><h3 id="dashboardFlowTitle">FLUXO DAS TORRES — EMIRATES</h3>
       <div style="font-size:8px;line-height:1.9;color:#5c5550" id="dashboardFlow">
-        1. Checklist Pintura<br>
-        2. Checklist Instaladora<br>
-        3. Rejunte<br>
-        4. Limpeza<br>
-        5. Vistoria Qualidade<br>
-        6. Vistoria Cliente<br>
-        7. Revistoria<br>
-        8. Entrega Cliente
+        O fluxo exibido aqui passa a seguir as tarefas aprovadas vinculadas ao Padrão Terral.
       </div>
     </section>
   </div>
@@ -844,27 +909,28 @@ return String.raw`<!doctype html>
 </section>
 </main></div></div>
 <div class="tooltip" id="tooltip"></div><div class="toast" id="toast"></div>
-<div class="modal-back" id="taskModal"><div class="modal"><div class="modal-head"><h3>Novo serviço</h3><button class="close" id="closeModal">×</button></div><div class="form-grid"><div class="field"><label>Responsável</label><input value="${loggedName}" readonly></div><div class="field"><label>Funcionário</label><select id="employee"></select></div><div class="field"><label>Função</label><input id="employeeRole" readonly></div><div class="field"><label>Setor</label><select id="formTower"><option value="DUBAI">Torre Dubai</option><option value="ISTAMBUL">Torre Istambul</option><option value="COMUM">Área Comum</option></select></div><div class="field" id="floorField"><label>Pavimento</label><select id="formFloor"></select></div><div class="field" id="apartmentField"><label>Apartamento</label><select id="formApartment"></select></div><div class="field hidden" id="commonField"><label>Área</label><select id="formCommonArea"><option>Subsolo 2</option><option>Subsolo 1</option><option>Garagem 2</option><option>Garagem 1</option><option>Térreo</option><option>3º Pavimento - Lazer</option><option>30º Istambul - Lounge</option></select></div><div class="field"><label>Serviço</label><select id="service"></select></div><div class="field"><label>Terceirizada</label><select id="contractor"><option value="">Equipe própria / sem terceirizada</option></select></div><div class="field"><label>Status inicial</label><select id="status"><option value="EM_ANDAMENTO">Em andamento</option><option value="PARADA">Parada</option></select></div><div class="field"><label>Data de início</label><input value="Automática ao salvar" readonly></div><div class="field" style="grid-column:1/-1"><label>Observações</label><textarea id="observations"></textarea></div></div><div class="modal-actions"><button class="btn" id="cancelModal">Cancelar</button><button class="btn primary" id="saveTask">Salvar serviço</button></div></div></div>
+<div class="modal-back" id="taskModal"><div class="modal"><div class="modal-head"><h3>Registrar produção</h3><button class="close" id="closeModal">×</button></div><div class="form-grid"><div class="field"><label>Responsável</label><input value="${loggedName}" readonly></div><div class="field"><label>Tipo de executor</label><select id="executorType"><option value="MOP">MOP — Equipe própria</option><option value="CONTRACTOR">Empreiteiro</option></select></div><div class="field" id="employeeField"><label>Funcionário</label><select id="employee"></select></div><div class="field" id="employeeRoleField"><label>Função</label><input id="employeeRole" readonly></div><div class="field hidden" id="contractorField"><label>Empreiteiro</label><select id="contractor"><option value="">Selecione</option></select></div><div class="field"><label>Setor</label><select id="formTower"><option value="DUBAI">Torre Dubai</option><option value="ISTAMBUL">Torre Istambul</option><option value="COMUM">Área Comum</option></select></div><div class="field" id="floorField"><label>Pavimento</label><select id="formFloor"></select></div><div class="field" id="apartmentField"><label>Apartamento</label><select id="formApartment"></select></div><div class="field hidden" id="commonField"><label>Área</label><select id="formCommonArea"><option>Subsolo 2</option><option>Subsolo 1</option><option>Garagem 2</option><option>Garagem 1</option><option>Térreo</option><option>3º Pavimento - Lazer</option><option>30º Istambul - Lounge</option></select></div><div class="field"><label>Tarefa aprovada</label><select id="service"></select></div><div class="field"><label>Macrofluxo</label><input id="prodMacro" readonly></div><div class="field"><label>Unidade</label><input id="prodUnit" readonly></div><div class="field"><label>Valor unitário</label><input id="prodUnitValue" readonly></div><div class="field"><label>Quantidade produzida</label><input id="quantity" type="number" min="0" step="0.01" value="1"></div><div class="field"><label>Valor produzido</label><input id="productionValue" readonly></div><div class="field"><label>Status inicial</label><select id="status"><option value="EM_ANDAMENTO">Em andamento</option><option value="PARADA">Parada</option></select></div><div class="field"><label>Data de início</label><input value="Automática ao salvar" readonly></div><div class="field" style="grid-column:1/-1"><label>Observações</label><textarea id="observations"></textarea></div></div><div class="modal-actions"><button class="btn" id="cancelModal">Cancelar</button><button class="btn primary" id="saveTask">Salvar produção</button></div></div></div>
 <script>
 const PROJECT="emirates-parque-flamboyant";// REGRAS DE MEDIÇÃO PREPARADAS PARA PRÓXIMA ETAPA:
 // MOP: produção por competência do dia 21 ao dia 20.
 // EMPREITEIROS: medição somente entre os dias 01 e 10.
 // Próxima integração: serviço concluído -> FVS aprovada -> item elegível para medição.
-const DUBAI_SERVICES=["Checklist - Instaladora","Checklist - Pedreiro","Checklist - Rejunte","Checklist - Pintura","Limpeza","Vistoria - Qualidade","Vistoria - Cliente","Revistoria - Cliente","Unidade aprovada"];
-const COMMON_SERVICES=[...DUBAI_SERVICES];
-const ISTAMBUL_SERVICES=["Checklist Pintura","Checklist Instaladora","Rejunte","Limpeza","Vistoria Qualidade","Vistoria Cliente","Revistoria","Entrega Cliente"];
-const SERVICES=[...new Set([...DUBAI_SERVICES,...ISTAMBUL_SERVICES])];
+let APPROVED_TASKS=[],SERVICES=[];
 const COMMON_AREAS=["Subsolo 2","Subsolo 1","Garagem 2","Garagem 1","Térreo","3º Pavimento - Lazer","30º Istambul - Lounge"];let employees=[],contractors=[],tasks=[],tower="DUBAI",floor=6,selectedApartment="601",selectedService="GERAL",dashboardScope="GERAL";
 const $=id=>document.getElementById(id),esc=s=>String(s??"").replace(/[&<>"']/g,ch=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[ch])),fmt=v=>v?new Intl.DateTimeFormat("pt-BR",{timeZone:"America/Sao_Paulo",day:"2-digit",month:"2-digit",year:"numeric",hour:"2-digit",minute:"2-digit"}).format(new Date(v)):"—",sl=s=>s==="CONCLUIDA"?"Concluído":s==="PARADA"?"Parado":s==="EM_ANDAMENTO"?"Em andamento":"Sem serviço",sc=s=>s?String(s).toLowerCase():"sem_servico";
 async function api(url,opt={}){const r=await fetch(url,opt),d=await r.json().catch(()=>({}));if(!r.ok)throw new Error(d.error||"Erro");return d}function toast(m){$("toast").textContent=m;$("toast").classList.add("show");setTimeout(()=>$("toast").classList.remove("show"),2200)}function floors(){const a=[];for(let f=30;f>=4;f--)a.push(f);return a}function units(t,f){const n=f===30?(t==="DUBAI"?2:3):(t==="DUBAI"?5:10);return Array.from({length:n},(_,i)=>String(f)+String(i+1).padStart(2,"0"))}function visibleTasks(){return selectedService==="GERAL"?tasks:tasks.filter(x=>x.service===selectedService)}function latest(t,f,a){return visibleTasks().filter(x=>x.tower===t&&Number(x.floor)===Number(f)&&String(x.apartment)===String(a)).sort((a,b)=>Number(b.id)-Number(a.id))[0]||null}
-function servicesForTower(t){return t==="DUBAI"?DUBAI_SERVICES:t==="COMUM"?COMMON_SERVICES:ISTAMBUL_SERVICES}
-function fillSelectors(){const all=SERVICES.map(s=>'<option value="'+esc(s)+'">'+esc(s)+'</option>').join("");$("serviceFilter").innerHTML='<option value="GERAL">Visão geral</option>'+all;$("dubaiServiceFilter").innerHTML='<option value="">Todos os serviços</option>'+DUBAI_SERVICES.map(s=>'<option value="'+esc(s)+'">'+esc(s)+'</option>').join("");$("istServiceFilter").innerHTML='<option value="">Todos os serviços</option>'+ISTAMBUL_SERVICES.map(s=>'<option value="'+esc(s)+'">'+esc(s)+'</option>').join("");const fo='<option value="">Todos os pavimentos</option>'+floors().map(f=>'<option value="'+f+'">'+(f===30?'30 - Cobertura':String(f).padStart(2,"0"))+'</option>').join("");$("dubaiFloorFilter").innerHTML=fo;$("istFloorFilter").innerHTML=fo;refreshFormServices()}
-function refreshFormServices(){const list=servicesForTower($("formTower").value),cur=$("service").value;$("service").innerHTML=list.map(s=>'<option value="'+esc(s)+'">'+esc(s)+'</option>').join("");if(list.includes(cur))$("service").value=cur;refreshContractors()}
-function refreshContractors(){const service=$("service").value,eligible=contractors.filter(c=>Array.isArray(c.services)&&c.services.includes(service));$("contractor").innerHTML='<option value="">Equipe própria / sem terceirizada</option>'+eligible.map(c=>'<option value="'+c.id+'">'+esc(c.company_name)+' — '+esc(c.contract_number||"Sem contrato")+'</option>').join("")}
+function approvedForTower(t){return APPROVED_TASKS.filter(x=>x.sector==="GERAL"||x.sector===t)}
+function serviceNamesForTower(t){return [...new Set(approvedForTower(t).map(x=>x.task_name))]}
+function fillSelectors(){SERVICES=[...new Set(APPROVED_TASKS.map(x=>x.task_name))];const all=SERVICES.map(x=>'<option value="'+esc(x)+'">'+esc(x)+'</option>').join("");$("serviceFilter").innerHTML='<option value="GERAL">Visão geral</option>'+all;$("dubaiServiceFilter").innerHTML='<option value="">Todos os serviços</option>'+serviceNamesForTower("DUBAI").map(x=>'<option value="'+esc(x)+'">'+esc(x)+'</option>').join("");$("istServiceFilter").innerHTML='<option value="">Todos os serviços</option>'+serviceNamesForTower("ISTAMBUL").map(x=>'<option value="'+esc(x)+'">'+esc(x)+'</option>').join("");const fo='<option value="">Todos os pavimentos</option>'+floors().map(f=>'<option value="'+f+'">'+(f===30?'30 - Cobertura':String(f).padStart(2,"0"))+'</option>').join("");$("dubaiFloorFilter").innerHTML=fo;$("istFloorFilter").innerHTML=fo;refreshFormServices()}
+function selectedCatalogTask(){return APPROVED_TASKS.find(x=>Number(x.id)===Number($("service").value))}
+function refreshProductionValues(){const x=selectedCatalogTask(),q=Math.max(0,Number($("quantity").value||0));$("prodMacro").value=x?.macro_service||"";$("prodUnit").value=x?.unit||"";$("prodUnitValue").value=Number(x?.unit_value||0).toLocaleString("pt-BR",{style:"currency",currency:"BRL"});$("productionValue").value=(q*Number(x?.unit_value||0)).toLocaleString("pt-BR",{style:"currency",currency:"BRL"});refreshContractors()}
+function refreshFormServices(){const list=approvedForTower($("formTower").value),cur=$("service").value;$("service").innerHTML='<option value="">Selecione a tarefa aprovada</option>'+list.map(x=>'<option value="'+x.id+'">'+esc(x.task_name)+' — '+esc(x.macro_service)+'</option>').join("");if(list.some(x=>String(x.id)===String(cur)))$("service").value=cur;refreshProductionValues()}
+function refreshContractors(){const x=selectedCatalogTask(),name=x?.task_name||"",macro=x?.macro_service||"";const eligible=contractors.filter(c=>(c.contracted_services||[]).some(s=>String(s.description||"").toLowerCase()===name.toLowerCase()||String(s.macro_service||"")===macro));$("contractor").innerHTML='<option value="">Selecione o empreiteiro</option>'+eligible.map(c=>'<option value="'+c.id+'">'+esc(c.company_name)+' — '+esc(c.contract_number||"Sem contrato")+'</option>').join("")}
+function toggleExecutor(){const contractor=$("executorType").value==="CONTRACTOR";$("employeeField").classList.toggle("hidden",contractor);$("employeeRoleField").classList.toggle("hidden",contractor);$("contractorField").classList.toggle("hidden",!contractor)}
 function fillFloors(){$("formFloor").innerHTML=floors().map(f=>'<option value="'+f+'">'+(f===30?'30 - Cobertura':String(f).padStart(2,"0"))+'</option>').join("")}
 function fillApts(){$("formApartment").innerHTML=units($("formTower").value,Number($("formFloor").value)).map(a=>'<option value="'+a+'">'+a+'</option>').join("")}
 function syncForm(){$("formTower").value=tower;fillFloors();$("formFloor").value=String(floor);fillApts();$("formApartment").value=selectedApartment}
-function renderBuilding(t,el){let h='<div class="header-row"><span></span>';for(let i=1;i<=10;i++)h+='<span class="apt-h">'+String(i).padStart(2,"0")+'</span>';h+='</div>';for(let f=30;f>=4;f--){const us=units(t,f);h+='<div class="b-row"><span class="fl">'+(f===30?'30 (Cob.)':String(f).padStart(2,"0"))+'</span>';for(let i=0;i<10;i++){if(i>=us.length){h+='<span class="mini blank"></span>';continue}const x=latest(t,f,us[i]),st=x?x.status:"SEM_SERVICO";h+='<button class="mini '+sc(st)+'" data-tower="'+t+'" data-floor="'+f+'" data-apt="'+us[i]+'" data-employee="'+esc(x?.employee_name||"")+'" data-service="'+esc(x?.service||"")+'" data-status="'+sl(st)+'"></button>'}h+='</div>'}el.innerHTML=h;el.querySelectorAll(".mini").forEach(b=>{b.onclick=()=>{tower=b.dataset.tower;floor=Number(b.dataset.floor);selectedApartment=b.dataset.apt;syncForm();$("taskModal").classList.add("show")};b.onmouseenter=e=>{if(!e.currentTarget.dataset.employee)return;$("tooltip").innerHTML='<b>'+esc(e.currentTarget.dataset.employee)+'</b><div>'+esc(e.currentTarget.dataset.service)+'</div><div class="st">'+esc(e.currentTarget.dataset.status)+'</div>';$("tooltip").classList.add("show")};b.onmousemove=e=>{$("tooltip").style.left=(e.clientX+10)+"px";$("tooltip").style.top=(e.clientY+10)+"px"};b.onmouseleave=()=>$("tooltip").classList.remove("show")})}function renderBuildings(){renderBuilding("DUBAI",$("buildingDubai"));renderBuilding("ISTAMBUL",$("buildingIstambul"))}
+function renderBuilding(t,el){let h='<div class="header-row"><span></span>';for(let i=1;i<=10;i++)h+='<span class="apt-h">'+String(i).padStart(2,"0")+'</span>';h+='</div>';for(let f=30;f>=4;f--){const us=units(t,f);h+='<div class="b-row"><span class="fl">'+(f===30?'30 (Cob.)':String(f).padStart(2,"0"))+'</span>';for(let i=0;i<10;i++){if(i>=us.length){h+='<span class="mini blank"></span>';continue}const x=latest(t,f,us[i]),st=x?x.status:"SEM_SERVICO";h+='<button class="mini '+sc(st)+'" data-tower="'+t+'" data-floor="'+f+'" data-apt="'+us[i]+'" data-employee="'+esc(x?.employee_name||x?.contractor_name||"")+'" data-service="'+esc(x?.service||"")+'" data-status="'+sl(st)+'"></button>'}h+='</div>'}el.innerHTML=h;el.querySelectorAll(".mini").forEach(b=>{b.onclick=()=>{tower=b.dataset.tower;floor=Number(b.dataset.floor);selectedApartment=b.dataset.apt;syncForm();$("taskModal").classList.add("show")};b.onmouseenter=e=>{if(!e.currentTarget.dataset.employee)return;$("tooltip").innerHTML='<b>'+esc(e.currentTarget.dataset.employee)+'</b><div>'+esc(e.currentTarget.dataset.service)+'</div><div class="st">'+esc(e.currentTarget.dataset.status)+'</div>';$("tooltip").classList.add("show")};b.onmousemove=e=>{$("tooltip").style.left=(e.clientX+10)+"px";$("tooltip").style.top=(e.clientY+10)+"px"};b.onmouseleave=()=>$("tooltip").classList.remove("show")})}function renderBuildings(){renderBuilding("DUBAI",$("buildingDubai"));renderBuilding("ISTAMBUL",$("buildingIstambul"))}
 function dashboardTasks(){
   if(dashboardScope==="DUBAI")return tasks.filter(x=>x.tower==="DUBAI");
   if(dashboardScope==="ISTAMBUL")return tasks.filter(x=>x.tower==="ISTAMBUL");
@@ -931,18 +997,19 @@ function renderDashboard(){
     $("dashboardFlow").innerHTML="Subsolo 2<br>Subsolo 1<br>Garagem 2<br>Garagem 1<br>Térreo<br>3º Pavimento — Lazer<br>30º Istambul — Lounge";
   }else{
     $("dashboardFlowTitle").textContent=dashboardScope==="GERAL"?"FLUXO DAS TORRES — EMIRATES":"FLUXO OPERACIONAL — "+label.toUpperCase();
-    $("dashboardFlow").innerHTML=dashboardScope==="ISTAMBUL"?"1. Checklist Pintura<br>2. Checklist Instaladora<br>3. Rejunte<br>4. Limpeza<br>5. Vistoria Qualidade<br>6. Vistoria Cliente<br>7. Revistoria<br>8. Entrega Cliente":"1. Checklist - Instaladora<br>2. Checklist - Pedreiro<br>3. Checklist - Rejunte<br>4. Checklist - Pintura<br>5. Limpeza<br>6. Vistoria - Qualidade<br>7. Vistoria - Cliente<br>8. Revistoria - Cliente<br>9. Unidade aprovada";
+    $("dashboardFlow").innerHTML=[...new Set(APPROVED_TASKS.filter(x=>dashboardScope==="GERAL"||x.sector==="GERAL"||x.sector===dashboardScope).map(x=>x.macro_service))].map((x,i)=>(i+1)+". "+esc(x)).join("<br>")||"Nenhuma tarefa aprovada para este escopo.";
   }
 }
-function rowActions(x){return x.status==="CONCLUIDA"?'<span style="color:#4f8d25;font-weight:800">Fechado</span>':'<button class="small-btn" data-id="'+x.id+'" data-action="CONCLUIDA">Concluir</button> <button class="small-btn" data-id="'+x.id+'" data-action="PARADA">Parar</button>'}function bindActions(root){root.querySelectorAll("button[data-action]").forEach(b=>b.onclick=()=>setStatus(Number(b.dataset.id),b.dataset.action))}function renderTowerTable(towerName,tbodyId,floorFilterId,serviceFilterId,statusFilterId){const ff=$(floorFilterId).value,sf=$(serviceFilterId).value,st=$(statusFilterId).value;const r=tasks.filter(x=>x.tower===towerName&&(!ff||Number(x.floor)===Number(ff))&&(!sf||x.service===sf)&&(!st||x.status===st));const el=$(tbodyId);el.innerHTML=r.length?r.map(x=>'<tr><td>'+esc(x.employee_name)+'</td><td>'+esc(x.employee_role||"")+'</td><td>'+esc(x.contractor_name||"Equipe própria")+'</td><td>'+String(x.floor).padStart(2,"0")+'</td><td>'+esc(x.apartment)+'</td><td>'+esc(x.service)+'</td><td>'+fmt(x.started_at)+'</td><td>'+fmt(x.finished_at)+'</td><td><span class="pill '+sc(x.status)+'">'+sl(x.status)+'</span></td><td class="obs">'+esc(x.observations||"")+'</td><td>'+rowActions(x)+'</td></tr>').join(""):'<tr><td colspan="11">Nenhum resultado.</td></tr>';bindActions(el)}
-function renderCommonTable(){const r=tasks.filter(x=>x.tower==="COMUM");$("commonRows").innerHTML=r.length?r.map(x=>'<tr><td>'+esc(x.apartment)+'</td><td>'+esc(x.employee_name)+'</td><td>'+esc(x.employee_role||"")+'</td><td>'+esc(x.contractor_name||"Equipe própria")+'</td><td>'+esc(x.service)+'</td><td>'+fmt(x.started_at)+'</td><td>'+fmt(x.finished_at)+'</td><td><span class="pill '+sc(x.status)+'">'+sl(x.status)+'</span></td><td class="obs">'+esc(x.observations||"")+'</td><td>'+rowActions(x)+'</td></tr>').join(""):'<tr><td colspan="10">Nenhum serviço lançado na Área Comum.</td></tr>';bindActions($("commonRows"))}
+function rowActions(x){return x.status==="CONCLUIDA"?'<span style="color:#4f8d25;font-weight:800">Fechado</span>':'<button class="small-btn" data-id="'+x.id+'" data-action="CONCLUIDA">Concluir</button> <button class="small-btn" data-id="'+x.id+'" data-action="PARADA">Parar</button>'}function bindActions(root){root.querySelectorAll("button[data-action]").forEach(b=>b.onclick=()=>setStatus(Number(b.dataset.id),b.dataset.action))}function renderTowerTable(towerName,tbodyId,floorFilterId,serviceFilterId,statusFilterId){const ff=$(floorFilterId).value,sf=$(serviceFilterId).value,st=$(statusFilterId).value;const r=tasks.filter(x=>x.tower===towerName&&(!ff||Number(x.floor)===Number(ff))&&(!sf||x.service===sf)&&(!st||x.status===st));const el=$(tbodyId);el.innerHTML=r.length?r.map(x=>'<tr><td>'+esc(x.employee_name||x.contractor_name||'—')+'</td><td>'+esc(x.employee_role||"")+'</td><td>'+esc(x.contractor_name||"Equipe própria")+'</td><td>'+String(x.floor).padStart(2,"0")+'</td><td>'+esc(x.apartment)+'</td><td>'+esc(x.service)+'</td><td>'+fmt(x.started_at)+'</td><td>'+fmt(x.finished_at)+'</td><td><span class="pill '+sc(x.status)+'">'+sl(x.status)+'</span></td><td class="obs">'+esc(x.observations||"")+'</td><td>'+rowActions(x)+'</td></tr>').join(""):'<tr><td colspan="11">Nenhum resultado.</td></tr>';bindActions(el)}
+function renderCommonTable(){const r=tasks.filter(x=>x.tower==="COMUM");$("commonRows").innerHTML=r.length?r.map(x=>'<tr><td>'+esc(x.apartment)+'</td><td>'+esc(x.employee_name||x.contractor_name||'—')+'</td><td>'+esc(x.employee_role||"")+'</td><td>'+esc(x.contractor_name||"Equipe própria")+'</td><td>'+esc(x.service)+'</td><td>'+fmt(x.started_at)+'</td><td>'+fmt(x.finished_at)+'</td><td><span class="pill '+sc(x.status)+'">'+sl(x.status)+'</span></td><td class="obs">'+esc(x.observations||"")+'</td><td>'+rowActions(x)+'</td></tr>').join(""):'<tr><td colspan="10">Nenhum serviço lançado na Área Comum.</td></tr>';bindActions($("commonRows"))}
 function renderTables(){renderTowerTable("DUBAI","dubaiRows","dubaiFloorFilter","dubaiServiceFilter","dubaiStatusFilter");renderTowerTable("ISTAMBUL","istRows","istFloorFilter","istServiceFilter","istStatusFilter");renderCommonTable()}
-async function reload(){const d=await api("/api/operational/tasks?project="+encodeURIComponent(PROJECT));tasks=d.items||[];renderBuildings();renderDashboard();renderTables()}async function setStatus(id,status){try{await api("/api/operational/tasks/"+id,{method:"PATCH",headers:{"content-type":"application/json"},body:JSON.stringify({status})});await reload();toast(status==="CONCLUIDA"?"Serviço concluído. Término registrado automaticamente.":"Status atualizado.")}catch(e){alert(e.message)}}async function load(){const d=await api("/api/operational/employees");employees=d.items||[];$("employee").innerHTML='<option value="">Selecione o funcionário</option>'+employees.map(e=>'<option value="'+e.id+'">'+esc(e.name)+' — '+esc(e.role)+'</option>').join("");fillSelectors();fillFloors();syncForm();await reload()}
+async function reload(){const d=await api("/api/operational/tasks?project="+encodeURIComponent(PROJECT));tasks=d.items||[];renderBuildings();renderDashboard();renderTables()}async function setStatus(id,status){try{await api("/api/operational/tasks/"+id,{method:"PATCH",headers:{"content-type":"application/json"},body:JSON.stringify({status})});await reload();toast(status==="CONCLUIDA"?"Produção concluída. Término registrado automaticamente.":"Status atualizado.")}catch(e){alert(e.message)}}async function load(){const [d,c,a]=await Promise.all([api("/api/operational/employees"),api("/api/contractors"),api("/api/task-catalog/approved")]);employees=d.items||[];contractors=c.items||[];APPROVED_TASKS=a.items||[];$("employee").innerHTML='<option value="">Selecione o funcionário</option>'+employees.map(e=>'<option value="'+e.id+'">'+esc(e.name)+' — '+esc(e.role)+'</option>').join("");fillSelectors();fillFloors();syncForm();toggleExecutor();await reload()}
 $("employee").onchange=()=>{const e=employees.find(x=>Number(x.id)===Number($("employee").value));$("employeeRole").value=e?e.role:""};
+$("executorType").onchange=toggleExecutor;$("quantity").oninput=refreshProductionValues;
 $("formTower").onchange=()=>{tower=$("formTower").value;const c=tower==="COMUM";$("floorField").classList.toggle("hidden",c);$("apartmentField").classList.toggle("hidden",c);$("commonField").classList.toggle("hidden",!c);if(!c){floor=6;selectedApartment=units(tower,floor)[0];syncForm()}refreshFormServices()};
 $("formFloor").onchange=()=>{floor=Number($("formFloor").value);selectedApartment=units(tower,floor)[0];fillApts();$("formApartment").value=selectedApartment};
 $("formApartment").onchange=()=>selectedApartment=$("formApartment").value;
-$("service").onchange=refreshContractors;
+$("service").onchange=refreshProductionValues;
 $("serviceFilter").onchange=()=>{selectedService=$("serviceFilter").value;renderBuildings()};
 ["dubaiFloorFilter","dubaiServiceFilter","dubaiStatusFilter","istFloorFilter","istServiceFilter","istStatusFilter"].forEach(id=>$(id).onchange=renderTables);
 document.querySelectorAll(".tab").forEach(b=>b.onclick=()=>{document.querySelectorAll(".tab").forEach(x=>x.classList.toggle("active",x===b));const v=b.dataset.view;["dubai","istambul","comum","trace","dashboard"].forEach(name=>$(name+"View").classList.toggle("hidden",name!==v))});document.querySelectorAll("[data-trace]").forEach(b=>b.onclick=()=>{document.querySelectorAll("[data-trace]").forEach(x=>x.classList.toggle("active",x===b));const t=b.dataset.trace;$("dubaiMapPanel").classList.toggle("hidden",t!=="DUBAI");$("istMapPanel").classList.toggle("hidden",t!=="ISTAMBUL")});
@@ -966,7 +1033,7 @@ $("exportPdfBtn").onclick=()=>{
 document.querySelectorAll(".common-launch").forEach(b=>b.onclick=()=>{tower="COMUM";$("formTower").value="COMUM";$("floorField").classList.add("hidden");$("apartmentField").classList.add("hidden");$("commonField").classList.remove("hidden");$("formCommonArea").value=b.dataset.area;refreshFormServices();$("taskModal").classList.add("show")});
 $("newTaskBtn").onclick=()=>{const active=document.querySelector(".tab.active")?.dataset.view||"dubai";tower=active==="istambul"?"ISTAMBUL":active==="comum"?"COMUM":"DUBAI";$("formTower").value=tower;const c=tower==="COMUM";$("floorField").classList.toggle("hidden",c);$("apartmentField").classList.toggle("hidden",c);$("commonField").classList.toggle("hidden",!c);if(!c){floor=6;selectedApartment=units(tower,floor)[0];syncForm()}refreshFormServices();$("taskModal").classList.add("show")};
 $("closeModal").onclick=()=>$("taskModal").classList.remove("show");$("cancelModal").onclick=()=>$("taskModal").classList.remove("show");$("taskModal").onclick=e=>{if(e.target===$("taskModal"))$("taskModal").classList.remove("show")};
-$("saveTask").onclick=async()=>{const t=$("formTower").value;const body={project_slug:PROJECT,employee_id:Number($("employee").value||0),contractor_id:Number($("contractor").value||0)||null,tower:t,floor:t==="COMUM"?0:Number($("formFloor").value),apartment:t==="COMUM"?$("formCommonArea").value:$("formApartment").value,service:$("service").value,status:$("status").value,observations:$("observations").value.trim()};if(!body.employee_id||!body.service){alert("Selecione funcionário e serviço.");return}$("saveTask").disabled=true;$("saveTask").textContent="Salvando...";try{await api("/api/operational/tasks",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify(body)});$("observations").value="";$("taskModal").classList.remove("show");await reload();toast("Serviço lançado com data e hora automáticas.")}catch(e){alert(e.message)}finally{$("saveTask").disabled=false;$("saveTask").textContent="Salvar serviço"}};
+$("saveTask").onclick=async()=>{const t=$("formTower").value,exec=$("executorType").value,x=selectedCatalogTask();const body={project_slug:PROJECT,executor_type:exec,employee_id:exec==="MOP"?Number($("employee").value||0):null,contractor_id:exec==="CONTRACTOR"?Number($("contractor").value||0):null,task_catalog_id:Number($("service").value||0),quantity:Math.max(0,Number($("quantity").value||0)),tower:t,floor:t==="COMUM"?0:Number($("formFloor").value),apartment:t==="COMUM"?$("formCommonArea").value:$("formApartment").value,status:$("status").value,observations:$("observations").value.trim()};if(!x||!body.task_catalog_id){alert("Selecione uma tarefa aprovada.");return}if(body.quantity<=0){alert("Informe a quantidade produzida.");return}if(exec==="MOP"&&!body.employee_id){alert("Selecione o funcionário.");return}if(exec==="CONTRACTOR"&&!body.contractor_id){alert("Selecione o empreiteiro.");return}$("saveTask").disabled=true;$("saveTask").textContent="Salvando...";try{await api("/api/operational/tasks",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify(body)});$("observations").value="";$("quantity").value="1";$("taskModal").classList.remove("show");await reload();toast("Produção registrada com quantidade e valor congelados no lançamento.")}catch(e){alert(e.message)}finally{$("saveTask").disabled=false;$("saveTask").textContent="Salvar produção"}};
 const startView=new URLSearchParams(location.search).get("view");
 if(startView==="dashboard"){
   const tabs=[...document.querySelectorAll(".tab")];
@@ -1044,7 +1111,7 @@ ${admin?`<div class="measure-form">
 
 <script>
 const IS_ADMIN=${admin?'true':'false'};
-const MACROS=${JSON.stringify(["Checklist - Instaladora","Checklist - Pedreiro","Checklist - Rejunte","Checklist - Pintura","Limpeza","Vistoria - Qualidade","Vistoria - Cliente","Revistoria - Cliente","Unidade aprovada"])};
+const MACROS=${JSON.stringify(["Fundação e Contenção", "Estrutura", "Torre - Fase 1", "Torre - Fase 2", "Fachada", "Escadas", "Hall + Antecâmara"])};
 let items=[],editingId=null,measurementContractorId=null;
 const $=id=>document.getElementById(id),esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const money=n=>Number(n||0).toLocaleString("pt-BR",{style:"currency",currency:"BRL"});
@@ -1216,7 +1283,9 @@ function taskCatalogPage(auth){
  <div class="modal-bg" id="modal"><div class="modal"><div class="modal-head"><h3 id="modalTitle">Nova tarefa</h3><button class="close" id="closeBtn">×</button></div>
  <div class="form">
  <div class="field"><label>Nome da tarefa / serviço</label><input id="taskName"></div>
- <div class="field"><label>Macrofluxo</label><select id="macroService"></select></div>
+ <div class="field"><label>Macrofluxo Padrão Terral</label><select id="macroService"></select></div>
+ <div class="field"><label>Serviço Padrão Terral</label><select id="standardService"><option value="">Selecione o macrofluxo</option></select></div>
+ <div class="field"><label>Etapa Padrão Terral</label><select id="standardStage"><option value="">Selecione o serviço</option></select></div>
  <div class="field wide"><label>Descrição</label><textarea id="description"></textarea></div>
  <div class="field"><label>Unidade de medição</label><select id="unit"><option value="UN">UN — Unidade</option><option value="M2">m² — Metro quadrado</option><option value="M">m — Metro linear</option><option value="M3">m³ — Metro cúbico</option><option value="KG">kg — Quilograma</option><option value="H">h — Hora</option><option value="VB">VB — Verba</option></select></div>
  <div class="field"><label>Valor unitário</label><input id="unitValue" type="text" inputmode="decimal" placeholder="R$ 0,00"></div>
@@ -1226,20 +1295,21 @@ function taskCatalogPage(auth){
  <div class="actions"><button class="btn" id="cancelBtn">Cancelar</button><button class="btn primary" id="saveBtn">Salvar tarefa</button></div></div></div>
  <script>
  const IS_ADMIN=${adm?'true':'false'};
- const MACROS=${JSON.stringify(["Checklist - Instaladora","Checklist - Pedreiro","Checklist - Rejunte","Checklist - Pintura","Limpeza","Vistoria - Qualidade","Vistoria - Cliente","Revistoria - Cliente","Unidade aprovada"])};
- let items=[],editingId=null;
+ let MACROS=[],STANDARD=[],items=[],editingId=null;
  const $=id=>document.getElementById(id),esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
  const money=n=>Number(n||0).toLocaleString("pt-BR",{style:"currency",currency:"BRL"});
  function moneyFromInput(v){let raw=String(v??"").trim().split("R$").join("").split(" ").join(""),clean="";for(const ch of raw)if((ch>="0"&&ch<="9")||ch===","||ch==="."||ch==="-")clean+=ch;if(!clean)return 0;if(clean.includes(","))clean=clean.split(".").join("").replace(",",".");const n=Number(clean);return Number.isFinite(n)?n:0}
  async function api(url,opt={}){const r=await fetch(url,{headers:{"content-type":"application/json",...(opt.headers||{})},...opt});const d=await r.json().catch(()=>({}));if(!r.ok)throw new Error(d.error||"Erro");return d}
  const label=s=>s==="APPROVED"?"Aprovada":s==="PENDING"?"Aguardando aprovação":s==="REJECTED"?"Rejeitada":"Inativa";
  function render(){const q=search.value.toLowerCase().trim(),st=statusFilter.value,mf=macroFilter.value;const list=items.filter(x=>(!q||[x.task_name,x.description].some(v=>String(v||"").toLowerCase().includes(q)))&&(!st||x.approval_status===st)&&(!mf||x.macro_service===mf));rows.innerHTML=list.length?list.map(x=>'<tr><td><div class="task-name">'+esc(x.task_name)+'</div><div class="task-desc">'+esc(x.description||"")+'</div></td><td>'+esc(x.macro_service)+'</td><td>'+esc(x.unit)+'</td><td><b>'+money(x.unit_value)+'</b></td><td>'+esc(x.sector==="DUBAI"?"Torre Dubai":x.sector==="ISTAMBUL"?"Torre Istambul":x.sector==="COMUM"?"Área Comum":"Obra inteira")+'</td><td>'+esc(x.created_by_name||"—")+'</td><td><span class="pill '+x.approval_status+'">'+label(x.approval_status)+'</span></td><td><button class="btn" onclick="editTask('+x.id+')">Editar</button> '+(IS_ADMIN&&x.approval_status==="PENDING"?'<button class="btn approve" onclick="approval('+x.id+',\\'APPROVE\\')">Aprovar</button> <button class="btn danger" onclick="approval('+x.id+',\\'REJECT\\')">Rejeitar</button>':'')+(IS_ADMIN&&x.approval_status==="APPROVED"?'<button class="btn danger" onclick="approval('+x.id+',\\'INACTIVATE\\')">Inativar</button>':'')+'</td></tr>').join(""):'<tr><td colspan="8" class="empty">Nenhuma tarefa encontrada.</td></tr>';total.textContent=items.length;pending.textContent=items.filter(x=>x.approval_status==="PENDING").length;approved.textContent=items.filter(x=>x.approval_status==="APPROVED").length;inactive.textContent=items.filter(x=>x.approval_status==="INACTIVE").length}
- function openModal(x=null){editingId=x?.id||null;modalTitle.textContent=x?"Editar tarefa":"Nova tarefa";taskName.value=x?.task_name||"";description.value=x?.description||"";macroService.value=x?.macro_service||MACROS[0];unit.value=x?.unit||"UN";unitValue.value=x?money(x.unit_value):"";sector.value=x?.sector||"GERAL";observations.value=x?.observations||"";modal.classList.add("show")}
+ function fillStandardServices(selectedCode=""){const m=STANDARD.find(x=>x.name===macroService.value);standardService.innerHTML='<option value="">Personalizado / sem vínculo</option>'+((m?.services||[]).map(x=>'<option value="'+esc(x.code)+'">'+esc(x.name)+'</option>').join(""));if(selectedCode)standardService.value=selectedCode;fillStandardStages()}
+ function fillStandardStages(selectedId=""){const m=STANDARD.find(x=>x.name===macroService.value),svc=(m?.services||[]).find(x=>x.code===standardService.value);standardStage.innerHTML='<option value="">Sem etapa específica</option>'+((svc?.stages||[]).map(x=>'<option value="'+x.id+'">'+esc(x.name)+'</option>').join(""));if(selectedId)standardStage.value=String(selectedId)}
+ function openModal(x=null){editingId=x?.id||null;modalTitle.textContent=x?"Editar tarefa":"Nova tarefa";taskName.value=x?.task_name||"";description.value=x?.description||"";macroService.value=x?.macro_service||MACROS[0]||"";fillStandardServices(x?.standard_service_code||"");fillStandardStages(x?.standard_stage_id||"");unit.value=x?.unit||"UN";unitValue.value=x?money(x.unit_value):"";sector.value=x?.sector||"GERAL";observations.value=x?.observations||"";modal.classList.add("show")}
  function editTask(id){openModal(items.find(x=>Number(x.id)===Number(id)))}
- async function save(){const body={task_name:taskName.value.trim(),description:description.value.trim(),macro_service:macroService.value,unit:unit.value,unit_value:moneyFromInput(unitValue.value),sector:sector.value,observations:observations.value.trim()};if(!body.task_name)return alert("Informe o nome da tarefa.");try{await api(editingId?"/api/task-catalog/"+editingId:"/api/task-catalog",{method:editingId?"PATCH":"POST",body:JSON.stringify(body)});modal.classList.remove("show");await load()}catch(e){alert(e.message)}}
+ async function save(){const body={task_name:taskName.value.trim(),description:description.value.trim(),macro_service:macroService.value,standard_service_code:standardService.value,standard_stage_id:Number(standardStage.value||0)||null,unit:unit.value,unit_value:moneyFromInput(unitValue.value),sector:sector.value,observations:observations.value.trim()};if(!body.task_name)return alert("Informe o nome da tarefa.");try{await api(editingId?"/api/task-catalog/"+editingId:"/api/task-catalog",{method:editingId?"PATCH":"POST",body:JSON.stringify(body)});modal.classList.remove("show");await load()}catch(e){alert(e.message)}}
  async function approval(id,action){if(!confirm(action==="APPROVE"?"Aprovar e liberar esta tarefa para Produção?":action==="REJECT"?"Rejeitar esta tarefa?":"Inativar esta tarefa?"))return;try{await api("/api/task-catalog/"+id+"/approval",{method:"POST",body:JSON.stringify({action})});await load()}catch(e){alert(e.message)}}
- async function load(){items=(await api("/api/task-catalog")).items||[];render()}
- macroService.innerHTML=MACROS.map(x=>'<option value="'+esc(x)+'">'+esc(x)+'</option>').join("");macroFilter.innerHTML+=MACROS.map(x=>'<option value="'+esc(x)+'">'+esc(x)+'</option>').join("");newBtn.onclick=()=>openModal();closeBtn.onclick=cancelBtn.onclick=()=>modal.classList.remove("show");saveBtn.onclick=save;modal.onclick=e=>{if(e.target===modal)modal.classList.remove("show")};search.oninput=render;statusFilter.onchange=macroFilter.onchange=render;unitValue.onblur=e=>{const n=moneyFromInput(e.target.value);e.target.value=n?money(n):""};load().catch(e=>alert(e.message));
+ async function load(){const [cat,std]=await Promise.all([api("/api/task-catalog"),api("/api/corporate-macroflow")]);items=cat.items||[];STANDARD=std.items||[];MACROS=STANDARD.map(x=>x.name);macroService.innerHTML=MACROS.map(x=>'<option value="'+esc(x)+'">'+esc(x)+'</option>').join("");macroFilter.innerHTML='<option value="">Todos os macrofluxos</option>'+MACROS.map(x=>'<option value="'+esc(x)+'">'+esc(x)+'</option>').join("");render()}
+ macroService.onchange=()=>fillStandardServices();standardService.onchange=()=>fillStandardStages();standardStage.onchange=()=>{const m=STANDARD.find(x=>x.name===macroService.value),svc=(m?.services||[]).find(x=>x.code===standardService.value),st=(svc?.stages||[]).find(x=>String(x.id)===String(standardStage.value));if(st&&!taskName.value.trim())taskName.value=st.name;if(st&&!description.value.trim())description.value=(svc?svc.name+" — ":"")+st.name};newBtn.onclick=()=>openModal();closeBtn.onclick=cancelBtn.onclick=()=>modal.classList.remove("show");saveBtn.onclick=save;modal.onclick=e=>{if(e.target===modal)modal.classList.remove("show")};search.oninput=render;statusFilter.onchange=macroFilter.onchange=render;unitValue.onblur=e=>{const n=moneyFromInput(e.target.value);e.target.value=n?money(n):""};load().catch(e=>alert(e.message));
  </script></body></html>`;
 }
 
@@ -1427,7 +1497,7 @@ export default {
       await ensureOperationalSchema(env);
       const b=await request.json().catch(()=>({})),name=String(b.company_name||"").trim(),contractNumber=String(b.contract_number||"").trim(),contractValue=Math.max(0,Number(b.contract_value||0));
       if(!name||!contractNumber||contractValue<=0)return json({error:"Preencha empresa, número e valor do contrato."},400);
-      const validMacros=["Checklist - Instaladora","Checklist - Pedreiro","Checklist - Rejunte","Checklist - Pintura","Limpeza","Vistoria - Qualidade","Vistoria - Cliente","Revistoria - Cliente","Unidade aprovada"];
+      const validMacros=["Fundação e Contenção", "Estrutura", "Torre - Fase 1", "Torre - Fase 2", "Fachada", "Escadas", "Hall + Antecâmara"];
       const services=Array.isArray(b.contracted_services)?b.contracted_services.map(x=>({description:String(x?.description||"").trim(),macro_service:String(x?.macro_service||"").trim(),service_value:Math.max(0,Number(x?.service_value||0))})).filter(x=>x.description&&validMacros.includes(x.macro_service)&&x.service_value>0):[];
       if(!services.length)return json({error:"Cadastre ao menos um serviço com valor."},400);
       if(Math.abs(services.reduce((a,s)=>a+s.service_value,0)-contractValue)>.01)return json({error:"A soma dos serviços deve ser igual ao valor do contrato."},400);
@@ -1449,7 +1519,7 @@ export default {
       await ensureOperationalSchema(env);
       const id=Number(contractorMatch[1]),b=await request.json().catch(()=>({})),name=String(b.company_name||"").trim(),contractNumber=String(b.contract_number||"").trim(),contractValue=Math.max(0,Number(b.contract_value||0));
       if(!name||!contractNumber||contractValue<=0)return json({error:"Preencha empresa, contrato e valor."},400);
-      const validMacros=["Checklist - Instaladora","Checklist - Pedreiro","Checklist - Rejunte","Checklist - Pintura","Limpeza","Vistoria - Qualidade","Vistoria - Cliente","Revistoria - Cliente","Unidade aprovada"];
+      const validMacros=["Fundação e Contenção", "Estrutura", "Torre - Fase 1", "Torre - Fase 2", "Fachada", "Escadas", "Hall + Antecâmara"];
       const services=Array.isArray(b.contracted_services)?b.contracted_services.map(x=>({service_key:String(x?.service_key||"").trim(),description:String(x?.description||"").trim(),macro_service:String(x?.macro_service||"").trim(),service_value:Math.max(0,Number(x?.service_value||0))})).filter(x=>x.description&&validMacros.includes(x.macro_service)&&x.service_value>0):[];
       if(!services.length)return json({error:"Cadastre ao menos um serviço com valor."},400);
       if(Math.abs(services.reduce((a,s)=>a+s.service_value,0)-contractValue)>.01)return json({error:"A soma dos serviços deve ser igual ao valor total do contrato."},400);
@@ -1540,6 +1610,16 @@ export default {
       return json({ok:true});
     }
 
+    if(path==="/api/corporate-macroflow" && request.method==="GET"){
+      await ensureCorporateMacroflowSchema(env);
+      const ms=(await env.DB.prepare("SELECT code,name,sort_order FROM corporate_macroflows WHERE active=1 ORDER BY sort_order,name").all()).results||[];
+      for(const m of ms){
+        m.services=(await env.DB.prepare("SELECT code,name,sort_order FROM corporate_services WHERE macroflow_code=? AND active=1 ORDER BY sort_order,name").bind(m.code).all()).results||[];
+        for(const svc of m.services)svc.stages=(await env.DB.prepare("SELECT id,name,sort_order FROM corporate_stages WHERE service_code=? AND active=1 ORDER BY sort_order,id").bind(svc.code).all()).results||[];
+      }
+      return json({items:ms});
+    }
+
     if(path==="/tarefas" && request.method==="GET"){
       if(!(await hasProjectAccess(env,auth,"emirates-parque-flamboyant")))return secureHtml("Acesso negado.",403);
       await ensureTaskCatalogSchema(env);
@@ -1548,7 +1628,7 @@ export default {
 
     if(path==="/producao" && request.method==="GET"){
       if(!(await hasProjectAccess(env,auth,"emirates-parque-flamboyant")))return secureHtml("Acesso negado.",403);
-      await ensureOperationalSchema(env);
+      await ensureProductionSchema(env);
       return secureHtml(operationalPage(auth));
     }
 
@@ -1576,8 +1656,10 @@ export default {
       await ensureTaskCatalogSchema(env);
       const b=await request.json().catch(()=>({})),name=String(b.task_name||"").trim(),macro=String(b.macro_service||"").trim(),value=Math.max(0,Number(b.unit_value||0)),now=new Date().toISOString();
       if(!name||!macro)return json({error:"Informe nome e macrofluxo."},400);
-      const r=await env.DB.prepare(`INSERT INTO task_catalog(project_slug,task_name,description,macro_service,unit,unit_value,sector,observations,approval_status,active,created_by_user_id,created_by_name,created_at,updated_at) VALUES('emirates-parque-flamboyant',?,?,?,?,?,?,?,'PENDING',1,?,?,?,?)`)
-        .bind(name,String(b.description||"").trim(),macro,String(b.unit||"UN").toUpperCase(),value,String(b.sector||"GERAL").toUpperCase(),String(b.observations||"").trim(),auth.id,String(auth.name||auth.username||""),now,now).run();
+      const stdMacro=await env.DB.prepare("SELECT code FROM corporate_macroflows WHERE name=? AND active=1").bind(macro).first();
+      b.standard_macroflow_code=stdMacro?.code||"";
+      const r=await env.DB.prepare(`INSERT INTO task_catalog(project_slug,task_name,description,macro_service,unit,unit_value,sector,observations,approval_status,active,created_by_user_id,created_by_name,created_at,updated_at,standard_macroflow_code,standard_service_code,standard_stage_id) VALUES('emirates-parque-flamboyant',?,?,?,?,?,?,?,'PENDING',1,?,?,?,?,?,?,?)`)
+        .bind(name,String(b.description||"").trim(),macro,String(b.unit||"UN").toUpperCase(),value,String(b.sector||"GERAL").toUpperCase(),String(b.observations||"").trim(),auth.id,String(auth.name||auth.username||""),now,now,String(b.standard_macroflow_code||''),String(b.standard_service_code||''),Number(b.standard_stage_id||0)||null).run();
       return json({ok:true,id:Number(r.meta?.last_row_id||0)},201);
     }
 
@@ -1591,8 +1673,8 @@ export default {
       const b=await request.json().catch(()=>({})),name=String(b.task_name||"").trim(),macro=String(b.macro_service||"").trim(),value=Math.max(0,Number(b.unit_value||0));
       if(!name||!macro)return json({error:"Informe nome e macrofluxo."},400);
       const status=(isAdmin(auth)&&old.approval_status==="APPROVED")?"APPROVED":"PENDING";
-      await env.DB.prepare("UPDATE task_catalog SET task_name=?,description=?,macro_service=?,unit=?,unit_value=?,sector=?,observations=?,approval_status=?,approved_by_user_id=CASE WHEN ?='APPROVED' THEN approved_by_user_id ELSE NULL END,approved_by_name=CASE WHEN ?='APPROVED' THEN approved_by_name ELSE '' END,approved_at=CASE WHEN ?='APPROVED' THEN approved_at ELSE NULL END,updated_at=? WHERE id=?")
-       .bind(name,String(b.description||"").trim(),macro,String(b.unit||"UN").toUpperCase(),value,String(b.sector||"GERAL").toUpperCase(),String(b.observations||"").trim(),status,status,status,status,new Date().toISOString(),id).run();
+      await env.DB.prepare("UPDATE task_catalog SET task_name=?,description=?,macro_service=?,unit=?,unit_value=?,sector=?,observations=?,approval_status=?,approved_by_user_id=CASE WHEN ?='APPROVED' THEN approved_by_user_id ELSE NULL END,approved_by_name=CASE WHEN ?='APPROVED' THEN approved_by_name ELSE '' END,approved_at=CASE WHEN ?='APPROVED' THEN approved_at ELSE NULL END,updated_at=?,standard_macroflow_code=?,standard_service_code=?,standard_stage_id=? WHERE id=?")
+       .bind(name,String(b.description||"").trim(),macro,String(b.unit||"UN").toUpperCase(),value,String(b.sector||"GERAL").toUpperCase(),String(b.observations||"").trim(),status,status,status,status,new Date().toISOString(),(await env.DB.prepare("SELECT code FROM corporate_macroflows WHERE name=?").bind(macro).first())?.code||"",String(b.standard_service_code||""),Number(b.standard_stage_id||0)||null,id).run();
       return json({ok:true,status});
     }
 
@@ -1617,58 +1699,45 @@ export default {
 
     if(path==="/api/operational/tasks" && request.method==="GET"){
       if(!(await hasProjectAccess(env,auth,"emirates-parque-flamboyant")))return json({error:"Acesso negado."},403);
-      await ensureOperationalSchema(env);
-      const r=await env.DB.prepare(`SELECT t.*,e.name AS employee_name,e.role AS employee_role,c.company_name AS contractor_name
-        FROM operational_tasks t JOIN employees e ON e.id=t.employee_id LEFT JOIN contractors c ON c.id=t.contractor_id
-        WHERE t.project_slug='emirates-parque-flamboyant' ORDER BY t.id DESC`).all();
+      await ensureProductionSchema(env);
+      const r=await env.DB.prepare(`SELECT p.*,p.task_name_snapshot AS service,p.macro_service_snapshot AS macro_service,p.unit_snapshot AS unit,p.unit_value_snapshot AS unit_value,e.name AS employee_name,e.role AS employee_role,c.company_name AS contractor_name FROM production_records p LEFT JOIN employees e ON e.id=p.employee_id LEFT JOIN contractors c ON c.id=p.contractor_id WHERE p.project_slug='emirates-parque-flamboyant' ORDER BY p.id DESC`).all();
       return json({items:r.results||[]});
     }
 
     if(path==="/api/operational/tasks" && request.method==="POST"){
       if(!(await hasProjectAccess(env,auth,"emirates-parque-flamboyant")))return json({error:"Acesso negado."},403);
-      await ensureOperationalSchema(env);
+      await ensureProductionSchema(env);
       const b=await request.json().catch(()=>({}));
-      const employeeId=Number(b.employee_id||0),contractorId=Number(b.contractor_id||0)||null,tower=String(b.tower||"").toUpperCase(),floor=Number(b.floor||0);
-      const apartment=String(b.apartment||"").trim(),service=String(b.service||"").trim();
-      const status=String(b.status||"EM_ANDAMENTO").toUpperCase(),observations=String(b.observations||"").trim();
-      if(!employeeId||!["DUBAI","ISTAMBUL","COMUM"].includes(tower)||!apartment||!service)return json({error:"Preencha funcionário, setor, local e serviço."},400);if(tower!=="COMUM"&&(floor<4||floor>30))return json({error:"Pavimento inválido."},400);
-      if(!["EM_ANDAMENTO","PARADA"].includes(status))return json({error:"O serviço deve iniciar como Em andamento ou Parada."},400);
-
-      if(tower==="COMUM"){
-        const commonAreas=["Subsolo 2","Subsolo 1","Garagem 2","Garagem 1","Térreo","3º Pavimento - Lazer","30º Istambul - Lounge"];
-        if(!commonAreas.includes(apartment))return json({error:"Área comum inválida."},400);
-      }else{
-        const count=floor===30?(tower==="DUBAI"?2:3):(tower==="DUBAI"?5:10);
-        const valid=Array.from({length:count},(_,i)=>String(floor)+String(i+1).padStart(2,"0"));
-        if(!valid.includes(apartment))return json({error:"Apartamento inválido para a torre/pavimento selecionado."},400);
-      }
-
-      const employee=await env.DB.prepare("SELECT id,name,status,admin_only FROM employees WHERE id=?").bind(employeeId).first();
-      if(!employee||employee.status!=="ATIVO")return json({error:"Funcionário inválido ou inativo."},400);
-      if(auth.role!=="admin"&&Number(employee.admin_only||0)===1)return json({error:"Funcionário indisponível para este acesso."},403);if(contractorId){const contractor=await env.DB.prepare("SELECT id,active FROM contractors WHERE id=? AND project_slug='emirates-parque-flamboyant'").bind(contractorId).first();if(!contractor||Number(contractor.active)!==1)return json({error:"Terceirizada inválida ou inativa."},400);const allowed=await env.DB.prepare("SELECT 1 ok FROM contractor_services WHERE contractor_id=? AND service=?").bind(contractorId,service).first();if(!allowed)return json({error:"A terceirizada selecionada não está vinculada a este serviço."},400);}
-
-      const now=new Date().toISOString();
-      const ir=await env.DB.prepare(`INSERT INTO operational_tasks
-        (project_slug,responsible_user_id,responsible_name,employee_id,contractor_id,tower,floor,apartment,service,started_at,finished_at,status,observations,created_at,updated_at)
-        VALUES ('emirates-parque-flamboyant',?,?,?,?,?,?,?,?,?,?,?,?,?,?)`)
-        .bind(auth.id,String(auth.name||auth.username),employeeId,contractorId,tower,floor,apartment,service,now,null,status,observations,now,now).run();
-      return json({ok:true,id:Number(ir.meta?.last_row_id||0),started_at:now},201);
+      const executorType=String(b.executor_type||"MOP").toUpperCase(),employeeId=Number(b.employee_id||0)||null,contractorId=Number(b.contractor_id||0)||null,taskId=Number(b.task_catalog_id||0),quantity=Math.max(0,Number(b.quantity||0)),tower=String(b.tower||"").toUpperCase(),floor=Number(b.floor||0),apartment=String(b.apartment||"").trim(),status=String(b.status||"EM_ANDAMENTO").toUpperCase(),observations=String(b.observations||"").trim();
+      if(!["MOP","CONTRACTOR"].includes(executorType)||!taskId||quantity<=0||!["DUBAI","ISTAMBUL","COMUM"].includes(tower)||!apartment)return json({error:"Preencha executor, tarefa aprovada, quantidade e local."},400);
+      if(!["EM_ANDAMENTO","PARADA"].includes(status))return json({error:"A produção deve iniciar como Em andamento ou Parada."},400);
+      const task=await env.DB.prepare("SELECT * FROM task_catalog WHERE id=? AND project_slug='emirates-parque-flamboyant' AND active=1 AND approval_status='APPROVED'").bind(taskId).first();
+      if(!task)return json({error:"A tarefa selecionada não está aprovada ou foi inativada."},400);
+      if(task.sector!=="GERAL"&&task.sector!==tower)return json({error:"Esta tarefa não está liberada para o setor selecionado."},400);
+      if(tower==="COMUM"){const commonAreas=["Subsolo 2","Subsolo 1","Garagem 2","Garagem 1","Térreo","3º Pavimento - Lazer","30º Istambul - Lounge"];if(!commonAreas.includes(apartment))return json({error:"Área comum inválida."},400)}else{if(floor<4||floor>30)return json({error:"Pavimento inválido."},400);const count=floor===30?(tower==="DUBAI"?2:3):(tower==="DUBAI"?5:10),valid=Array.from({length:count},(_,i)=>String(floor)+String(i+1).padStart(2,"0"));if(!valid.includes(apartment))return json({error:"Apartamento inválido para a torre/pavimento selecionado."},400)}
+      let employee=null,contractor=null;
+      if(executorType==="MOP"){if(!employeeId)return json({error:"Selecione o funcionário responsável pela produção."},400);employee=await env.DB.prepare("SELECT id,name,status,admin_only FROM employees WHERE id=?").bind(employeeId).first();if(!employee||employee.status!=="ATIVO")return json({error:"Funcionário inválido ou inativo."},400);if(auth.role!=="admin"&&Number(employee.admin_only||0)===1)return json({error:"Funcionário indisponível para este acesso."},403)}
+      else{if(!contractorId)return json({error:"Selecione o empreiteiro."},400);contractor=await env.DB.prepare("SELECT id,active FROM contractors WHERE id=? AND project_slug='emirates-parque-flamboyant'").bind(contractorId).first();if(!contractor||Number(contractor.active)!==1)return json({error:"Empreiteiro inválido ou inativo."},400);const allowed=await env.DB.prepare("SELECT 1 ok FROM contractor_services WHERE contractor_id=? AND (LOWER(description)=LOWER(?) OR macro_service=?) LIMIT 1").bind(contractorId,task.task_name,task.macro_service).first();if(!allowed)return json({error:"O empreiteiro não possui serviço contratado compatível com esta tarefa/macrofluxo."},400)}
+      const unitValue=Math.max(0,Number(task.unit_value||0)),total=quantity*unitValue,now=new Date().toISOString();
+      const ir=await env.DB.prepare(`INSERT INTO production_records(project_slug,responsible_user_id,responsible_name,executor_type,employee_id,contractor_id,task_catalog_id,task_name_snapshot,macro_service_snapshot,unit_snapshot,unit_value_snapshot,quantity,total_value,tower,floor,apartment,started_at,finished_at,status,observations,created_at,updated_at) VALUES('emirates-parque-flamboyant',?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`)
+       .bind(auth.id,String(auth.name||auth.username),executorType,employeeId,contractorId,task.id,task.task_name,task.macro_service,task.unit,unitValue,quantity,total,tower,floor,apartment,now,null,status,observations,now,now).run();
+      return json({ok:true,id:Number(ir.meta?.last_row_id||0),started_at:now,total_value:total},201);
     }
 
     const opTaskMatch=path.match(/^\/api\/operational\/tasks\/(\d+)$/);
     if(opTaskMatch && request.method==="PATCH"){
       if(!(await hasProjectAccess(env,auth,"emirates-parque-flamboyant")))return json({error:"Acesso negado."},403);
-      await ensureOperationalSchema(env);
+      await ensureProductionSchema(env);
       const id=Number(opTaskMatch[1]);
-      const row=await env.DB.prepare("SELECT id,status,finished_at FROM operational_tasks WHERE id=? AND project_slug='emirates-parque-flamboyant'").bind(id).first();
+      const row=await env.DB.prepare("SELECT id,status,finished_at FROM production_records WHERE id=? AND project_slug='emirates-parque-flamboyant'").bind(id).first();
       if(!row)return json({error:"Serviço não encontrado."},404);
       const b=await request.json().catch(()=>({})),status=String(b.status||"").toUpperCase();
       if(!["EM_ANDAMENTO","PARADA","CONCLUIDA"].includes(status))return json({error:"Status inválido."},400);
       const now=new Date().toISOString();
       if(status==="CONCLUIDA"){
-        await env.DB.prepare("UPDATE operational_tasks SET status='CONCLUIDA',finished_at=COALESCE(finished_at,?),updated_at=? WHERE id=?").bind(now,now,id).run();
+        await env.DB.prepare("UPDATE production_records SET status='CONCLUIDA',finished_at=COALESCE(finished_at,?),updated_at=? WHERE id=?").bind(now,now,id).run();
       }else{
-        await env.DB.prepare("UPDATE operational_tasks SET status=?,updated_at=? WHERE id=?").bind(status,now,id).run();
+        await env.DB.prepare("UPDATE production_records SET status=?,updated_at=? WHERE id=?").bind(status,now,id).run();
       }
       return json({ok:true});
     }
